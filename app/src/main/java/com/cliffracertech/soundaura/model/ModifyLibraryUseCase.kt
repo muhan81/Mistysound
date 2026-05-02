@@ -120,6 +120,13 @@ class ModifyLibraryUseCase(
         dao.setVolumeBoostDb(playlistId, volumeBoostDb.coerceIn(0, 30))
     }
 
+    suspend fun setPlaylistPlaybackSpeed(
+        playlistId: Long,
+        speed: Float
+    ) {
+        dao.setPlaybackSpeed(playlistId, speed.coerceIn(0.1f, 5f))
+    }
+
     /** Remove the [Playlist] identified by [id]. */
     suspend fun removePlaylist(id: Long) {
         val unusedTracks = dao.deletePlaylist(id)

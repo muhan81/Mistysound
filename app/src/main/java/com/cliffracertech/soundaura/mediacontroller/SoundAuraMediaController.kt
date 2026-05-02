@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -24,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -34,84 +32,84 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cliffracertech.soundaura.rememberDerivedStateOf
 import com.cliffracertech.soundaura.ui.tweenDuration
+import com.cliffracertech.soundaura.ui.theme.rememberOverlayPanelStyle
 
 /** A [MediaController] with state provided by an instance of [MediaControllerViewModel]. */
 @Composable fun BoxWithConstraintsScope.SoundAuraMediaController(
     modifier: Modifier = Modifier,
     padding: PaddingValues = PaddingValues(),
     alignment: BiasAlignment = Alignment.BottomStart as BiasAlignment,
-) = CompositionLocalProvider(LocalContentColor provides MaterialTheme.colors.onPrimary) {
-    val ld = LocalLayoutDirection.current
+) {
+    val panelStyle = rememberOverlayPanelStyle()
+    CompositionLocalProvider(LocalContentColor provides panelStyle.contentColor) {
+        val ld = LocalLayoutDirection.current
 
-    val contentAreaSize = remember(padding) {
-        val startPadding = padding.calculateStartPadding(ld)
-        val endPadding = padding.calculateEndPadding(ld)
-        val topPadding = padding.calculateTopPadding()
-        val bottomPadding = padding.calculateBottomPadding()
-        DpSize(maxWidth - startPadding - endPadding,
-               maxHeight - topPadding - bottomPadding)
-    }
+        val contentAreaSize = remember(padding) {
+            val startPadding = padding.calculateStartPadding(ld)
+            val endPadding = padding.calculateEndPadding(ld)
+            val topPadding = padding.calculateTopPadding()
+            val bottomPadding = padding.calculateBottomPadding()
+            DpSize(maxWidth - startPadding - endPadding,
+                   maxHeight - topPadding - bottomPadding)
+        }
 
-    val sizes = remember(padding, alignment) {
-        // The goal is to have the media controller have such a length that
-        // the play/pause icon is centered in the content area's width. This
-        // preferred length is found by adding half of the play/pause button's
-        // size and the stop timer display's length (in case it needs to be
-        // displayed) to half of the length of the content area. The min value
-        // between this preferred length and the full content area length
-        // minus 64dp (i.e. the add button's 56dp size plus an 8dp margin) is
-        // then used to ensure that for small screen sizes the media controller
-        // can't overlap the add button.
-        val playButtonLength = MediaControllerSizes.defaultPlayButtonLengthDp.dp
-        val dividerThickness = MediaControllerSizes.dividerThicknessDp.dp
-        val stopTimerLength = MediaControllerSizes.defaultStopTimerWidthDp.dp
-        val extraLength = playButtonLength / 2f + stopTimerLength
-        val length = contentAreaSize.width / 2f + extraLength
-        val maxLength = contentAreaSize.width - 64.dp
-        val activePresetLength = minOf(length, maxLength) - playButtonLength -
-                                 dividerThickness - stopTimerLength
-        MediaControllerSizes(
-            activePresetLength = activePresetLength,
-            presetSelectorSize = DpSize(
-                width = contentAreaSize.width,
-                height = 350.dp))
-    }
+        val sizes = remember(padding, alignment) {
+            // The goal is to have the media controller have such a length that
+            // the play/pause icon is centered in the content area's width. This
+            // preferred length is found by adding half of the play/pause button's
+            // size and the stop timer display's length (in case it needs to be
+            // displayed) to half of the length of the content area. The min value
+            // between this preferred length and the full content area length
+            // minus 64dp (i.e. the add button's 56dp size plus an 8dp margin) is
+            // then used to ensure that for small screen sizes the media controller
+            // can't overlap the add button.
+            val playButtonLength = MediaControllerSizes.defaultPlayButtonLengthDp.dp
+            val dividerThickness = MediaControllerSizes.dividerThicknessDp.dp
+            val stopTimerLength = MediaControllerSizes.defaultStopTimerWidthDp.dp
+            val extraLength = playButtonLength / 2f + stopTimerLength
+            val length = contentAreaSize.width / 2f + extraLength
+            val maxLength = contentAreaSize.width - 64.dp
+            val activePresetLength = minOf(length, maxLength) - playButtonLength -
+                                     dividerThickness - stopTimerLength
+            MediaControllerSizes(
+                activePresetLength = activePresetLength,
+                presetSelectorSize = DpSize(
+                    width = contentAreaSize.width,
+                    height = 350.dp))
+        }
 
-    val viewModel: MediaControllerViewModel = viewModel()
-    val startColor = MaterialTheme.colors.primaryVariant
-    val endColor = MaterialTheme.colors.secondaryVariant
-    val backgroundBrush = remember(startColor, endColor) {
-            Brush.horizontalGradient(colors = listOf(startColor, endColor),
-                                     endX = constraints.maxWidth.toFloat())
-    }
+        val viewModel: MediaControllerViewModel = viewModel()
+        val backgroundBrush = remember(panelStyle) { panelStyle.backgroundBrush }
 
-    val enterSpec = tween<Float>(
-        durationMillis = tweenDuration,
-        delayMillis = tweenDuration / 3,
-        easing = LinearOutSlowInEasing)
-    val exitSpec = tween<Float>(
-        durationMillis = tweenDuration,
-        easing = LinearOutSlowInEasing)
-    val hasStopTime by rememberDerivedStateOf { viewModel.state.stopTime != null }
-    val transformOrigin = rememberBoxTransformOrigin(
-        alignment = alignment,
-        padding = padding,
-        dpSize = sizes.collapsedSize(hasStopTime))
-
-    AnimatedVisibility(
-        visible = !viewModel.state.visibility.isHidden,
-        enter = fadeIn(enterSpec) + scaleIn(enterSpec, 0.8f, transformOrigin),
-        exit = fadeOut(exitSpec) + scaleOut(exitSpec, 0.8f, transformOrigin),
-        modifier = modifier,
-    ) {
-        MediaController(
-            sizes = sizes,
-            state = viewModel.state,
-            backgroundBrush = backgroundBrush,
+        val enterSpec = tween<Float>(
+            durationMillis = tweenDuration,
+            delayMillis = tweenDuration / 3,
+            easing = LinearOutSlowInEasing)
+        val exitSpec = tween<Float>(
+            durationMillis = tweenDuration,
+            easing = LinearOutSlowInEasing)
+        val hasStopTime by rememberDerivedStateOf { viewModel.state.stopTime != null }
+        val transformOrigin = rememberBoxTransformOrigin(
             alignment = alignment,
-            padding = padding)
+            padding = padding,
+            dpSize = sizes.collapsedSize(hasStopTime))
+
+        AnimatedVisibility(
+            visible = !viewModel.state.visibility.isHidden,
+            enter = fadeIn(enterSpec) + scaleIn(enterSpec, 0.8f, transformOrigin),
+            exit = fadeOut(exitSpec) + scaleOut(exitSpec, 0.8f, transformOrigin),
+            modifier = modifier,
+        ) {
+            MediaController(
+                sizes = sizes,
+                state = viewModel.state,
+                backgroundBrush = backgroundBrush,
+                panelBackgroundColor = panelStyle.backgroundColor,
+                alignment = alignment,
+                padding = padding)
+        }
+        DialogShower(viewModel.shownDialog)
     }
-    DialogShower(viewModel.shownDialog)
 }
 
 /** Return a [TransformOrigin] that corresponds to the visual center of a

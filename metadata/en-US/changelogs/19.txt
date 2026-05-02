@@ -1,0 +1,6 @@
+Version 3.2.1
+
+- Added a clear floating confirm button to the main background editor
+- Refined frosted glass styling for floating controls, sliders, and playback surfaces
+- Improved drag, pinch zoom, and frosted glass opacity slider responsiveness
+- Personal and public release builds now use different launcher icons

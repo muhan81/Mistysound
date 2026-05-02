@@ -23,4 +23,45 @@
     <string name="version_1_6_change_bug_fixes_description">Fixed crash when exceeding the maximum number of allowed tracks.\nFixed the quick settings tile not updating its state.</string>
 
     <string name="version_1_6_2_change_crash_on_adding_media_fix">Fixed (hopefully) a crash some users were experiencing when adding media.</string>
+
+    <string name="version_1_7_change_audio_controls_title">Per-audio controls</string>
+    <string name="version_1_7_change_audio_controls_description">Each audio item now has its own playback progress slider and playback speed setting from 0.1x to 5x.</string>
+    <string name="version_1_7_change_folders_title">Audio folders</string>
+    <string name="version_1_7_change_folders_description">Create folders from local audio or selected library items, add audio to folders, reorder folder contents with a long press, and play multiple folders together.</string>
+    <string name="version_1_7_change_language_title">Language updates</string>
+    <string name="version_1_7_change_language_description">Chinese wording now uses audio terminology more consistently.</string>
+
+    <string name="version_2_0_change_brand_title">Mistysound refresh</string>
+    <string name="version_2_0_change_brand_description">SoundAura is now Mistysound, with a new app name and icon.</string>
+    <string name="version_2_0_change_folder_loading_title">Smoother folder opening</string>
+    <string name="version_2_0_change_folder_loading_description">Folder pages now open immediately, and their audio lists appear progressively to reduce flashing during short loads.</string>
+    <string name="version_2_0_change_stability_title">Folder stability improvements</string>
+    <string name="version_2_0_change_stability_description">Fixed a crash that could occur when opening a folder before its contents finished loading.</string>
+    <string name="version_3_0_change_backgrounds_title">Custom backgrounds</string>
+    <string name="version_3_0_change_backgrounds_description">You can now manage separate main backgrounds and shared card backgrounds, import your own images, preview them, and save the one you want to apply.</string>
+    <string name="version_3_0_change_library_search_title">Smarter page-based search</string>
+    <string name="version_3_0_change_library_search_description">Search now follows the page you are on, so the library, folder view, and each background library all search their own content independently.</string>
+    <string name="version_3_0_change_background_tools_title">Background editing tools</string>
+    <string name="version_3_0_change_background_tools_description">Background images can be renamed, reordered, enabled or disabled, removed, and cropped with a dedicated editor before you save the effect.</string>
+    <string name="version_3_0_1_fix_background_crash_description">Fixed a launch crash that could happen after updating from an older version, and fixed a crash when opening the custom background pages on a fresh install.</string>
+    <string name="version_3_1_0_change_frosted_glass_title">Frosted glass themes</string>
+    <string name="version_3_1_0_change_frosted_glass_description">Added dark and light frosted glass themes that give cards a translucent glass-style appearance across the library, settings, and background image pages.</string>
+    <string name="version_3_1_0_change_opacity_title">Glass opacity control</string>
+    <string name="version_3_1_0_change_opacity_description">When a frosted glass theme is selected, the display settings now show a 0-100% slider so you can fine-tune card opacity.</string>
+    <string name="version_3_1_0_change_background_visibility_title">Backgrounds visible in more places</string>
+    <string name="version_3_1_0_change_background_visibility_description">The top app bar is now transparent and the main background remains visible behind it and behind the settings page while still respecting the system status bar area.</string>
+    <string name="version_3_2_1_change_editor_confirm_title">Clearer background editing confirmation</string>
+    <string name="version_3_2_1_change_editor_confirm_description">The main background editor now shows a floating confirm button in the bottom-right corner, making it much clearer when your crop and zoom adjustments will be saved.</string>
+    <string name="version_3_2_1_change_glass_controls_title">Frosted glass controls refined</string>
+    <string name="version_3_2_1_change_glass_controls_description">Floating buttons, card overlays, sliders, and playback controls now follow the frosted glass theme more consistently with lighter and more transparent styling.</string>
+    <string name="version_3_2_1_change_gesture_title">Smoother drag and pinch gestures</string>
+    <string name="version_3_2_1_change_gesture_description">Improved the frosted glass opacity slider responsiveness, and made image dragging and pinch zooming in the background editor feel smoother and easier to control.</string>
+    <string name="version_3_2_1_change_icons_title">Separate release icons</string>
+    <string name="version_3_2_1_change_icons_description">The personal and public release builds now use their own launcher icons, making the two app packages easier to tell apart.</string>
+    <string name="version_3_2_3_change_glass_tuning_title">Softer frosted glass controls</string>
+    <string name="version_3_2_3_change_glass_tuning_description">Fine-tuned frosted glass control colors to feel lighter and more transparent while keeping the dark glass theme comfortable to look at.</string>
+    <string name="version_3_2_3_change_slider_title">More transparent active sliders</string>
+    <string name="version_3_2_3_change_slider_description">Reduced the visual weight of the active green slider layer and thumb so more of the background shows through on the home screen and in display settings.</string>
+    <string name="version_3_2_3_change_floating_controls_title">Floating buttons refined</string>
+    <string name="version_3_2_3_change_floating_controls_description">Adjusted floating action buttons and the bottom playback bar to better match the frosted glass theme with lighter, more see-through surfaces.</string>
 </resources>

@@ -59,10 +59,8 @@ import kotlinx.collections.immutable.toImmutableList
  * @param onBackButtonClick The callback to use for the back button.
  *    If null, the back button will not be shown.
  * @param title The title that will be displayed when there is no search query
- * @param showIconButtons Whether or not the icon buttons to the right of the
- *     back button and title/search query should be shown. This includes the
- *     search button, the change sort button, and any other icon buttons added
- *     in [otherContent].
+ * @param showSearchButton Whether or not the search button should be shown.
+ * @param showSortButton Whether or not the sort button should be shown.
  * @param searchQueryState A [SearchQueryViewState] that contains state and
  *     callbacks related to the active search query and the search button.
  * @param sortMenuState A [SortMenuState]`<T>` that contains state and
@@ -79,10 +77,12 @@ import kotlinx.collections.immutable.toImmutableList
     modifier: Modifier = Modifier,
     onBackButtonClick: (() -> Unit)?,
     title: String,
-    showIconButtons: Boolean,
+    showSearchButton: Boolean,
+    showSortButton: Boolean,
     searchQueryState: SearchQueryViewState,
     sortMenuState: SortMenuState,
     otherSortMenuContent: @Composable ColumnScope.() -> Unit,
+    leadingIconButtons: @Composable RowScope.() -> Unit = {},
     otherIconButtons: @Composable RowScope.() -> Unit,
 ) = GradientToolBar(modifier) {
     // Back button
@@ -123,30 +123,35 @@ import kotlinx.collections.immutable.toImmutableList
 
     // Right aligned content
     AnimatedVisibility(
-        visible = showIconButtons,
+        visible = showSearchButton || showSortButton,
         enter = slideInHorizontally(defaultSpring()) { it },
         exit = slideOutHorizontally(defaultSpring()) { it },
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            leadingIconButtons()
             // Search button
-            val vector = AnimatedImageVector.animatedVectorResource(R.drawable.search_to_close)
-            val painter = rememberAnimatedVectorPainter(vector,
-                searchQueryState.icon == SearchQueryViewState.Icon.Close)
-            IconButton(onClick = searchQueryState.onButtonClick) {
-                Icon(painter, stringResource(R.string.search))
+            if (showSearchButton) {
+                val vector = AnimatedImageVector.animatedVectorResource(R.drawable.search_to_close)
+                val painter = rememberAnimatedVectorPainter(vector,
+                    searchQueryState.icon == SearchQueryViewState.Icon.Close)
+                IconButton(onClick = searchQueryState.onButtonClick) {
+                    Icon(painter, stringResource(R.string.search))
+                }
             }
             // Sort button
-            IconButton(onClick = sortMenuState.onButtonClick) {
-                Icon(imageVector = Icons.Default.Sort,
-                    stringResource(R.string.sort_options_description))
-                RadioDropdownMenu(
-                    expanded = sortMenuState.showingPopup,
-                    options = sortMenuState.optionNames(LocalContext.current),
-                    currentIndex = sortMenuState.currentOptionIndex,
-                    onOptionClick = sortMenuState.onOptionClick,
-                    onDismissRequest = sortMenuState.onPopupDismissRequest,
-                    showOtherContentFirst = true,
-                    otherContent = otherSortMenuContent)
+            if (showSortButton) {
+                IconButton(onClick = sortMenuState.onButtonClick) {
+                    Icon(imageVector = Icons.Default.Sort,
+                        stringResource(R.string.sort_options_description))
+                    RadioDropdownMenu(
+                        expanded = sortMenuState.showingPopup,
+                        options = sortMenuState.optionNames(LocalContext.current),
+                        currentIndex = sortMenuState.currentOptionIndex,
+                        onOptionClick = sortMenuState.onOptionClick,
+                        onDismissRequest = sortMenuState.onPopupDismissRequest,
+                        showOtherContentFirst = true,
+                        otherContent = otherSortMenuContent)
+                }
             }
             otherIconButtons()
         }
@@ -165,7 +170,8 @@ import kotlinx.collections.immutable.toImmutableList
         }, title = stringResource(
             if (!showingSettings) R.string.app_name
             else R.string.app_settings_description),
-        showIconButtons = !showingSettings,
+        showSearchButton = !showingSettings,
+        showSortButton = !showingSettings,
         searchQueryState = remember {
             SearchQueryViewState(
                 getQuery = { searchQuery },
@@ -184,6 +190,7 @@ import kotlinx.collections.immutable.toImmutableList
                 getCurrentOptionIndex = { 0 },
                 onOptionClick = { })
         }, otherSortMenuContent = {},
+        leadingIconButtons = {},
     ) {
         SimpleIconButton(Icons.Default.Settings, "") {
             showingSettings = !showingSettings

@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.cliffracertech.soundaura.enumPreferenceFlow
+import com.cliffracertech.soundaura.library.Folder
 import com.cliffracertech.soundaura.library.Playlist
 import com.cliffracertech.soundaura.model.database.PlaylistDao
 import com.cliffracertech.soundaura.model.database.Track
@@ -37,7 +38,7 @@ private typealias PlaylistSort = com.cliffracertech.soundaura.model.database.Pla
  */
 class ReadLibraryUseCase @Inject constructor(
     dataStore: DataStore<Preferences>,
-    searchQuery: SearchQueryState,
+    private val searchQuery: SearchQueryState,
     private val dao: PlaylistDao,
 ) {
     private val showActivePlaylistsFirstKey = booleanPreferencesKey(PrefKeys.showActivePlaylistsFirst)
@@ -50,7 +51,7 @@ class ReadLibraryUseCase @Inject constructor(
      * list will take into account the chosen sorting method, the 'show active
      * playlists first' option's enabled state, and any current search filter. */
     val playlistsFlow = combine(
-            playlistSort, showActivePlaylistsFirst, searchQuery.flow
+            playlistSort, showActivePlaylistsFirst, searchQuery.flow(SearchScope.Library)
         ) { sort, showActiveFirst, searchQuery ->
             if (searchQuery == null) {
                 if (showActiveFirst) when (sort) {
@@ -78,6 +79,22 @@ class ReadLibraryUseCase @Inject constructor(
         }.transformLatest { emitAll(it) }
         .map(List<Playlist>::toImmutableList)
 
+    val foldersFlow = searchQuery.flow(SearchScope.Library)
+        .transformLatest { searchQuery ->
+            if (searchQuery == null)
+                emitAll(dao.getFoldersSortedByOrderAdded())
+            else emitAll(dao.getFoldersSortedByOrderAdded("%$searchQuery%"))
+        }.map(List<Folder>::toImmutableList)
+
+    fun folderPlaylistsFlow(folderId: Long): Flow<ImmutableList<Playlist>> =
+        searchQuery.flow(SearchScope.Folder)
+            .transformLatest { searchQuery ->
+                if (searchQuery == null)
+                    emitAll(dao.getFolderPlaylists(folderId))
+                else emitAll(dao.getFolderPlaylists(folderId, "%$searchQuery%"))
+            }
+            .map(List<Playlist>::toImmutableList)
+
     /** Return a [List] of the [Track]s in the [Playlist] identified by [playlistId]. */
     suspend fun getPlaylistTracks(playlistId: Long): List<Track> =
         dao.getPlaylistTracks(playlistId)
@@ -86,4 +103,10 @@ class ReadLibraryUseCase @Inject constructor(
      * by [playlistId] has shuffle playback enabled. */
     suspend fun getPlaylistShuffle(playlistId: Long): Boolean =
         dao.getPlaylistShuffle(playlistId)
+
+    suspend fun getFolderPlaylistIds(folderId: Long): List<Long> =
+        dao.getFolderPlaylistIds(folderId)
+
+    suspend fun getFolderShuffle(folderId: Long): Boolean =
+        dao.getFolderShuffle(folderId)
 }

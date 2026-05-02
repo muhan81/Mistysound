@@ -1,0 +1,4 @@
+Version 3.0.1
+
+- Fixed a launch crash that could happen after updating from an older version
+- Fixed a crash when opening the custom main background or card background pages on a fresh install

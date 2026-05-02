@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of Mistysound, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_player_service_description">사용자의 사운드 믹스를 재생하는 서비스입니다.</string>
+    <string name="player_notification_channel_name">플레이어 컨트롤</string>
+    <string name="player_notification_channel_description">
+        Mistysound 백그라운드 오디오 서비스를 제어하는 알림입니다.</string>
+    <string name="player_no_active_playlists_warning_message">
+        활성 트랙 또는 재생목록이 없습니다. 먼저 트랙 또는 재생목록의 추가 버튼을 누르세요.</string>
+
+    <string name="tile_inactive_description">Mistysound 오디오 재생</string>
+    <string name="tile_active_description">Mistysound 오디오 중지</string>
+
+    <string name="back">뒤로</string>
+    <string name="search">검색</string>
+    <string name="sort_options_description">정렬 옵션 열기</string>
+    <string name="create_folder_button_description">폴더 만들기</string>
+
+    <string name="empty_library_message">라이브러리가 비어 있습니다.\n\n아래 추가 버튼을 눌러 기기의 로컬 파일을 라이브러리에 추가하세요.\n\n추가된 트랙 또는 재생목록 옆의 더하기 기호를 누르면 재생을 시작할 때 사운드 믹스에 포함됩니다.</string>
+    <string name="no_search_results_message">검색어와 일치하는 트랙/재생목록이 없습니다.</string>
+    <string name="set_playlist_active_description">%1$s을(를) 사운드 믹스에 추가</string>
+    <string name="set_playlist_inactive_description">사운드 믹스에서 %1$s 제거</string>
+    <string name="set_folder_active_description">%1$s 폴더를 사운드 믹스에 추가</string>
+    <string name="set_folder_inactive_description">사운드 믹스에서 %1$s 폴더 제거</string>
+    <string name="playlist_error_message">파일이 없거나 손상됨</string>
+    <string name="item_options_button_description">%1$s의 추가 옵션</string>
+    <string name="remove_item_description">%1$s 제거</string>
+
+    <string name="rename">이름 변경</string>
+    <string name="default_rename_dialog_title">새 이름 입력</string>
+
+    <string name="volume_boost_description">볼륨 부스트</string>
+    <string name="volume_boost_explanation_part_1">일반 볼륨이 적용되기 전에 재생목록/트랙의 볼륨을 높입니다. 10\u2009dB가 증가할 때마다 체감 볼륨은 약 두 배가 됩니다. 예:</string>
+    <string name="volume_boost_explanation_part_2">
+        +\u200910\u2009dB = 2\u00D7 볼륨
+        \n+\u200920\u2009dB = 4\u00D7 볼륨
+        \n+\u200930\u2009dB = 8\u00D7 볼륨</string>
+
+    <string name="remove">제거</string>
+    <string name="confirm_remove_title">%1$s을(를) 제거할까요?</string>
+    <string name="confirm_remove_track_message">이 트랙을 라이브러리와 포함된 모든 프리셋에서 제거하지만, 기기의 파일은 삭제하지 않습니다.</string>
+    <string name="confirm_remove_playlist_message">
+        이 재생목록을 라이브러리와 포함된 모든 프리셋에서 제거하지만, 재생목록 안의 파일은 기기에서 삭제하지 않습니다.</string>
+
+    <string name="create_playlist_title">재생목록 만들기</string>
+    <string name="playlist_options_title">재생목록 옵션</string>
+    <string name="playlist_track_count_description">트랙 %1$s개</string>
+    <string name="playlist_shuffle_switch_title">셔플</string>
+    <string name="playlist_shuffle_switch_description">셔플 켜기/끄기</string>
+    <string name="playlist_track_handle_description">트랙 %1$s 순서 변경</string>
+    <string name="playlist_track_error_message">파일이 없거나 손상됨:</string>
+    <string name="playlist_track_delete_description">%1$s 제거</string>
+    <string name="playlist_add_tracks_button_description">%1$s에 트랙 추가</string>
+
+    <string name="folder_source_dialog_title">폴더 생성 방식</string>
+    <string name="folder_choose_local_audio">로컬 오디오 선택</string>
+    <string name="folder_choose_current_audio">현재 오디오 선택</string>
+    <string name="folder_name_dialog_title">폴더 이름 입력</string>
+    <string name="folder_add_audio_button_description">이 폴더에 오디오 추가</string>
+    <string name="folder_no_current_audio_warning">먼저 홈 화면에서 하나 이상의 오디오 항목을 선택하세요.</string>
+    <string name="empty_folder_message">이 폴더는 비어 있습니다.</string>
+    <string name="folder_item_count_description">항목 %1$d개</string>
+    <string name="folder_add_audio">오디오 추가</string>
+    <string name="folder_sequential_play">순서대로 재생</string>
+    <string name="folder_random_play">무작위 재생</string>
+    <string name="confirm_remove_folder_message">
+        폴더와 폴더 안의 오디오 분류를 제거하지만, 라이브러리의 오디오나 기기의 파일은 삭제하지 않습니다.</string>
+
+    <string name="file_chooser_no_valid_tracks_error_message">
+        재생목록에 아직 없는 파일을 하나 이상 선택하세요</string>
+    <string name="file_chooser_invalid_tracks_warning_message">
+        파일 %1$d개가 이미 재생목록에 있습니다</string>
+
+    <string name="playlist_options_request_storage_permission_explanation">
+        Mistysound는 전체 저장소 접근 권한 없이 Android가 앱에 허용하는 파일 권한 중 %1$d/%2$d개를 사용했습니다. 새 트랙을 재생목록에 추가하려면 오디오 파일 읽기 권한을 부여해야 합니다.
+    </string>
+
+    <string name="add_local_files_button_description">로컬 파일에서 트랙 또는 재생목록 추가</string>
+    <string name="add_local_files_as_playlist_or_tracks_title">로컬 파일 추가</string>
+    <string name="add_local_files_as_playlist_or_tracks_question">
+        파일을 개별 트랙으로 추가할까요, 아니면 재생목록으로 추가할까요?</string>
+    <string name="add_local_files_individually_option">개별</string>
+    <string name="add_local_files_as_playlist_option">재생목록</string>
+    <string name="add_local_files_as_tracks_dialog_title">트랙 이름 확인</string>
+    <string name="add_local_files_as_playlist_dialog_title">재생목록 이름 확인</string>
+    <string name="add_local_files_request_storage_permission_title">공간 부족</string>
+    <string name="add_local_files_request_storage_permission_explanation_for_tracks">
+        Mistysound는 전체 저장소 접근 권한 없이 Android가 앱에 허용하는 파일 권한 중 %1$d/%2$d개를 사용했습니다. 모든 트랙을 추가하려면 오디오 파일 읽기 권한을 부여해야 합니다.
+    </string>
+    <string name="add_local_files_request_storage_permission_explanation_for_playlist">
+        Mistysound는 전체 저장소 접근 권한 없이 Android가 앱에 허용하는 파일 권한 중 %1$d/%2$d개를 사용했습니다. 전체 재생목록을 추가하려면 오디오 파일 읽기 권한을 부여해야 합니다.
+    </string>
+
+    <string name="add_multiple_tracks_name_error_message">트랙 이름은 중복되지 않아야 하며 비어 있으면 안 됩니다</string>
+    <string name="name_dialog_blank_name_error_message">이름은 비워 둘 수 없습니다</string>
+    <string name="name_dialog_duplicate_name_error_message">이미 사용 중인 이름입니다</string>
+
+    <string name="cant_add_tracks_warning">
+        Android 파일 권한 한도를 초과하므로 파일을 추가할 수 없습니다. 일부 트랙 또는 재생목록을 제거한 뒤 다시 시도하거나, 앱에 파일 읽기 권한을 부여하세요.</string>
+    <string name="cant_add_playlist_warning">
+        Android 파일 권한 한도를 초과하므로 재생목록을 추가할 수 없습니다. 일부 트랙 또는 재생목록을 제거한 뒤 다시 시도하거나, 앱에 파일 읽기 권한을 부여하세요.</string>
+    <string name="cant_add_playlist_tracks_warning">
+        Android 파일 권한 한도를 초과하므로 새 트랙을 재생목록에 추가할 수 없습니다. 일부 트랙 또는 재생목록을 제거한 뒤 다시 시도하거나, 앱에 파일 읽기 권한을 부여하세요.
+    </string>
+
+    <string name="configure_playlist_dialog_title">재생목록 옵션 구성</string>
+
+    <string name="preset_button_click_label">활성 프리셋 변경</string>
+    <string name="unsaved_preset_description">저장되지 않은 프리셋</string>
+
+    <string name="play_button_description">Mistysound 오디오 재생</string>
+    <string name="pause_button_description">Mistysound 오디오 일시정지</string>
+    <string name="playback_speed_dialog_title">재생 속도</string>
+    <string name="playback_speed_dialog_description">0.1x에서 5x 사이의 속도를 입력하세요.</string>
+    <string name="playback_speed_dialog_effective_value">%1$s 사용 중</string>
+
+    <string name="play_pause_button_long_click_description">자동 중지 타이머 설정</string>
+    <string name="set_stop_timer_dialog_description">
+        재생이 자동으로 중지되기까지의 시간을 설정합니다. 위/아래 버튼을 사용하거나 값을 위아래로 드래그해 변경할 수 있습니다.</string>
+
+    <string name="stop_timer_text">중지까지</string>
+    <string name="stop_timer_click_label">자동 중지 타이머 취소</string>
+    <string name="cancel_stop_timer_dialog_title">타이머 취소 확인</string>
+    <string name="cancel_stop_timer_dialog_text">
+        자동 중지 타이머를 취소할까요?</string>
+
+    <string name="preset_selector_title">프리셋 선택</string>
+    <string name="empty_preset_list_message">저장된 프리셋이 없습니다. 아래 추가 버튼을 눌러 현재 사운드 믹스를 프리셋으로 저장하세요.</string>
+    <string name="preset_click_label">프리셋 %1$s 불러오기</string>
+    <string name="close_preset_selector_description">프리셋 선택기 닫기</string>
+
+    <string name="overwrite">덮어쓰기</string>
+    <string name="overwrite_no_active_playlists_error_message">
+        프리셋에는 활성 트랙 또는 재생목록이 하나 이상 있어야 합니다</string>
+    <string name="confirm_overwrite_preset_dialog_title">프리셋 덮어쓰기 확인</string>
+    <string name="confirm_overwrite_preset_dialog_message">
+        프리셋 %1$s을(를) 덮어씁니다. 계속할까요?</string>
+
+    <string name="delete">삭제</string>
+    <string name="confirm_delete_preset_title">%1$s을(를) 삭제할까요?</string>
+    <string name="confirm_delete_preset_message">
+        이 프리셋의 트랙 또는 재생목록은 라이브러리에서 제거되지 않습니다.</string>
+    <string name="preset_cannot_be_empty_warning_message">
+        프리셋에 추가할 활성 트랙 또는 재생목록이 없습니다</string>
+    <string name="add_preset_button_description">새 프리셋 만들기</string>
+    <string name="create_new_preset_dialog_title">새 프리셋 이름 입력</string>
+
+    <string name="unsaved_preset_changes_warning_title">저장되지 않은 변경사항</string>
+    <string name="unsaved_preset_changes_warning_message">프리셋 %1$s에 저장되지 않은 변경사항이 있습니다. 지금 새 프리셋을 불러오면 마지막 저장 이후의 변경사항이 사라집니다.</string>
+    <string name="unsaved_preset_changes_warning_save_first_option">먼저 변경사항 저장</string>
+    <string name="unsaved_preset_changes_warning_load_anyways_option">그래도 불러오기</string>
+
+    <string name="playing">재생 중</string>
+    <string name="paused">일시정지됨</string>
+    <string name="stopped">중지됨</string>
+    <string name="stop_timer_description">%1$s 후 중지</string>
+    <string name="cancel_stop_timer_action">중지 타이머 취소</string>
+
+    <string name="play">재생</string>
+    <string name="pause">일시정지</string>
+    <string name="close">닫기</string>
+    <string name="checked">선택됨</string>
+    <string name="unchecked">선택되지 않음</string>
+    <string name="dismiss">닫기</string>
+    <string name="ok" tools:ignore="ButtonCase">확인</string>
+    <string name="cancel">취소</string>
+
+    <string name="show_active_playlists_first">활성 항목 먼저 표시</string>
+    <string name="name_ascending">이름 오름차순</string>
+    <string name="name_descending">이름 내림차순</string>
+    <string name="order_added">추가된 순서</string>
+
+    <string name="play_button_long_click_hint_text">
+        힌트: 재생/일시정지 버튼을 길게 누르면 자동 중지 타이머를 설정할 수 있습니다</string>
+
+    <string name="app_settings_description">Mistysound 설정</string>
+    <string name="settings">설정</string>
+
+    <string name="display">디스플레이</string>
+    <string name="app_theme">앱 테마</string>
+    <string name="match_system_theme">시스템과 일치</string>
+    <string name="light_theme">라이트</string>
+    <string name="dark_theme">다크</string>
+    <string name="language_setting_title">언어</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">한국어</string>
+
+    <string name="playback">재생</string>
+
+    <string name="play_in_background_setting_title">백그라운드에서 재생</string>
+    <string name="play_in_background_setting_description">자세한 설명을 보려면 누르세요</string>
+    <string name="play_in_background_explanation">백그라운드 재생을 사용하면:</string>
+    <string name="play_in_background_explanation_bullet_1">
+        다른 앱의 재생과 동시에 재생할 수 있습니다</string>
+    <string name="play_in_background_explanation_bullet_2">
+        재생 컨트롤이 상태 표시줄의 미디어 컨트롤 영역이 아니라 일반 알림으로 표시됩니다</string>
+    <string name="play_in_background_explanation_bullet_3">
+        앱이 전면에 있지 않으면 헤드셋의 재생/일시정지 버튼 같은 하드웨어 미디어 버튼을 무시합니다</string>
+    <string name="play_in_background_explanation_bullet_4">
+        “통화 중 자동 일시정지” 설정이 켜져 있고 휴대전화 상태 읽기 권한이 부여된 경우가 아니면, 통화 중 자동 일시정지가 방지됩니다
+    </string>
+
+    <string name="request_notification_permission_title">알림 권한 필요</string>
+    <string name="request_notification_permission_explanation_p1">
+        백그라운드 재생이 켜져 있으면 Mistysound는 플레이어 컨트롤을 표시하기 위해 일반 알림을 사용해야 합니다(미디어 세션 카드가 아님). 이를 위해 알림 게시 권한이 필요합니다. 이 권한은 선택 사항이지만, 권한이 없으면 백그라운드 재생 중 플레이어 컨트롤이 포함된 알림을 표시할 수 없습니다.</string>
+    <string name="request_notification_permission_explanation_p2">
+        권한을 부여하고 싶지 않거나 알림 공간을 절약하고 싶다면, 대신 %1$s할 수 있습니다.</string>
+    <string name="tile_tutorial_link_text">빠른 설정 타일로 Mistysound 제어</string>
+
+    <string name="auto_pause_during_calls_setting_title">통화 중 자동 일시정지</string>
+    <string name="auto_pause_during_calls_setting_subtitle">
+        휴대전화 상태 읽기 권한 필요\n백그라운드 재생 시에만 필요</string>
+    <string name="request_phone_state_permission_explanation">
+        백그라운드에서 오디오를 재생하지 않을 때는 기기가 Mistysound에 통화 중 재생을 일시정지해야 한다고 알려줍니다. 백그라운드 재생 중에는 이런 동작이 발생하지 않습니다. 이 경우 Mistysound가 통화를 감지하고 재생을 일시정지할 수 있도록 휴대전화 상태 읽기 권한이 필요합니다.</string>
+
+    <string name="on_zero_volume_behavior_setting_title">
+        볼륨이 0일 때의 동작</string>
+    <string name="on_zero_volume_behavior_setting_description">
+        이 설정은 오디오 기기 변경으로 인해 볼륨이 0이 되었을 때(예: 휴대전화 스피커 볼륨이 0인 상태에서 헤드셋 연결을 해제한 경우) 재생이 어떻게 반응할지 결정합니다.</string>
+    <string name="stop_playback_on_zero_volume_title">재생 중지</string>
+    <string name="stop_playback_on_zero_volume_description">
+        앱의 백그라운드 서비스를 자동으로 중지합니다.</string>
+    <string name="pause_playback_on_zero_volume_title">재생 일시정지</string>
+    <string name="pause_playback_on_zero_volume_description">
+        다른 오디오 기기 변경으로 미디어 볼륨이 0보다 커지면(예: 헤드셋을 다시 연결한 경우) 재생이 자동으로 다시 시작됩니다. 앱이 백그라운드에서 일시정지 상태로 유지되므로 이 설정은 배터리 사용량을 약간 늘릴 수 있습니다.</string>
+    <string name="do_nothing_on_zero_volume_title">아무것도 하지 않음</string>
+    <string name="do_nothing_on_zero_volume_description">
+        소리가 들리지 않아도 앱이 계속 재생되므로 이 설정은 배터리를 가장 많이 사용합니다.
+    </string>
+
+    <string name="control_playback_using_tile_setting_title">
+        타일로 재생 제어</string>
+    <string name="tile_tutorial_title">타일 튜토리얼</string>
+    <string name="multi_step_dialog_indicator">%1$d / %2$d</string>
+    <string name="previous">이전</string>
+    <string name="next">다음</string>
+    <string name="finish">완료</string>
+    <string name="tile_tutorial_intro_text">
+        알림 외에도 빠른 설정 타일을 통해 Mistysound를 제어할 수 있습니다.</string>
+    <string name="tile_tutorial_add_tile_text">
+        활성 빠른 설정 타일에 추가하려면 완전히 펼친 상태 표시줄의 편집 버튼을 누른 뒤 Mistysound 타일을 현재 타일 목록으로 드래그하세요.</string>
+    <string name="tile_tutorial_add_tile_help_button_text">
+        도와주세요! 타일을 추가하는 방법을 모르겠어요.</string>
+    <string name="tile_tutorial_add_tile_help_button_show_description">
+        타일 추가 도움말 표시</string>
+    <string name="tile_tutorial_add_tile_help_button_hide_description">
+        타일 추가 도움말 숨기기</string>
+    <string name="tile_tutorial_add_tile_help_text">
+        빠른 설정 타일을 편집하는 버튼은 기기 제조사와 Android 버전에 따라 다르게 표시될 수 있습니다. 검색 엔진에서 “빠른 설정 타일 편집”과 기기 제조사 이름을 함께 검색해 보세요.</string>
+    <string name="tile_tutorial_add_tile_button_text">타일 추가</string>
+    <string name="tile_tutorial_tile_usage_text">
+        타일을 누르면 Mistysound의 백그라운드 오디오 서비스가 재생 상태와 중지 상태 사이에서 전환됩니다. 타일을 길게 누르면 Mistysound가 열립니다.</string>
+    <string name="tile_tutorial_hide_notification_text">
+        공간을 절약하기 위해 Mistysound 알림을 숨기고 싶다면 %1$s에서 직접 숨길 수 있습니다. “알림”을 누르고 “플레이어 컨트롤” 알림을 비활성화하세요.</string>
+    <string name="tile_tutorial_hide_notification_link_text">
+        Mistysound 시스템 설정 페이지</string>
+
+    <string name="stop_instead_of_pause_setting_title">일시정지 대신 중지</string>
+    <string name="stop_instead_of_pause_setting_description">
+        트랙/재생목록이 이어서 재생되지 않고 처음부터 다시 시작됩니다</string>
+
+    <string name="about">정보</string>
+    <string name="privacy_policy_setting_title">개인정보 처리방침</string>
+    <string name="privacy_policy_setting_body">
+        Mistysound는 개인 정보를 수집, 저장 또는 전송하지 않습니다.</string>
+    <string name="open_source_licenses">오픈 소스 라이선스</string>
+    <string name="about_app_setting_title">Mistysound 정보</string>
+    <string name="about_app_setting_body">
+        Mistysound는 오픈 소스 앰비언트 사운드 앱입니다. 소스 코드는 Apache License 2.0 조건에 따라 제공됩니다.</string>
+    <string name="view_source_code">소스 코드 보기</string>
+    <string name="main_background_setting_title">Customize main background</string>
+    <string name="main_background_setting_description">Manage the large background used behind the main pages</string>
+    <string name="card_background_setting_title">Customize card background</string>
+    <string name="card_background_setting_description">Manage the shared background used by audio and folder cards</string>
+    <string name="main_background_page_title">Main background</string>
+    <string name="card_background_page_title">Card background</string>
+    <string name="main_background_editor_title">Edit main background</string>
+    <string name="card_background_editor_title">Edit card background</string>
+    <string name="background_preview_title">Preview</string>
+    <string name="background_current_badge">Current</string>
+    <string name="background_no_preview_message">Choose an image card to preview it here.</string>
+    <string name="background_empty_state_message">No images imported yet. Tap the + button to add one.</string>
+    <string name="background_import_button_description">Import background image</string>
+    <string name="background_save_effect_button">Save effect</string>
+    <string name="background_rename_dialog_title">Rename background image</string>
+    <string name="background_remove_dialog_title">Remove background image</string>
+    <string name="background_remove_dialog_message">Remove "%1$s" from this background library?</string>
+    <string name="background_editor_instruction">Drag and pinch the image to adjust the visible area.</string>
+    <string name="background_apply_crop_button">Apply crop</string>
+    <string name="background_discard_changes_title">Discard crop changes?</string>
+    <string name="background_discard_changes_message">Your crop adjustments have not been applied yet.</string>
+    <string name="background_preview_folder_name">Folder preview</string>
+    <string name="background_preview_track_name">Audio preview</string>
+    <string name="background_import_failure_message">This image could not be imported.</string>
+    <string name="background_editor_loading_message">Loading image editor...</string>
+    <string name="background_default_image_name">Image</string>
+    <string name="edit">Edit</string>
+    <string name="dark_frosted_glass_theme">Dark frosted glass</string>
+    <string name="light_frosted_glass_theme">Light frosted glass</string>
+    <string name="frosted_glass_opacity_title">Frosted glass opacity</string>
+    <string name="frosted_glass_opacity_description">Adjust card opacity (%1$d%%)</string>
+</resources>

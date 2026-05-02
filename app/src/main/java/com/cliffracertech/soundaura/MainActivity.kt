@@ -5,10 +5,11 @@ package com.cliffracertech.soundaura
 
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.SnackbarHost
@@ -34,9 +36,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -48,12 +53,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cliffracertech.soundaura.addbutton.AddButton
 import com.cliffracertech.soundaura.appbar.SoundAuraAppBar
+import com.cliffracertech.soundaura.background.BackgroundCollectionScreen
+import com.cliffracertech.soundaura.background.BackgroundCollectionType
+import com.cliffracertech.soundaura.background.BackgroundEditorScreen
+import com.cliffracertech.soundaura.background.BackgroundImportButton
+import com.cliffracertech.soundaura.background.BackgroundSurface
+import com.cliffracertech.soundaura.background.BackgroundRepository
+import com.cliffracertech.soundaura.background.BackgroundSaveButton
+import com.cliffracertech.soundaura.background.LocalMainBackground
 import com.cliffracertech.soundaura.library.SoundAuraLibraryView
 import com.cliffracertech.soundaura.mediacontroller.MediaControllerSizes
 import com.cliffracertech.soundaura.mediacontroller.SoundAuraMediaController
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
+import com.cliffracertech.soundaura.model.SearchQueryState
+import com.cliffracertech.soundaura.settings.AppLanguage
 import com.cliffracertech.soundaura.settings.AppSettings
 import com.cliffracertech.soundaura.settings.AppTheme
 import com.cliffracertech.soundaura.settings.PrefKeys
@@ -66,57 +81,123 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-@HiltViewModel class MainActivityViewModel @Inject constructor(
+sealed interface MainContentScreen {
+    val depth: Int
+
+    data object Library : MainContentScreen {
+        override val depth = 0
+    }
+
+    data object Settings : MainContentScreen {
+        override val depth = 1
+    }
+
+    data class BackgroundCollection(
+        val collection: BackgroundCollectionType,
+    ) : MainContentScreen {
+        override val depth = 2
+    }
+
+    data class BackgroundEditor(
+        val collection: BackgroundCollectionType,
+        val imageId: Long,
+    ) : MainContentScreen {
+        override val depth = 3
+    }
+}
+
+@HiltViewModel
+class MainActivityViewModel @Inject constructor(
     messageHandler: MessageHandler,
     private val dataStore: DataStore<Preferences>,
     private val navigationState: NavigationState,
     private val playbackState: PlaybackState,
+    private val searchQueryState: SearchQueryState,
+    backgroundRepository: BackgroundRepository,
 ) : ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
     val messages = messageHandler.messages
     val showingAppSettings get() = navigationState.showingAppSettings
     val showingPresetSelector get() = navigationState.mediaControllerState.isExpanded
+    val showingBackgroundCollectionPage get() = navigationState.showingBackgroundCollectionPage
+    val backgroundCollectionType get() = navigationState.backgroundCollectionType
+    val currentContentScreen get() = when {
+        navigationState.showingBackgroundEditor ->
+            MainContentScreen.BackgroundEditor(
+                collection = navigationState.backgroundCollectionType ?: BackgroundCollectionType.Main,
+                imageId = navigationState.backgroundEditorImageId ?: 0L,
+            )
+        navigationState.showingBackgroundCollectionPage ->
+            MainContentScreen.BackgroundCollection(
+                navigationState.backgroundCollectionType ?: BackgroundCollectionType.Main,
+            )
+        navigationState.showingAppSettings -> MainContentScreen.Settings
+        else -> MainContentScreen.Library
+    }
 
     private val appThemeKey = intPreferencesKey(PrefKeys.appTheme)
-    // The thread must be blocked when reading the first value
-    // of the app theme from the DataStore or else the screen
-    // can flicker between light and dark themes on startup.
     val appTheme by runBlocking {
         dataStore.awaitEnumPreferenceState<AppTheme>(appThemeKey, scope)
+    }
+    private val frostedGlassOpacityPercentKey =
+        intPreferencesKey(PrefKeys.frostedGlassOpacityPercent)
+    val frostedGlassOpacityPercent by runBlocking {
+        dataStore.awaitPreferenceState(
+            key = frostedGlassOpacityPercentKey,
+            defaultValue = 72,
+            scope = scope,
+        )
     }
 
     private val lastLaunchedVersionCodeKey = intPreferencesKey(PrefKeys.lastLaunchedVersionCode)
     val lastLaunchedVersionCode by dataStore.preferenceState(
         key = lastLaunchedVersionCodeKey,
         initialValue = 0,
-        defaultValue = 9, // version code 9 was the last version code before
-        scope = scope)    // the lastLaunchedVersionCode was introduced
+        defaultValue = 9,
+        scope = scope,
+    )
+
+    val currentMainBackground by backgroundRepository
+        .currentBackgroundFlow(BackgroundCollectionType.Main)
+        .collectAsState(null, scope)
     fun onNewVersionDialogDismiss() {
         dataStore.edit(lastLaunchedVersionCodeKey, BuildConfig.VERSION_CODE, scope)
     }
 
-    fun onBackButtonClick() = navigationState.onBackButtonClick()
+    fun onBackButtonClick(): Boolean {
+        navigationState.currentSearchScope?.let { scope ->
+            if (searchQueryState.isActive(scope)) {
+                searchQueryState.clear(scope)
+                return true
+            }
+        }
+        return navigationState.onBackButtonClick()
+    }
 
     fun onKeyDown(keyCode: Int) = when (keyCode) {
         KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
             playbackState.toggleIsPlaying()
             true
-        } KeyEvent.KEYCODE_MEDIA_PLAY -> {
+        }
+        KeyEvent.KEYCODE_MEDIA_PLAY -> {
             if (playbackState.isPlaying) {
                 playbackState.toggleIsPlaying()
                 true
             } else false
-        } KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+        }
+        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
             if (playbackState.isPlaying) {
                 playbackState.toggleIsPlaying()
                 true
             } else false
-        } KeyEvent.KEYCODE_MEDIA_STOP -> {
+        }
+        KeyEvent.KEYCODE_MEDIA_STOP -> {
             if (playbackState.isPlaying) {
                 playbackState.toggleIsPlaying()
                 true
             } else false
-        } else -> false
+        }
+        else -> false
     }
 }
 
@@ -125,7 +206,7 @@ val LocalWindowSizeClass = compositionLocalOf {
 }
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
 
     @Suppress("OVERRIDE_DEPRECATION")
@@ -137,6 +218,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ensureDefaultAppLanguage()
 
         setContentWithTheme {
             BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -150,17 +232,28 @@ class MainActivity : ComponentActivity() {
 
                 NewVersionDialogShower(
                     lastLaunchedVersionCode = viewModel.lastLaunchedVersionCode,
-                    onDialogDismissed = viewModel::onNewVersionDialogDismiss)
+                    onDialogDismissed = viewModel::onNewVersionDialogDismiss,
+                )
 
-                Column {
-                    SoundAuraAppBar()
-                    val mainContentPadding = rememberWindowInsetsPaddingValues(
-                        insets = WindowInsets.navigationBars,
-                        additionalTop = 8.dp,
-                        additionalStart = 8.dp,
-                        additionalBottom = MediaControllerSizes.defaultMinThicknessDp.dp + 16.dp,
-                        additionalEnd = 8.dp)
-                    MainContent(mainContentPadding)
+                BackgroundSurface(
+                    background = viewModel.currentMainBackground,
+                    storage = com.cliffracertech.soundaura.background.rememberBackgroundStorage(),
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RectangleShape,
+                    fallbackColor = MaterialTheme.colors.background,
+                    overlayColor = MaterialTheme.colors.background.copy(alpha = 0.32f),
+                ) {
+                    Column {
+                        SoundAuraAppBar()
+                        val mainContentPadding = rememberWindowInsetsPaddingValues(
+                            insets = WindowInsets.navigationBars,
+                            additionalTop = 8.dp,
+                            additionalStart = 8.dp,
+                            additionalBottom = MediaControllerSizes.defaultMinThicknessDp.dp + 16.dp,
+                            additionalEnd = 8.dp,
+                        )
+                        MainContent(mainContentPadding)
+                    }
                 }
 
                 val floatingButtonPadding = rememberWindowInsetsPaddingValues(
@@ -168,81 +261,123 @@ class MainActivity : ComponentActivity() {
                     additionalStart = 8.dp,
                     additionalEnd = 8.dp,
                     additionalBottom = 8.dp,
-                    additionalTop = 8.dp + 56.dp)
+                    additionalTop = 8.dp + 56.dp,
+                )
 
                 SoundAuraMediaController(padding = floatingButtonPadding)
 
-                AddTrackButton(Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(floatingButtonPadding))
+                AddTrackButton(
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(floatingButtonPadding),
+                )
+
+                viewModel.backgroundCollectionType
+                    ?.takeIf { viewModel.showingBackgroundCollectionPage }
+                    ?.let { collection ->
+                        BackgroundSaveButton(
+                            collection = collection,
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(floatingButtonPadding),
+                        )
+                        BackgroundImportButton(
+                            collection = collection,
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(floatingButtonPadding),
+                        )
+                    }
 
                 SnackbarHost(
                     hostState = snackbarHostState,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(floatingButtonPadding))
+                        .padding(floatingButtonPadding),
+                )
             }
         }
     }
 
-    /** Read the app's theme from a SettingsViewModel instance
-     * and compose the provided content using the theme. */
+    private fun ensureDefaultAppLanguage() {
+        if (AppCompatDelegate.getApplicationLocales().toLanguageTags().isBlank())
+            AppCompatDelegate.setApplicationLocales(AppLanguage.English.localeList())
+    }
+
     private fun setContentWithTheme(
         parent: CompositionContext? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) = setContent(parent) {
         val themePreference = viewModel.appTheme
-        val systemInDarkTheme = isSystemInDarkTheme()
-        val useDarkTheme by remember(themePreference, systemInDarkTheme) {
-            derivedStateOf {
-                themePreference == AppTheme.Dark ||
-                (themePreference == AppTheme.UseSystem && systemInDarkTheme)
-            }
-        }
+        val frostedGlassOpacityPercent = viewModel.frostedGlassOpacityPercent
 
         enableEdgeToEdge()
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
-        SoundAuraTheme(useDarkTheme) {
+        SoundAuraTheme(
+            appTheme = themePreference,
+            frostedGlassOpacityPercent = frostedGlassOpacityPercent,
+        ) {
             val windowSizeClass = calculateWindowSizeClass(this)
-            CompositionLocalProvider(LocalWindowSizeClass provides windowSizeClass) {
+            CompositionLocalProvider(
+                LocalWindowSizeClass provides windowSizeClass,
+                LocalMainBackground provides viewModel.currentMainBackground,
+            ) {
                 content()
             }
         }
     }
 
-    @Composable private fun MainContent(padding: PaddingValues) {
-        // The track list state is remembered here so that the
-        // scrolling position will not be lost if the user
-        // navigates to the app settings screen and back.
+    @Composable
+    private fun MainContent(padding: PaddingValues) {
         val trackListState = rememberLazyListState()
+        val mainBackgroundListState = rememberLazyListState()
+        val cardBackgroundListState = rememberLazyListState()
+        val currentScreen = viewModel.currentContentScreen
+        var previousScreen by remember { mutableStateOf(currentScreen) }
 
         SlideAnimatedContent(
-            targetState = viewModel.showingAppSettings,
-            leftToRight = !viewModel.showingAppSettings,
-            modifier = Modifier.fillMaxSize()
-        ) { showingAppSettingsScreen ->
-            if (showingAppSettingsScreen)
-                AppSettings(padding)
-            else SoundAuraLibraryView(
-                padding = padding,
-                state = trackListState)
+            targetState = currentScreen,
+            leftToRight = previousScreen.depth > currentScreen.depth,
+            modifier = Modifier.fillMaxSize(),
+        ) { screen ->
+            when (screen) {
+                MainContentScreen.Library -> SoundAuraLibraryView(
+                    padding = padding,
+                    state = trackListState,
+                )
+                MainContentScreen.Settings -> AppSettings(padding)
+                is MainContentScreen.BackgroundCollection -> BackgroundCollectionScreen(
+                    collection = screen.collection,
+                    contentPadding = padding,
+                    state = screen.collection.listState(
+                        mainState = mainBackgroundListState,
+                        cardState = cardBackgroundListState,
+                    ),
+                )
+                is MainContentScreen.BackgroundEditor -> BackgroundEditorScreen(
+                    contentPadding = padding,
+                )
+            }
+        }
+
+        LaunchedEffect(currentScreen) {
+            previousScreen = currentScreen
         }
     }
 
-    @Composable private fun AddTrackButton(modifier: Modifier = Modifier) {
+    @Composable
+    private fun AddTrackButton(modifier: Modifier = Modifier) {
         val showingPresetSelector = viewModel.showingPresetSelector
-        // Different stiffnesses are used for the x and y offsets so that the
-        // add button moves in a swooping movement instead of a linear one
         val addButtonXDpOffset by animateDpAsState(
-            targetValue = if (showingPresetSelector) (-16).dp
-                          else                       0.dp,
+            targetValue = if (showingPresetSelector) (-16).dp else 0.dp,
             label = "Add button x offset animation",
-            animationSpec = tween(tweenDuration * 5 / 4, 0, LinearOutSlowInEasing))
-
+            animationSpec = tween(tweenDuration * 5 / 4, 0, LinearOutSlowInEasing),
+        )
         val addButtonYDpOffset by animateDpAsState(
             targetValue = if (showingPresetSelector) (-16).dp else 0.dp,
             label = "Add button y offset animation",
-            animationSpec = tween(tweenDuration, 0, LinearOutSlowInEasing))
+            animationSpec = tween(tweenDuration, 0, LinearOutSlowInEasing),
+        )
 
         AddButton(
             backgroundColor = MaterialTheme.colors.secondaryVariant,
@@ -250,10 +385,19 @@ class MainActivity : ComponentActivity() {
             modifier = modifier.graphicsLayer {
                 translationX = addButtonXDpOffset.toPx()
                 translationY = addButtonYDpOffset.toPx()
-            })
+            },
+        )
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?) =
         if (viewModel.onKeyDown(keyCode)) true
         else super.onKeyDown(keyCode, event)
+}
+
+private fun BackgroundCollectionType.listState(
+    mainState: LazyListState,
+    cardState: LazyListState,
+) = when (this) {
+    BackgroundCollectionType.Main -> mainState
+    BackgroundCollectionType.Card -> cardState
 }

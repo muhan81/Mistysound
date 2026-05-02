@@ -1,0 +1,5 @@
+Version 3.2.3
+
+- Fine-tuned frosted glass control colors to feel lighter and more transparent
+- Reduced the visual weight of active green slider layers and thumbs
+- Refined floating buttons and the bottom playback bar to better show the background

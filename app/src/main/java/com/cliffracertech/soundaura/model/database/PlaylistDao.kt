@@ -14,14 +14,16 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.cliffracertech.soundaura.service.ActivePlaylistSummary
+import com.cliffracertech.soundaura.service.ActiveFolderPlaylistSummary
 import kotlinx.coroutines.flow.Flow
 
 typealias LibraryPlaylist = com.cliffracertech.soundaura.library.Playlist
+typealias LibraryFolder = com.cliffracertech.soundaura.library.Folder
 
 private const val librarySelectBase =
     "SELECT id, name, isActive, " +
            "COUNT(playlistId) = 1 AS isSingleTrack, " +
-           "volume, volumeBoostDb, " +
+           "volume, volumeBoostDb, playbackSpeed, " +
            "SUM(track.hasError) = COUNT(track.hasError) as hasError " +
     "FROM playlist " +
     "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
@@ -34,6 +36,49 @@ private const val librarySelectWithFilter =
     librarySelectBase +
     "WHERE name LIKE :filter " +
     "GROUP BY playlistTrack.playlistId"
+
+private const val folderSelectBase =
+    "SELECT folder.id, folder.name, folder.isActive, folder.shuffle, " +
+           "COUNT(folderPlaylist.playlistId) AS playlistCount, " +
+           "COALESCE(SUM(track.hasError), 0) > 0 AS hasError " +
+    "FROM folder " +
+    "LEFT JOIN folderPlaylist ON folder.id = folderPlaylist.folderId " +
+    "LEFT JOIN playlistTrack ON folderPlaylist.playlistId = playlistTrack.playlistId " +
+    "LEFT JOIN track ON playlistTrack.trackUri = track.uri "
+
+private const val folderSelect =
+    folderSelectBase + "GROUP BY folder.id"
+
+private const val folderSelectWithFilter =
+    folderSelectBase +
+    "WHERE folder.name LIKE :filter " +
+    "GROUP BY folder.id"
+
+private const val folderPlaylistSelect =
+    "SELECT playlist.id, playlist.name, playlist.isActive, " +
+           "COUNT(playlistTrack.playlistId) = 1 AS isSingleTrack, " +
+           "playlist.volume, playlist.volumeBoostDb, playlist.playbackSpeed, " +
+           "SUM(track.hasError) = COUNT(track.hasError) AS hasError " +
+    "FROM folderPlaylist " +
+    "JOIN playlist ON folderPlaylist.playlistId = playlist.id " +
+    "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
+    "JOIN track ON playlistTrack.trackUri = track.uri " +
+    "WHERE folderPlaylist.folderId = :folderId " +
+    "GROUP BY playlist.id " +
+    "ORDER BY folderPlaylist.folderOrder"
+
+private const val folderPlaylistSelectWithFilter =
+    "SELECT playlist.id, playlist.name, playlist.isActive, " +
+           "COUNT(playlistTrack.playlistId) = 1 AS isSingleTrack, " +
+           "playlist.volume, playlist.volumeBoostDb, playlist.playbackSpeed, " +
+           "SUM(track.hasError) = COUNT(track.hasError) AS hasError " +
+    "FROM folderPlaylist " +
+    "JOIN playlist ON folderPlaylist.playlistId = playlist.id " +
+    "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
+    "JOIN track ON playlistTrack.trackUri = track.uri " +
+    "WHERE folderPlaylist.folderId = :folderId AND playlist.name LIKE :filter " +
+    "GROUP BY playlist.id " +
+    "ORDER BY folderPlaylist.folderOrder"
 
 @Dao abstract class PlaylistDao {
     @Query("SELECT last_insert_rowid()")
@@ -53,6 +98,12 @@ private const val librarySelectWithFilter =
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertPlaylistTracks(playlistTracks: List<PlaylistTrack>)
+
+    @Query("INSERT INTO folder (name, shuffle) VALUES (:name, :shuffle)")
+    protected abstract suspend fun insertFolderName(name: String, shuffle: Boolean = false)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun insertFolderPlaylists(folderPlaylists: List<FolderPlaylist>)
 
     /**
      * Insert a single [Playlist] whose [Playlist.name] and [Playlist.shuffle]
@@ -107,6 +158,42 @@ private const val librarySelectWithFilter =
         insertPlaylistTracks(playlistTracks)
     }
 
+    @Transaction
+    open suspend fun insertSingleTrackPlaylistsReturningIds(
+        names: List<String>,
+        uris: List<Uri>,
+        newUris: List<Uri>? = null,
+    ): List<Long> {
+        assert(names.size == uris.size)
+        insertTracks((newUris ?: uris).map(::Track))
+        val ids = MutableList(names.size) { 0L }
+        val playlistTracks = List(names.size) {
+            insertPlaylist(names[it])
+            val id = getLastInsertId()
+            ids[it] = id
+            PlaylistTrack(
+                playlistId = id,
+                playlistOrder = 0,
+                trackUri = uris[it])
+        }
+        insertPlaylistTracks(playlistTracks)
+        return ids
+    }
+
+    @Transaction
+    open suspend fun insertFolder(
+        name: String,
+        playlistIds: List<Long>,
+        shuffle: Boolean = false,
+    ): Long {
+        insertFolderName(name, shuffle)
+        val folderId = getLastInsertId()
+        insertFolderPlaylists(playlistIds.mapIndexed { index, playlistId ->
+            FolderPlaylist(folderId, index, playlistId)
+        })
+        return folderId
+    }
+
     /** Delete the playlist identified by [id] from the database. */
     @Query("DELETE FROM playlist WHERE id = :id")
     protected abstract suspend fun deletePlaylistName(id: Long)
@@ -134,6 +221,12 @@ private const val librarySelectWithFilter =
 
     @Query("UPDATE playlist SET shuffle = :shuffle WHERE id = :id")
     abstract suspend fun setPlaylistShuffle(id: Long, shuffle: Boolean)
+
+    @Query("SELECT shuffle FROM folder WHERE id = :id LIMIT 1")
+    abstract suspend fun getFolderShuffle(id: Long): Boolean
+
+    @Query("UPDATE folder SET shuffle = :shuffle WHERE id = :id")
+    abstract suspend fun setFolderShuffle(id: Long, shuffle: Boolean)
 
     /**
      * Set the playlist identified by [playlistId] to have a [Playlist.shuffle]
@@ -209,6 +302,9 @@ private const val librarySelectWithFilter =
     @Query("SELECT EXISTS(SELECT name FROM playlist WHERE name = :name)")
     abstract suspend fun exists(name: String?): Boolean
 
+    @Query("SELECT EXISTS(SELECT name FROM folder WHERE name = :name)")
+    abstract suspend fun folderExists(name: String?): Boolean
+
     @Query("$librarySelect ORDER BY name COLLATE NOCASE ASC")
     abstract fun getPlaylistsSortedByNameAsc(): Flow<List<LibraryPlaylist>>
 
@@ -245,21 +341,67 @@ private const val librarySelectWithFilter =
     @Query("$librarySelectWithFilter ORDER BY isActive DESC, id ASC")
     abstract fun getPlaylistsSortedByActiveThenOrderAdded(filter: String): Flow<List<LibraryPlaylist>>
 
-    @Query("SELECT NOT EXISTS(SELECT 1 FROM playlist WHERE isActive)")
+    @Query("SELECT NOT EXISTS(" +
+           "SELECT 1 FROM playlist WHERE isActive " +
+           "UNION SELECT 1 FROM folder WHERE isActive)")
     abstract fun getNoPlaylistsAreActive(): Flow<Boolean>
+
+    @Query("$folderSelect ORDER BY folder.id ASC")
+    abstract fun getFoldersSortedByOrderAdded(): Flow<List<LibraryFolder>>
+
+    @Query("$folderSelectWithFilter ORDER BY folder.id ASC")
+    abstract fun getFoldersSortedByOrderAdded(filter: String): Flow<List<LibraryFolder>>
+
+    @Query(folderPlaylistSelect)
+    abstract fun getFolderPlaylists(folderId: Long): Flow<List<LibraryPlaylist>>
+
+    @Query(folderPlaylistSelectWithFilter)
+    abstract fun getFolderPlaylists(folderId: Long, filter: String): Flow<List<LibraryPlaylist>>
+
+    @Query("SELECT playlistId FROM folderPlaylist WHERE folderId = :folderId ORDER BY folderOrder")
+    abstract suspend fun getFolderPlaylistIds(folderId: Long): List<Long>
+
+    @Query("SELECT id, name, isActive, " +
+           "COUNT(playlistTrack.playlistId) = 1 AS isSingleTrack, " +
+           "volume, volumeBoostDb, playbackSpeed, " +
+           "SUM(track.hasError) = COUNT(track.hasError) as hasError " +
+           "FROM playlist " +
+           "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
+           "JOIN track on playlistTrack.trackUri = track.uri " +
+           "WHERE isActive " +
+           "GROUP BY playlistTrack.playlistId " +
+           "ORDER BY playlist.id")
+    abstract suspend fun getActiveLibraryPlaylists(): List<LibraryPlaylist>
 
     /** Return a [Flow] that updates with a [Map] of each active
      * [Playlist] (represented as an [ActivePlaylistSummary]
      * mapped to its tracks (represented as a [List] of [Uri]s). */
     @MapInfo(valueColumn = "trackUri")
-    @Query("SELECT id, shuffle, volume, volumeBoostDb, trackUri " +
+    @Query("SELECT id, shuffle, volume, volumeBoostDb, playbackSpeed, trackUri " +
            "FROM playlist " +
            "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
            "WHERE isActive ORDER by playlistOrder")
     abstract fun getActivePlaylistsAndTracks(): Flow<Map<ActivePlaylistSummary, List<Uri>>>
 
+    @MapInfo(valueColumn = "trackUri")
+    @Query("SELECT folder.id AS folderId, folder.shuffle AS folderShuffle, " +
+           "folderPlaylist.folderOrder AS folderOrder, " +
+           "playlist.id AS playlistId, playlist.shuffle AS playlistShuffle, " +
+           "playlist.volume, playlist.volumeBoostDb, playlist.playbackSpeed, " +
+           "playlistTrack.trackUri " +
+           "FROM folder " +
+           "JOIN folderPlaylist ON folder.id = folderPlaylist.folderId " +
+           "JOIN playlist ON folderPlaylist.playlistId = playlist.id " +
+           "JOIN playlistTrack ON playlist.id = playlistTrack.playlistId " +
+           "WHERE folder.isActive " +
+           "ORDER BY folder.id, folderPlaylist.folderOrder, playlistTrack.playlistOrder")
+    abstract fun getActiveFolderPlaylistsAndTracks(): Flow<Map<ActiveFolderPlaylistSummary, List<Uri>>>
+
     @Query("SELECT name FROM playlist")
     abstract suspend fun getPlaylistNames(): List<String>
+
+    @Query("SELECT name FROM folder")
+    abstract suspend fun getFolderNames(): List<String>
 
     @Query("SELECT uri, hasError FROM playlistTrack " +
            "JOIN track on playlistTrack.trackUri = track.uri " +
@@ -270,9 +412,15 @@ private const val librarySelectWithFilter =
     @Query("UPDATE playlist SET name = :newName WHERE id = :id")
     abstract suspend fun rename(id: Long, newName: String)
 
+    @Query("UPDATE folder SET name = :newName WHERE id = :id")
+    abstract suspend fun renameFolder(id: Long, newName: String)
+
     /** Toggle the [Playlist.isActive] field of the [Playlist] identified by [id]. */
     @Query("UPDATE playlist set isActive = 1 - isActive WHERE id = :id")
     abstract suspend fun toggleIsActive(id: Long)
+
+    @Query("UPDATE folder set isActive = 1 - isActive WHERE id = :id")
+    abstract suspend fun toggleFolderIsActive(id: Long)
 
     /** Set the [Playlist.volume] field of the [Playlist] identified by [id]. */
     @Query("UPDATE playlist SET volume = :volume WHERE id = :id")
@@ -282,6 +430,28 @@ private const val librarySelectWithFilter =
     @Query("UPDATE playlist SET volumeBoostDb = :dbBoost WHERE id = :id")
     abstract suspend fun setVolumeBoostDb(id: Long, dbBoost: Int)
 
+    @Query("UPDATE playlist SET playbackSpeed = :speed WHERE id = :id")
+    abstract suspend fun setPlaybackSpeed(id: Long, speed: Float)
+
     @Query("UPDATE track SET hasError = 1 WHERE uri in (:uris)")
     abstract suspend fun setTracksHaveError(uris: List<Uri>)
+
+    @Query("DELETE FROM folder WHERE id = :id")
+    abstract suspend fun deleteFolder(id: Long)
+
+    @Query("DELETE FROM folderPlaylist WHERE folderId = :folderId")
+    protected abstract suspend fun deleteFolderPlaylists(folderId: Long)
+
+    @Transaction
+    open suspend fun setFolderShuffleAndPlaylists(
+        folderId: Long,
+        shuffle: Boolean,
+        playlistIds: List<Long>,
+    ) {
+        deleteFolderPlaylists(folderId)
+        insertFolderPlaylists(playlistIds.mapIndexed { index, playlistId ->
+            FolderPlaylist(folderId, index, playlistId)
+        })
+        setFolderShuffle(folderId, shuffle)
+    }
 }

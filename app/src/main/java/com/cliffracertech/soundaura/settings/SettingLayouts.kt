@@ -20,7 +20,6 @@ import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -40,6 +39,7 @@ import com.cliffracertech.soundaura.dialog.SoundAuraDialog
 import com.cliffracertech.soundaura.screenSizeBasedHorizontalPadding
 import com.cliffracertech.soundaura.ui.HorizontalDivider
 import com.cliffracertech.soundaura.ui.minTouchTargetSize
+import com.cliffracertech.soundaura.ui.theme.AppCardSurface
 import com.cliffracertech.soundaura.ui.theme.SoundAuraTheme
 
 /**
@@ -54,9 +54,9 @@ import com.cliffracertech.soundaura.ui.theme.SoundAuraTheme
     title: String,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.(Modifier) -> Unit
-) = Surface(
+) = AppCardSurface(
     modifier = modifier.screenSizeBasedHorizontalPadding(0.dp),
-    shape = MaterialTheme.shapes.large
+    shape = MaterialTheme.shapes.large,
 ) {
     val horizontalPaddingModifier = Modifier.padding(horizontal = 20.dp)
 

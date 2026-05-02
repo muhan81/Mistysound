@@ -7,9 +7,13 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -20,10 +24,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cliffracertech.soundaura.Dispatcher
 import com.cliffracertech.soundaura.R
+import com.cliffracertech.soundaura.background.BackgroundCollectionType
 import com.cliffracertech.soundaura.collectAsState
 import com.cliffracertech.soundaura.edit
 import com.cliffracertech.soundaura.enumPreferenceState
 import com.cliffracertech.soundaura.launchIO
+import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.database.Playlist
 import com.cliffracertech.soundaura.preferenceFlow
 import com.cliffracertech.soundaura.preferenceState
@@ -68,6 +74,9 @@ object PrefKeys {
     /** An int value that represents the ordinal of the desired [AppTheme]
      * enum value to use as the application's light/dark theme. */
     const val appTheme = "app_theme"
+
+    /** An int value that represents the opacity percentage for frosted glass cards. */
+    const val frostedGlassOpacityPercent = "frosted_glass_opacity_percent"
 
     /**
      * A boolean value that indicates whether playback should occur in the
@@ -116,7 +125,22 @@ object PrefKeys {
     const val playButtonLongClickHintShown = "play_button_long_click_hint_shown"
 }
 
-enum class AppTheme { UseSystem, Light, Dark;
+enum class AppTheme {
+    UseSystem,
+    Light,
+    Dark,
+    DarkFrostedGlass,
+    LightFrostedGlass;
+
+    val isFrostedGlass get() =
+        this == DarkFrostedGlass || this == LightFrostedGlass
+
+    fun resolvesToDark(systemDarkTheme: Boolean) = when (this) {
+        UseSystem -> systemDarkTheme
+        Dark, DarkFrostedGlass -> true
+        Light, LightFrostedGlass -> false
+    }
+
     companion object {
         /** Return an Array<String> containing strings that describe the enum values. */
         @Composable fun valueStrings() =
@@ -124,9 +148,52 @@ enum class AppTheme { UseSystem, Light, Dark;
                 remember { arrayOf(
                     getString(R.string.match_system_theme),
                     getString(R.string.light_theme),
-                    getString(R.string.dark_theme)
+                    getString(R.string.dark_theme),
+                    getString(R.string.dark_frosted_glass_theme),
+                    getString(R.string.light_frosted_glass_theme),
                 )}
             }
+    }
+}
+
+enum class AppLanguage(
+    val languageTag: String,
+    @StringRes val nameResId: Int,
+) {
+    English("en", R.string.language_english),
+    SimplifiedChinese("zh-CN", R.string.language_chinese_simplified),
+    TraditionalChinese("zh-TW", R.string.language_chinese_traditional),
+    Japanese("ja", R.string.language_japanese),
+    Korean("ko", R.string.language_korean);
+
+    fun localeList() = LocaleListCompat.forLanguageTags(languageTag)
+
+    companion object {
+        fun fromLanguageTags(languageTags: String): AppLanguage {
+            val primaryTag = languageTags.substringBefore(",").trim()
+            return entries.firstOrNull {
+                it.languageTag.equals(primaryTag, ignoreCase = true)
+            } ?: when {
+                primaryTag.equals("zh-Hans", ignoreCase = true) ||
+                primaryTag.startsWith("zh-Hans-", ignoreCase = true) ->
+                    SimplifiedChinese
+
+                primaryTag.equals("zh-Hant", ignoreCase = true) ||
+                primaryTag.startsWith("zh-Hant-", ignoreCase = true) ->
+                    TraditionalChinese
+
+                primaryTag.startsWith("ja", ignoreCase = true) ->
+                    Japanese
+
+                primaryTag.startsWith("ko", ignoreCase = true) ->
+                    Korean
+
+                else -> English
+            }
+        }
+
+        @Composable fun valueStrings() =
+            entries.map { stringResource(it.nameResId) }.toTypedArray()
     }
 }
 
@@ -172,10 +239,13 @@ enum class OnZeroVolumeAudioDeviceBehavior {
 class SettingsViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val dataStore: DataStore<Preferences>,
+    private val navigationState: NavigationState,
 ) : ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
     private val appThemeKey = intPreferencesKey(PrefKeys.appTheme)
     private val playInBackgroundKey = booleanPreferencesKey(PrefKeys.playInBackground)
+    private val frostedGlassOpacityPercentKey =
+        intPreferencesKey(PrefKeys.frostedGlassOpacityPercent)
     private val notificationPermissionRequestedKey =
         booleanPreferencesKey(PrefKeys.notificationPermissionRequested)
     private val autoPauseDuringCallKey = booleanPreferencesKey(PrefKeys.autoPauseDuringCalls)
@@ -187,6 +257,27 @@ class SettingsViewModel @Inject constructor(
 
     fun onAppThemeClick(theme: AppTheme) =
         dataStore.edit(appThemeKey, theme.ordinal, scope)
+
+    val frostedGlassOpacityPercent by dataStore.preferenceState(
+        key = frostedGlassOpacityPercentKey,
+        initialValue = 72,
+        defaultValue = 72,
+        scope = scope,
+    )
+
+    val frostedGlassOpacitySettingVisible get() = appTheme.isFrostedGlass
+
+    fun onFrostedGlassOpacityChange(percent: Int) =
+        dataStore.edit(frostedGlassOpacityPercentKey, percent.coerceIn(0, 100), scope)
+
+    val appLanguage get() = AppLanguage.fromLanguageTags(
+        AppCompatDelegate.getApplicationLocales().toLanguageTags())
+
+    fun onAppLanguageClick(language: AppLanguage) =
+        AppCompatDelegate.setApplicationLocales(language.localeList())
+
+    fun onMainBackgroundClick() =
+        navigationState.openBackgroundCollection(BackgroundCollectionType.Main)
 
     val playInBackground by dataStore
         .preferenceFlow(playInBackgroundKey, false)

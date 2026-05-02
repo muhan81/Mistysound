@@ -3,13 +3,18 @@
    the project's root directory to see the full license. */
 package com.cliffracertech.soundaura
 
+import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.cliffracertech.soundaura.appbar.AppBarViewModel
 import com.cliffracertech.soundaura.appbar.SearchQueryViewState
+import com.cliffracertech.soundaura.model.FolderUseCases
+import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.SearchQueryState
+import com.cliffracertech.soundaura.model.TestPermissionHandler
 import com.cliffracertech.soundaura.model.database.Playlist
 import com.cliffracertech.soundaura.settings.PrefKeys
 import com.google.common.truth.Truth.assertThat
@@ -21,7 +26,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppBarViewModelTests {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
     @get:Rule val testScopeRule = TestScopeRule()
+    @get:Rule val dbTestRule = SoundAuraDbTestRule(context)
     @get:Rule val dataStoreTestRule = DataStoreTestRule(testScopeRule.scope)
 
     private val dataStore get() = dataStoreTestRule.dataStore
@@ -36,7 +43,16 @@ class AppBarViewModelTests {
     @Before fun init() {
         navigationState = NavigationState()
         searchQueryState = SearchQueryState()
-        instance = AppBarViewModel(dataStore, navigationState, searchQueryState)
+        instance = AppBarViewModel(
+            context,
+            dataStore,
+            navigationState,
+            searchQueryState,
+            FolderUseCases(
+                context,
+                TestPermissionHandler(),
+                dbTestRule.db.playlistDao()),
+            MessageHandler())
     }
 
     @Test fun initial_state() {

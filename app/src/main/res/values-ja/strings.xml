@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of Mistysound, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_player_service_description">ユーザーのサウンドミックスを再生するサービスです。</string>
+    <string name="player_notification_channel_name">プレーヤー操作</string>
+    <string name="player_notification_channel_description">
+        Mistysound のバックグラウンド音声サービスを操作する通知です。</string>
+    <string name="player_no_active_playlists_warning_message">
+        有効なトラックまたはプレイリストがありません。先にトラックまたはプレイリストの追加ボタンをタップしてください。</string>
+
+    <string name="tile_inactive_description">Mistysound の音声を再生</string>
+    <string name="tile_active_description">Mistysound の音声を停止</string>
+
+    <string name="back">戻る</string>
+    <string name="search">検索</string>
+    <string name="sort_options_description">並べ替えオプションを開く</string>
+    <string name="create_folder_button_description">フォルダーを作成</string>
+
+    <string name="empty_library_message">ライブラリは空です。\n\n下の追加ボタンをタップして、端末内のファイルをライブラリに追加してください。\n\n追加したトラックまたはプレイリストの横にあるプラス記号をタップすると、再生開始時のサウンドミックスに含められます。</string>
+    <string name="no_search_results_message">検索内容に一致するトラック/プレイリストはありません。</string>
+    <string name="set_playlist_active_description">%1$s をサウンドミックスに追加</string>
+    <string name="set_playlist_inactive_description">%1$s をサウンドミックスから削除</string>
+    <string name="set_folder_active_description">フォルダー %1$s をサウンドミックスに追加</string>
+    <string name="set_folder_inactive_description">フォルダー %1$s をサウンドミックスから削除</string>
+    <string name="playlist_error_message">ファイルが見つからないか破損しています</string>
+    <string name="item_options_button_description">%1$s のその他のオプション</string>
+    <string name="remove_item_description">%1$s を削除</string>
+
+    <string name="rename">名前を変更</string>
+    <string name="default_rename_dialog_title">新しい名前を入力</string>
+
+    <string name="volume_boost_description">音量ブースト</string>
+    <string name="volume_boost_explanation_part_1">通常の音量を適用する前に、プレイリスト/トラックの音量をブーストします。10\u2009dB 増えるごとに、体感音量はおよそ 2 倍になります。例：</string>
+    <string name="volume_boost_explanation_part_2">
+        +\u200910\u2009dB = 2\u00D7 音量
+        \n+\u200920\u2009dB = 4\u00D7 音量
+        \n+\u200930\u2009dB = 8\u00D7 音量</string>
+
+    <string name="remove">削除</string>
+    <string name="confirm_remove_title">%1$s を削除しますか？</string>
+    <string name="confirm_remove_track_message">このトラックをライブラリと含まれているすべてのプリセットから削除します。ただし、端末上のファイルは削除されません。</string>
+    <string name="confirm_remove_playlist_message">
+        このプレイリストをライブラリと含まれているすべてのプリセットから削除します。ただし、プレイリスト内のファイルは端末から削除されません。</string>
+
+    <string name="create_playlist_title">プレイリストを作成</string>
+    <string name="playlist_options_title">プレイリストのオプション</string>
+    <string name="playlist_track_count_description">%1$s 曲</string>
+    <string name="playlist_shuffle_switch_title">シャッフル</string>
+    <string name="playlist_shuffle_switch_description">シャッフルのオン/オフを切り替え</string>
+    <string name="playlist_track_handle_description">トラック %1$s を並べ替え</string>
+    <string name="playlist_track_error_message">ファイルが見つからないか破損しています：</string>
+    <string name="playlist_track_delete_description">%1$s を削除</string>
+    <string name="playlist_add_tracks_button_description">%1$s にトラックを追加</string>
+
+    <string name="folder_source_dialog_title">フォルダーの作成元</string>
+    <string name="folder_choose_local_audio">端末内の音声を選択</string>
+    <string name="folder_choose_current_audio">現在の音声を選択</string>
+    <string name="folder_name_dialog_title">フォルダー名を入力</string>
+    <string name="folder_add_audio_button_description">このフォルダーに音声を追加</string>
+    <string name="folder_no_current_audio_warning">先にホーム画面で 1 つ以上の音声項目を選択してください。</string>
+    <string name="empty_folder_message">このフォルダーは空です。</string>
+    <string name="folder_item_count_description">%1$d 件</string>
+    <string name="folder_add_audio">音声を追加</string>
+    <string name="folder_sequential_play">順番に再生</string>
+    <string name="folder_random_play">ランダム再生</string>
+    <string name="confirm_remove_folder_message">
+        フォルダーとその音声の分類を削除します。ただし、ライブラリの音声や端末上のファイルは削除されません。</string>
+
+    <string name="file_chooser_no_valid_tracks_error_message">
+        プレイリストにまだ含まれていないファイルを少なくとも 1 つ選択してください</string>
+    <string name="file_chooser_invalid_tracks_warning_message">
+        %1$d 個のファイルはすでにプレイリストに含まれています</string>
+
+    <string name="playlist_options_request_storage_permission_explanation">
+        Mistysound は、完全なストレージアクセスなしで Android がアプリに許可するファイル権限のうち %1$d/%2$d 個を使用しています。新しいトラックをプレイリストに追加するには、音声ファイルの読み取り権限を付与する必要があります。
+    </string>
+
+    <string name="add_local_files_button_description">端末内ファイルからトラックまたはプレイリストを追加</string>
+    <string name="add_local_files_as_playlist_or_tracks_title">端末内ファイルを追加</string>
+    <string name="add_local_files_as_playlist_or_tracks_question">
+        ファイルを個別のトラックとして追加しますか、それともプレイリストとして追加しますか？</string>
+    <string name="add_local_files_individually_option">個別</string>
+    <string name="add_local_files_as_playlist_option">プレイリスト</string>
+    <string name="add_local_files_as_tracks_dialog_title">トラック名を確認</string>
+    <string name="add_local_files_as_playlist_dialog_title">プレイリスト名を確認</string>
+    <string name="add_local_files_request_storage_permission_title">空きが不足しています</string>
+    <string name="add_local_files_request_storage_permission_explanation_for_tracks">
+        Mistysound は、完全なストレージアクセスなしで Android がアプリに許可するファイル権限のうち %1$d/%2$d 個を使用しています。すべてのトラックを追加するには、音声ファイルの読み取り権限を付与する必要があります。
+    </string>
+    <string name="add_local_files_request_storage_permission_explanation_for_playlist">
+        Mistysound は、完全なストレージアクセスなしで Android がアプリに許可するファイル権限のうち %1$d/%2$d 個を使用しています。プレイリスト全体を追加するには、音声ファイルの読み取り権限を付与する必要があります。
+    </string>
+
+    <string name="add_multiple_tracks_name_error_message">トラック名は重複せず、空白ではない必要があります</string>
+    <string name="name_dialog_blank_name_error_message">名前は空にできません</string>
+    <string name="name_dialog_duplicate_name_error_message">その名前はすでに使用されています</string>
+
+    <string name="cant_add_tracks_warning">
+        Android のファイル権限の上限を超えるため、ファイルを追加できませんでした。いくつかのトラックまたはプレイリストを削除して再試行するか、アプリにファイル読み取り権限を付与してください。</string>
+    <string name="cant_add_playlist_warning">
+        Android のファイル権限の上限を超えるため、プレイリストを追加できませんでした。いくつかのトラックまたはプレイリストを削除して再試行するか、アプリにファイル読み取り権限を付与してください。</string>
+    <string name="cant_add_playlist_tracks_warning">
+        Android のファイル権限の上限を超えるため、新しいトラックをプレイリストに追加できませんでした。いくつかのトラックまたはプレイリストを削除して再試行するか、アプリにファイル読み取り権限を付与してください。
+    </string>
+
+    <string name="configure_playlist_dialog_title">プレイリストのオプションを設定</string>
+
+    <string name="preset_button_click_label">有効なプリセットを変更</string>
+    <string name="unsaved_preset_description">未保存のプリセット</string>
+
+    <string name="play_button_description">Mistysound の音声を再生</string>
+    <string name="pause_button_description">Mistysound の音声を一時停止</string>
+    <string name="playback_speed_dialog_title">再生速度</string>
+    <string name="playback_speed_dialog_description">0.1x から 5x までの速度を入力してください。</string>
+    <string name="playback_speed_dialog_effective_value">%1$s を使用中</string>
+
+    <string name="play_pause_button_long_click_description">自動停止タイマーを設定</string>
+    <string name="set_stop_timer_dialog_description">
+        再生が自動的に停止するまでの時間を設定します。上下ボタンを使うか、値を上下にドラッグして変更できます。</string>
+
+    <string name="stop_timer_text">停止まで</string>
+    <string name="stop_timer_click_label">自動停止タイマーをキャンセル</string>
+    <string name="cancel_stop_timer_dialog_title">タイマーのキャンセルを確認</string>
+    <string name="cancel_stop_timer_dialog_text">
+        自動停止タイマーをキャンセルしますか？</string>
+
+    <string name="preset_selector_title">プリセットを選択</string>
+    <string name="empty_preset_list_message">保存済みのプリセットはありません。下の追加ボタンをタップして、現在のサウンドミックスをプリセットとして保存してください。</string>
+    <string name="preset_click_label">プリセット %1$s を読み込む</string>
+    <string name="close_preset_selector_description">プリセット選択を閉じる</string>
+
+    <string name="overwrite">上書き</string>
+    <string name="overwrite_no_active_playlists_error_message">
+        プリセットには少なくとも 1 つの有効なトラックまたはプレイリストが必要です</string>
+    <string name="confirm_overwrite_preset_dialog_title">プリセットの上書きを確認</string>
+    <string name="confirm_overwrite_preset_dialog_message">
+        プリセット %1$s を上書きします。よろしいですか？</string>
+
+    <string name="delete">削除</string>
+    <string name="confirm_delete_preset_title">%1$s を削除しますか？</string>
+    <string name="confirm_delete_preset_message">
+        このプリセット内のトラックまたはプレイリストはライブラリから削除されません。</string>
+    <string name="preset_cannot_be_empty_warning_message">
+        プリセットに追加できる有効なトラックまたはプレイリストがありません</string>
+    <string name="add_preset_button_description">新しいプリセットを作成</string>
+    <string name="create_new_preset_dialog_title">新しいプリセット名を入力</string>
+
+    <string name="unsaved_preset_changes_warning_title">未保存の変更</string>
+    <string name="unsaved_preset_changes_warning_message">プリセット %1$s には未保存の変更があります。今新しいプリセットを読み込むと、最後に保存してからの変更は失われます。</string>
+    <string name="unsaved_preset_changes_warning_save_first_option">先に変更を保存</string>
+    <string name="unsaved_preset_changes_warning_load_anyways_option">それでも読み込む</string>
+
+    <string name="playing">再生中</string>
+    <string name="paused">一時停止中</string>
+    <string name="stopped">停止中</string>
+    <string name="stop_timer_description">%1$s 後に停止</string>
+    <string name="cancel_stop_timer_action">停止タイマーをキャンセル</string>
+
+    <string name="play">再生</string>
+    <string name="pause">一時停止</string>
+    <string name="close">閉じる</string>
+    <string name="checked">選択済み</string>
+    <string name="unchecked">未選択</string>
+    <string name="dismiss">閉じる</string>
+    <string name="ok" tools:ignore="ButtonCase">OK</string>
+    <string name="cancel">キャンセル</string>
+
+    <string name="show_active_playlists_first">有効なものを先に表示</string>
+    <string name="name_ascending">名前の昇順</string>
+    <string name="name_descending">名前の降順</string>
+    <string name="order_added">追加順</string>
+
+    <string name="play_button_long_click_hint_text">
+        ヒント：再生/一時停止ボタンを長押しすると、自動停止タイマーを設定できます</string>
+
+    <string name="app_settings_description">Mistysound 設定</string>
+    <string name="settings">設定</string>
+
+    <string name="display">表示</string>
+    <string name="app_theme">アプリのテーマ</string>
+    <string name="match_system_theme">システムに合わせる</string>
+    <string name="light_theme">ライト</string>
+    <string name="dark_theme">ダーク</string>
+    <string name="dark_frosted_glass_theme">Dark frosted glass</string>
+    <string name="light_frosted_glass_theme">Light frosted glass</string>
+    <string name="frosted_glass_opacity_title">Frosted glass opacity</string>
+    <string name="frosted_glass_opacity_description">Adjust card opacity (%1$d%%)</string>
+    <string name="language_setting_title">言語</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">한국어</string>
+
+    <string name="playback">再生</string>
+
+    <string name="play_in_background_setting_title">バックグラウンド再生</string>
+    <string name="play_in_background_setting_description">タップして詳細を表示</string>
+    <string name="play_in_background_explanation">バックグラウンド再生を有効にすると：</string>
+    <string name="play_in_background_explanation_bullet_1">
+        他のアプリの再生と同時に再生できます</string>
+    <string name="play_in_background_explanation_bullet_2">
+        再生コントロールはステータスバーのメディアコントロール欄ではなく、通常の通知として表示されます</string>
+    <string name="play_in_background_explanation_bullet_3">
+        アプリが前面にない限り、ヘッドセットの再生/一時停止ボタンなどのハードウェアメディアボタンを無視します</string>
+    <string name="play_in_background_explanation_bullet_4">
+        「通話中に自動一時停止」設定が有効で、端末状態の読み取り権限が付与されていない限り、通話中の自動一時停止を防ぎます
+    </string>
+
+    <string name="request_notification_permission_title">通知権限が必要です</string>
+    <string name="request_notification_permission_explanation_p1">
+        バックグラウンド再生がオンのとき、Mistysound はプレーヤー操作を表示するために通常の通知を使用する必要があります（メディアセッションカードではありません）。そのため、通知を投稿する権限が必要です。この権限は任意ですが、権限がない場合、バックグラウンド再生中にプレーヤー操作を含む通知を表示できません。</string>
+    <string name="request_notification_permission_explanation_p2">
+        権限を付与したくない場合、または通知スペースを節約したい場合は、代わりに%1$sこともできます。</string>
+    <string name="tile_tutorial_link_text">クイック設定タイルから Mistysound を操作する</string>
+
+    <string name="auto_pause_during_calls_setting_title">通話中に自動一時停止</string>
+    <string name="auto_pause_during_calls_setting_subtitle">
+        端末状態の読み取り権限が必要\nバックグラウンド再生時のみ必要</string>
+    <string name="request_phone_state_permission_explanation">
+        バックグラウンドで音声を再生していない場合、端末は通話中に Mistysound が再生を一時停止すべきことを通知します。バックグラウンド再生中はこれは行われません。そのため、Mistysound が通話を検出して再生を一時停止できるよう、端末状態の読み取り権限が必要です。</string>
+
+    <string name="on_zero_volume_behavior_setting_title">
+        音量がゼロのときの動作</string>
+    <string name="on_zero_volume_behavior_setting_description">
+        この設定は、音声デバイスの切り替えによって音量がゼロになった場合（例：スマートフォンのスピーカー音量がゼロの状態でヘッドセットを外した場合）に、再生がどのように反応するかを決定します。</string>
+    <string name="stop_playback_on_zero_volume_title">再生を停止</string>
+    <string name="stop_playback_on_zero_volume_description">
+        アプリのバックグラウンドサービスを自動的に停止します。</string>
+    <string name="pause_playback_on_zero_volume_title">再生を一時停止</string>
+    <string name="pause_playback_on_zero_volume_description">
+        別の音声デバイス切り替えでメディア音量がゼロより大きくなった場合（例：ヘッドセットを再接続した場合）、再生は自動的に再開します。アプリがバックグラウンドで一時停止状態のままになるため、この設定は電池消費が少し増える可能性があります。</string>
+    <string name="do_nothing_on_zero_volume_title">何もしない</string>
+    <string name="do_nothing_on_zero_volume_description">
+        音が聞こえなくてもアプリが再生を続けるため、この設定は最も電池を消費します。
+    </string>
+
+    <string name="control_playback_using_tile_setting_title">
+        タイルで再生を操作</string>
+    <string name="tile_tutorial_title">タイルのチュートリアル</string>
+    <string name="multi_step_dialog_indicator">%1$d / %2$d</string>
+    <string name="previous">前へ</string>
+    <string name="next">次へ</string>
+    <string name="finish">完了</string>
+    <string name="tile_tutorial_intro_text">
+        通知に加えて、クイック設定タイルから Mistysound を操作できます。</string>
+    <string name="tile_tutorial_add_tile_text">
+        現在のクイック設定タイルに追加するには、完全に展開したステータスバーの編集ボタンをタップし、Mistysound タイルを現在のタイル一覧にドラッグします。</string>
+    <string name="tile_tutorial_add_tile_help_button_text">
+        助けて！タイルの追加方法がわかりません。</string>
+    <string name="tile_tutorial_add_tile_help_button_show_description">
+        タイル追加ヘルプを表示</string>
+    <string name="tile_tutorial_add_tile_help_button_hide_description">
+        タイル追加ヘルプを非表示</string>
+    <string name="tile_tutorial_add_tile_help_text">
+        クイック設定タイルを編集するボタンは、端末メーカーや Android バージョンによって異なる場合があります。検索エンジンで「クイック設定タイル 編集」と端末メーカー名を検索してみてください。</string>
+    <string name="tile_tutorial_add_tile_button_text">タイルを追加</string>
+    <string name="tile_tutorial_tile_usage_text">
+        タイルをタップすると、Mistysound のバックグラウンド音声サービスを再生状態と停止状態の間で切り替えます。タイルを長押しすると Mistysound が開きます。</string>
+    <string name="tile_tutorial_hide_notification_text">
+        通知スペースを節約するために Mistysound の通知を非表示にしたい場合は、%1$sで自分で非表示にできます。「通知」をタップし、「プレーヤー操作」通知を無効にしてください。</string>
+    <string name="tile_tutorial_hide_notification_link_text">
+        Mistysound のシステム設定ページ</string>
+
+    <string name="stop_instead_of_pause_setting_title">一時停止ではなく停止</string>
+    <string name="stop_instead_of_pause_setting_description">
+        トラック/プレイリストは続きからではなく最初から再生されます</string>
+
+    <string name="about">概要</string>
+    <string name="privacy_policy_setting_title">プライバシーポリシー</string>
+    <string name="privacy_policy_setting_body">
+        Mistysound は個人情報を収集、保存、送信しません。</string>
+    <string name="open_source_licenses">オープンソースライセンス</string>
+    <string name="about_app_setting_title">Mistysound について</string>
+    <string name="about_app_setting_body">
+        Mistysound はオープンソースの環境音アプリです。ソースコードは Apache License 2.0 の条件で公開されています。</string>
+    <string name="view_source_code">ソースコードを表示</string>
+    <string name="main_background_setting_title">Customize main background</string>
+    <string name="main_background_setting_description">Manage the large background used behind the main pages</string>
+    <string name="card_background_setting_title">Customize card background</string>
+    <string name="card_background_setting_description">Manage the shared background used by audio and folder cards</string>
+    <string name="main_background_page_title">Main background</string>
+    <string name="card_background_page_title">Card background</string>
+    <string name="main_background_editor_title">Edit main background</string>
+    <string name="card_background_editor_title">Edit card background</string>
+    <string name="background_preview_title">Preview</string>
+    <string name="background_current_badge">Current</string>
+    <string name="background_no_preview_message">Choose an image card to preview it here.</string>
+    <string name="background_empty_state_message">No images imported yet. Tap the + button to add one.</string>
+    <string name="background_import_button_description">Import background image</string>
+    <string name="background_save_effect_button">Save effect</string>
+    <string name="background_rename_dialog_title">Rename background image</string>
+    <string name="background_remove_dialog_title">Remove background image</string>
+    <string name="background_remove_dialog_message">Remove "%1$s" from this background library?</string>
+    <string name="background_editor_instruction">Drag and pinch the image to adjust the visible area.</string>
+    <string name="background_apply_crop_button">Apply crop</string>
+    <string name="background_discard_changes_title">Discard crop changes?</string>
+    <string name="background_discard_changes_message">Your crop adjustments have not been applied yet.</string>
+    <string name="background_preview_folder_name">Folder preview</string>
+    <string name="background_preview_track_name">Audio preview</string>
+    <string name="background_import_failure_message">This image could not be imported.</string>
+    <string name="background_editor_loading_message">Loading image editor...</string>
+    <string name="background_default_image_name">Image</string>
+    <string name="edit">Edit</string>
+</resources>

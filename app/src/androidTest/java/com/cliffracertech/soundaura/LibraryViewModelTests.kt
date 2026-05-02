@@ -16,8 +16,10 @@ import com.cliffracertech.soundaura.library.Playlist
 import com.cliffracertech.soundaura.library.PlaylistDialog
 import com.cliffracertech.soundaura.library.RemovablePlaylistTrack
 import com.cliffracertech.soundaura.library.uri
+import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.ModifyLibraryUseCase
+import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
 import com.cliffracertech.soundaura.model.ReadLibraryUseCase
 import com.cliffracertech.soundaura.model.SearchQueryState
@@ -62,7 +64,11 @@ class LibraryViewModelTests {
         instance = LibraryViewModel(
             ReadLibraryUseCase(dataStore, searchQueryState, dao),
             ModifyLibraryUseCase(permissionHandler, dao),
-            searchQueryState, messageHandler, playbackState)
+            FolderUseCases(context, permissionHandler, dao),
+            NavigationState(),
+            searchQueryState,
+            messageHandler,
+            playbackState)
     }
 
     private val testUris = List(4) { "uri $it".toUri() }

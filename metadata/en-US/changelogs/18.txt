@@ -1,0 +1,5 @@
+Version 3.1.0
+
+- Added dark and light frosted glass themes for cards
+- Added a 0-100% frosted glass opacity slider in display settings
+- Made the top app bar transparent and kept the main background visible behind it and behind the settings page

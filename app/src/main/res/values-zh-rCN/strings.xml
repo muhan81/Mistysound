@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of Mistysound, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_player_service_description">用于播放用户声音组合的服务。</string>
+    <string name="player_notification_channel_name">播放器控制</string>
+    <string name="player_notification_channel_description">
+        带有 Mistysound 后台音频服务控制项的通知。</string>
+    <string name="player_no_active_playlists_warning_message">
+        没有已启用的音频或播放列表。请先点按音频或播放列表的添加按钮。</string>
+
+    <string name="tile_inactive_description">播放 Mistysound 音频</string>
+    <string name="tile_active_description">停止 Mistysound 音频</string>
+
+    <string name="back">返回</string>
+    <string name="search">搜索</string>
+    <string name="sort_options_description">打开排序选项</string>
+    <string name="create_folder_button_description">创建文件夹</string>
+
+    <string name="empty_library_message">你的库是空的。\n\n点按下方添加按钮，将本地文件添加到库中。\n\n点按已添加音频或播放列表旁边的加号，可在开始播放时将其加入声音组合。</string>
+    <string name="no_search_results_message">没有音频/播放列表与搜索内容匹配。</string>
+    <string name="set_playlist_active_description">将 %1$s 添加到声音组合</string>
+    <string name="set_playlist_inactive_description">从声音组合中移除 %1$s</string>
+    <string name="set_folder_active_description">将文件夹 %1$s 添加到声音组合</string>
+    <string name="set_folder_inactive_description">从声音组合中移除文件夹 %1$s</string>
+    <string name="playlist_error_message">文件缺失/损坏</string>
+    <string name="item_options_button_description">%1$s 的更多选项</string>
+    <string name="remove_item_description">移除 %1$s</string>
+
+    <string name="rename">重命名</string>
+    <string name="default_rename_dialog_title">输入新名称</string>
+
+    <string name="volume_boost_description">音量增强</string>
+    <string name="volume_boost_explanation_part_1">这会在应用常规音量前先提升播放列表/音频的音量。每增加 10\u2009dB，听感音量约翻倍。例如：</string>
+    <string name="volume_boost_explanation_part_2">
+        +\u200910\u2009dB = 2\u00D7 音量
+        \n+\u200920\u2009dB = 4\u00D7 音量
+        \n+\u200930\u2009dB = 8\u00D7 音量</string>
+
+    <string name="remove">移除</string>
+    <string name="confirm_remove_title">移除 %1$s？</string>
+    <string name="confirm_remove_track_message">这会从你的库以及其所属的所有预设中移除此音频，但不会从设备中删除该文件。</string>
+    <string name="confirm_remove_playlist_message">
+        这会从你的库以及其所属的所有预设中移除此播放列表，但不会从设备中删除播放列表内的文件。</string>
+
+    <string name="create_playlist_title">创建播放列表</string>
+    <string name="playlist_options_title">播放列表选项</string>
+    <string name="playlist_track_count_description">%1$s 首音频</string>
+    <string name="playlist_shuffle_switch_title">随机播放</string>
+    <string name="playlist_shuffle_switch_description">开启/关闭随机播放</string>
+    <string name="playlist_track_handle_description">重新排序音频 %1$s</string>
+    <string name="playlist_track_error_message">文件缺失/损坏：</string>
+    <string name="playlist_track_delete_description">移除 %1$s</string>
+    <string name="playlist_add_tracks_button_description">向 %1$s 添加音频</string>
+
+    <string name="folder_source_dialog_title">用以下内容创建文件夹</string>
+    <string name="folder_choose_local_audio">选择本地音频</string>
+    <string name="folder_choose_current_audio">选择当前音频</string>
+    <string name="folder_name_dialog_title">输入文件夹名称</string>
+    <string name="folder_add_audio_button_description">向当前文件夹添加音频</string>
+    <string name="folder_no_current_audio_warning">请先在主页选择一个或多个音频。</string>
+    <string name="empty_folder_message">此文件夹为空。</string>
+    <string name="folder_item_count_description">%1$d 个音频</string>
+    <string name="folder_add_audio">添加音频</string>
+    <string name="folder_sequential_play">顺序播放</string>
+    <string name="folder_random_play">随机播放</string>
+    <string name="confirm_remove_folder_message">
+        这会移除该文件夹及其中的音频归类，但不会从库中移除音频，也不会删除设备文件。</string>
+
+    <string name="file_chooser_no_valid_tracks_error_message">
+        请至少选择一个尚未在播放列表中的文件</string>
+    <string name="file_chooser_invalid_tracks_warning_message">
+        其中 %1$d 个文件已在播放列表中</string>
+
+    <string name="playlist_options_request_storage_permission_explanation">
+        Mistysound 已使用 Android 允许应用在无完整存储访问权限时保留的 %1$d/%2$d 个文件权限。必须授予读取音频文件权限，才能将新音频添加到播放列表。
+    </string>
+
+    <string name="add_local_files_button_description">从本地文件添加音频或播放列表</string>
+    <string name="add_local_files_as_playlist_or_tracks_title">添加本地文件</string>
+    <string name="add_local_files_as_playlist_or_tracks_question">
+        将文件添加为单独音频，还是添加为播放列表？</string>
+    <string name="add_local_files_individually_option">单独添加</string>
+    <string name="add_local_files_as_playlist_option">播放列表</string>
+    <string name="add_local_files_as_tracks_dialog_title">确认音频名称</string>
+    <string name="add_local_files_as_playlist_dialog_title">确认播放列表名称</string>
+    <string name="add_local_files_request_storage_permission_title">空间不足</string>
+    <string name="add_local_files_request_storage_permission_explanation_for_tracks">
+        Mistysound 已使用 Android 允许应用在无完整存储访问权限时保留的 %1$d/%2$d 个文件权限。必须授予读取音频文件权限，才能添加所有音频。
+    </string>
+    <string name="add_local_files_request_storage_permission_explanation_for_playlist">
+        Mistysound 已使用 Android 允许应用在无完整存储访问权限时保留的 %1$d/%2$d 个文件权限。必须授予读取音频文件权限，才能添加整个播放列表。
+    </string>
+
+    <string name="add_multiple_tracks_name_error_message">音频名称必须唯一且不能为空</string>
+    <string name="name_dialog_blank_name_error_message">名称不能为空</string>
+    <string name="name_dialog_duplicate_name_error_message">该名称已被使用</string>
+
+    <string name="cant_add_tracks_warning">
+        无法添加文件，因为会超出 Android 的文件权限限制。请移除一些音频或播放列表后重试，或授予应用读取文件权限。</string>
+    <string name="cant_add_playlist_warning">
+        无法添加播放列表，因为会超出 Android 的文件权限限制。请移除一些音频或播放列表后重试，或授予应用读取文件权限。</string>
+    <string name="cant_add_playlist_tracks_warning">
+        无法将新音频添加到播放列表，因为会超出 Android 的文件权限限制。请移除一些音频或播放列表后重试，或授予应用读取文件权限。
+    </string>
+
+    <string name="configure_playlist_dialog_title">配置播放列表选项</string>
+
+    <string name="preset_button_click_label">更改当前预设</string>
+    <string name="unsaved_preset_description">未保存的预设</string>
+
+    <string name="play_button_description">播放 Mistysound 音频</string>
+    <string name="pause_button_description">暂停 Mistysound 音频</string>
+    <string name="playback_speed_dialog_title">播放倍速</string>
+    <string name="playback_speed_dialog_description">请输入 0.1x 到 5x 之间的倍速。</string>
+    <string name="playback_speed_dialog_effective_value">当前使用 %1$s</string>
+
+    <string name="play_pause_button_long_click_description">设置自动停止计时器</string>
+    <string name="set_stop_timer_dialog_description">
+        设置播放自动停止前的时长。你可以使用上下按钮调整数值，也可以上下拖动数值。</string>
+
+    <string name="stop_timer_text">停止倒计时</string>
+    <string name="stop_timer_click_label">取消自动停止计时器</string>
+    <string name="cancel_stop_timer_dialog_title">确认取消计时器</string>
+    <string name="cancel_stop_timer_dialog_text">
+        确定要取消自动停止计时器吗？</string>
+
+    <string name="preset_selector_title">选择预设</string>
+    <string name="empty_preset_list_message">你还没有保存任何预设。点按下方添加按钮，将当前声音组合保存为预设。</string>
+    <string name="preset_click_label">加载预设 %1$s</string>
+    <string name="close_preset_selector_description">关闭预设选择器</string>
+
+    <string name="overwrite">覆盖</string>
+    <string name="overwrite_no_active_playlists_error_message">
+        预设必须至少包含一个已启用的音频或播放列表</string>
+    <string name="confirm_overwrite_preset_dialog_title">确认覆盖预设</string>
+    <string name="confirm_overwrite_preset_dialog_message">
+        这会覆盖预设 %1$s。确定吗？</string>
+
+    <string name="delete">删除</string>
+    <string name="confirm_delete_preset_title">删除 %1$s？</string>
+    <string name="confirm_delete_preset_message">
+        这不会从你的库中移除该预设里的音频或播放列表。</string>
+    <string name="preset_cannot_be_empty_warning_message">
+        没有可添加到预设的已启用音频或播放列表</string>
+    <string name="add_preset_button_description">创建新预设</string>
+    <string name="create_new_preset_dialog_title">输入新预设名称</string>
+
+    <string name="unsaved_preset_changes_warning_title">未保存的更改</string>
+    <string name="unsaved_preset_changes_warning_message">预设 %1$s 有未保存的更改。如果现在加载新预设，自上次保存以来的更改将会丢失。</string>
+    <string name="unsaved_preset_changes_warning_save_first_option">先保存更改</string>
+    <string name="unsaved_preset_changes_warning_load_anyways_option">仍然加载</string>
+
+    <string name="playing">正在播放</string>
+    <string name="paused">已暂停</string>
+    <string name="stopped">已停止</string>
+    <string name="stop_timer_description">%1$s 后停止</string>
+    <string name="cancel_stop_timer_action">取消停止计时器</string>
+
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="close">关闭</string>
+    <string name="checked">已选中</string>
+    <string name="unchecked">未选中</string>
+    <string name="dismiss">关闭</string>
+    <string name="ok" tools:ignore="ButtonCase">确定</string>
+    <string name="cancel">取消</string>
+
+    <string name="show_active_playlists_first">优先显示已启用</string>
+    <string name="name_ascending">名称升序</string>
+    <string name="name_descending">名称降序</string>
+    <string name="order_added">添加顺序</string>
+
+    <string name="play_button_long_click_hint_text">
+        提示：长按播放/暂停按钮可以设置自动停止计时器</string>
+
+    <string name="app_settings_description">Mistysound 设置</string>
+    <string name="settings">设置</string>
+
+    <string name="display">显示</string>
+    <string name="app_theme">应用主题</string>
+    <string name="match_system_theme">跟随系统</string>
+    <string name="light_theme">浅色</string>
+    <string name="dark_theme">深色</string>
+    <string name="dark_frosted_glass_theme">深色磨砂玻璃</string>
+    <string name="light_frosted_glass_theme">浅色磨砂玻璃</string>
+    <string name="frosted_glass_opacity_title">磨砂玻璃不透明度</string>
+    <string name="frosted_glass_opacity_description">调整卡片不透明度（%1$d%%）</string>
+    <string name="main_background_setting_title">自定义主背景</string>
+    <string name="main_background_setting_description">管理主页面和文件夹页面底层使用的大背景</string>
+    <string name="card_background_setting_title">自定义卡片背景</string>
+    <string name="card_background_setting_description">管理音频卡片和文件夹卡片共用的背景图</string>
+    <string name="main_background_page_title">主背景</string>
+    <string name="card_background_page_title">卡片背景</string>
+    <string name="main_background_editor_title">编辑主背景</string>
+    <string name="card_background_editor_title">编辑卡片背景</string>
+    <string name="background_preview_title">预览</string>
+    <string name="background_current_badge">当前生效</string>
+    <string name="background_no_preview_message">点击图片卡片后，会在这里显示预览。</string>
+    <string name="background_empty_state_message">还没有导入图片，点击右下角 + 按钮添加。</string>
+    <string name="background_import_button_description">导入背景图片</string>
+    <string name="background_save_effect_button">保存生效</string>
+    <string name="background_rename_dialog_title">重命名背景图片</string>
+    <string name="background_remove_dialog_title">移除背景图片</string>
+    <string name="background_remove_dialog_message">要将“%1$s”从这个背景库中移除吗？</string>
+    <string name="background_editor_instruction">拖动并双指缩放图片，调整实际显示范围。</string>
+    <string name="background_apply_crop_button">应用裁切</string>
+    <string name="background_discard_changes_title">放弃裁切修改？</string>
+    <string name="background_discard_changes_message">你刚才的裁切调整还没有应用。</string>
+    <string name="background_preview_folder_name">文件夹预览</string>
+    <string name="background_preview_track_name">音频预览</string>
+    <string name="background_import_failure_message">这张图片无法导入。</string>
+    <string name="background_editor_loading_message">正在加载图片编辑器…</string>
+    <string name="background_default_image_name">图片</string>
+    <string name="edit">编辑</string>
+    <string name="language_setting_title">语言</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">한국어</string>
+
+    <string name="playback">播放</string>
+
+    <string name="play_in_background_setting_title">后台播放</string>
+    <string name="play_in_background_setting_description">点按查看详细说明</string>
+    <string name="play_in_background_explanation">启用后台播放将会：</string>
+    <string name="play_in_background_explanation_bullet_1">
+        允许与其他应用的播放同时进行</string>
+    <string name="play_in_background_explanation_bullet_2">
+        让播放控制显示为普通通知，而不是显示在状态栏的媒体控制区域</string>
+    <string name="play_in_background_explanation_bullet_3">
+        除非应用位于前台，否则忽略硬件媒体按钮（例如耳机的播放/暂停按钮）</string>
+    <string name="play_in_background_explanation_bullet_4">
+        阻止通话时自动暂停，除非启用了“通话时自动暂停”设置且已授予读取手机状态权限
+    </string>
+
+    <string name="request_notification_permission_title">需要通知权限</string>
+    <string name="request_notification_permission_explanation_p1">
+        开启后台播放时，Mistysound 必须使用普通通知来显示播放器控制（而不是媒体会话卡片）。为此，它需要发布通知的权限。该权限是可选的，但如果没有权限，开启后台播放后 Mistysound 将无法显示包含播放器控制的通知。</string>
+    <string name="request_notification_permission_explanation_p2">
+        如果你不想授予权限，或想节省通知空间，也可以改为%1$s。</string>
+    <string name="tile_tutorial_link_text">通过快速设置磁贴控制 Mistysound</string>
+
+    <string name="auto_pause_during_calls_setting_title">通话时自动暂停</string>
+    <string name="auto_pause_during_calls_setting_subtitle">
+        需要读取手机状态权限\n仅在后台播放时需要</string>
+    <string name="request_phone_state_permission_explanation">
+        不在后台播放音频时，你的设备会通知 Mistysound 在通话期间暂停播放。后台播放时不会发生这种情况。因此需要读取手机状态权限，以便 Mistysound 检测通话并相应暂停播放。</string>
+
+    <string name="on_zero_volume_behavior_setting_title">
+        音量为零时的行为</string>
+    <string name="on_zero_volume_behavior_setting_description">
+        此设置决定当音频设备切换导致音量为零时，播放应如何响应（例如耳机断开连接，而手机扬声器音量为零）。</string>
+    <string name="stop_playback_on_zero_volume_title">停止播放</string>
+    <string name="stop_playback_on_zero_volume_description">
+        自动停止应用的后台服务。</string>
+    <string name="pause_playback_on_zero_volume_title">暂停播放</string>
+    <string name="pause_playback_on_zero_volume_description">
+        如果另一次音频设备切换使媒体音量恢复到大于零（例如重新连接耳机），播放将自动恢复。由于应用会在后台保持暂停状态，此设置可能会稍微增加电量消耗。</string>
+    <string name="do_nothing_on_zero_volume_title">不执行操作</string>
+    <string name="do_nothing_on_zero_volume_description">
+        此设置会造成最高电量消耗，因为即使听不到声音，应用仍会继续播放。
+    </string>
+
+    <string name="control_playback_using_tile_setting_title">
+        使用磁贴控制播放</string>
+    <string name="tile_tutorial_title">磁贴教程</string>
+    <string name="multi_step_dialog_indicator">%1$d / %2$d</string>
+    <string name="previous">上一步</string>
+    <string name="next">下一步</string>
+    <string name="finish">完成</string>
+    <string name="tile_tutorial_intro_text">
+        除了通知之外，你还可以通过快速设置磁贴控制 Mistysound。</string>
+    <string name="tile_tutorial_add_tile_text">
+        要将它添加到当前快速设置磁贴中，请点按完全展开的状态栏中的编辑按钮，然后将 Mistysound 磁贴拖入当前磁贴列表。</string>
+    <string name="tile_tutorial_add_tile_help_button_text">
+        帮助！我不知道怎么添加磁贴。</string>
+    <string name="tile_tutorial_add_tile_help_button_show_description">
+        显示添加磁贴帮助</string>
+    <string name="tile_tutorial_add_tile_help_button_hide_description">
+        隐藏添加磁贴帮助</string>
+    <string name="tile_tutorial_add_tile_help_text">
+        编辑快速设置磁贴的按钮可能会因设备厂商和 Android 版本而有所不同。可以在搜索引擎中搜索“编辑快速设置磁贴”加上你的设备厂商名称。</string>
+    <string name="tile_tutorial_add_tile_button_text">添加磁贴</string>
+    <string name="tile_tutorial_tile_usage_text">
+        点按磁贴会在播放和停止状态之间切换 Mistysound 的后台音频服务。长按磁贴会打开 Mistysound。</string>
+    <string name="tile_tutorial_hide_notification_text">
+        如果想隐藏 Mistysound 的通知以节省空间，你可以在%1$s中自行隐藏。点按“通知”，然后停用“播放器控制”通知。</string>
+    <string name="tile_tutorial_hide_notification_link_text">
+        Mistysound 的系统设置页面</string>
+
+    <string name="stop_instead_of_pause_setting_title">停止而不是暂停</string>
+    <string name="stop_instead_of_pause_setting_description">
+        音频/播放列表将从头开始播放，而不是继续播放</string>
+
+    <string name="about">关于</string>
+    <string name="privacy_policy_setting_title">隐私政策</string>
+    <string name="privacy_policy_setting_body">
+        Mistysound 不会收集、存储或传输任何个人信息。</string>
+    <string name="open_source_licenses">开源许可证</string>
+    <string name="about_app_setting_title">关于 Mistysound</string>
+    <string name="about_app_setting_body">
+        Mistysound 是一款开源环境音应用。源代码按照 Apache License 2.0 条款发布。</string>
+    <string name="view_source_code">查看源代码</string>
+</resources>

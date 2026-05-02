@@ -3,7 +3,6 @@
  * the project's root directory to see the full license. */
 package com.cliffracertech.soundaura.appbar
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -35,41 +34,31 @@ import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.cliffracertech.soundaura.rememberMutableStateOf
 import com.cliffracertech.soundaura.ui.minTouchTargetSize
 import kotlinx.collections.immutable.ImmutableList
 
-/** Compose a [Row] with a gradient background and vertically centered
- * content, while providing the current theme's onPrimary color as the
- * [LocalContentColor]. */
+/** Compose a transparent [Row] with status/navigation bar safe spacing,
+ * while providing the current theme's onPrimary color as the [LocalContentColor]. */
 @Composable
 fun GradientToolBar(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    val gradStart = MaterialTheme.colors.primaryVariant
-    val gradEnd = MaterialTheme.colors.secondaryVariant
-    val gradient = remember(gradStart, gradEnd) {
-        Brush.horizontalGradient(listOf(gradStart, gradEnd))
-    }
     // Side navigation bar insets need to be applied before the background
-    // so that the background will not draw under the navigation bar. Side
+    // so that the content will not draw under the navigation bar. Side
     // navigation bar insets will usually be zero, but may be non-zero for
     // 3-button navigation users in landscape mode.
     val sideNavigationInsets = WindowInsets.navigationBars
         .only(WindowInsetsSides.Start + WindowInsetsSides.End)
     Row(modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.background)
             .windowInsetsPadding(sideNavigationInsets)
-            .background(gradient)
             .statusBarsPadding()
             .height(56.dp),
         verticalAlignment = Alignment.CenterVertically

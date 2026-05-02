@@ -69,6 +69,53 @@ import com.cliffracertech.soundaura.dialog.SoundAuraDialog
                     stringResource(R.string.version_1_6_change_storage_permission_explanation),
                 stringResource(R.string.bug_fixes_section_title) to
                     stringResource(R.string.version_1_6_change_bug_fixes_description))
+            14 -> listOf(
+                stringResource(R.string.version_1_7_change_audio_controls_title) to
+                    stringResource(R.string.version_1_7_change_audio_controls_description),
+                stringResource(R.string.version_1_7_change_folders_title) to
+                    stringResource(R.string.version_1_7_change_folders_description),
+                stringResource(R.string.version_1_7_change_language_title) to
+                    stringResource(R.string.version_1_7_change_language_description))
+            15 -> listOf(
+                stringResource(R.string.version_2_0_change_brand_title) to
+                    stringResource(R.string.version_2_0_change_brand_description),
+                stringResource(R.string.version_2_0_change_folder_loading_title) to
+                    stringResource(R.string.version_2_0_change_folder_loading_description),
+                stringResource(R.string.version_2_0_change_stability_title) to
+                    stringResource(R.string.version_2_0_change_stability_description))
+            16 -> listOf(
+                stringResource(R.string.version_3_0_change_backgrounds_title) to
+                    stringResource(R.string.version_3_0_change_backgrounds_description),
+                stringResource(R.string.version_3_0_change_library_search_title) to
+                    stringResource(R.string.version_3_0_change_library_search_description),
+                stringResource(R.string.version_3_0_change_background_tools_title) to
+                    stringResource(R.string.version_3_0_change_background_tools_description))
+            17 -> listOf(
+                stringResource(R.string.bug_fixes_section_title) to
+                    stringResource(R.string.version_3_0_1_fix_background_crash_description))
+            18 -> listOf(
+                stringResource(R.string.version_3_1_0_change_frosted_glass_title) to
+                    stringResource(R.string.version_3_1_0_change_frosted_glass_description),
+                stringResource(R.string.version_3_1_0_change_opacity_title) to
+                    stringResource(R.string.version_3_1_0_change_opacity_description),
+                stringResource(R.string.version_3_1_0_change_background_visibility_title) to
+                    stringResource(R.string.version_3_1_0_change_background_visibility_description))
+            19 -> listOf(
+                stringResource(R.string.version_3_2_1_change_editor_confirm_title) to
+                    stringResource(R.string.version_3_2_1_change_editor_confirm_description),
+                stringResource(R.string.version_3_2_1_change_glass_controls_title) to
+                    stringResource(R.string.version_3_2_1_change_glass_controls_description),
+                stringResource(R.string.version_3_2_1_change_gesture_title) to
+                    stringResource(R.string.version_3_2_1_change_gesture_description),
+                stringResource(R.string.version_3_2_1_change_icons_title) to
+                    stringResource(R.string.version_3_2_1_change_icons_description))
+            20 -> listOf(
+                stringResource(R.string.version_3_2_3_change_glass_tuning_title) to
+                    stringResource(R.string.version_3_2_3_change_glass_tuning_description),
+                stringResource(R.string.version_3_2_3_change_slider_title) to
+                    stringResource(R.string.version_3_2_3_change_slider_description),
+                stringResource(R.string.version_3_2_3_change_floating_controls_title) to
+                    stringResource(R.string.version_3_2_3_change_floating_controls_description))
             else -> listOf(
                 stringResource(R.string.bug_fixes_section_title) to
                     stringResource(R.string.version_1_6_2_change_crash_on_adding_media_fix)

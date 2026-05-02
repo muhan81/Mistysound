@@ -38,6 +38,7 @@ import com.cliffracertech.soundaura.settings.dataStore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -172,7 +173,12 @@ class PlayerService: LifecycleService() {
                 .onEach { stopInsteadOfPause = it }
                 .launchIn(this)
 
-            playlistDao.getActivePlaylistsAndTracks()
+            combine(
+                playlistDao.getActivePlaylistsAndTracks(),
+                playlistDao.getActiveFolderPlaylistsAndTracks()
+            ) { activePlaylists, activeFolders ->
+                buildActivePlaybacks(activePlaylists, activeFolders)
+            }
                 .onEach(::updatePlayers)
                 .launchIn(this)
         }
@@ -287,12 +293,50 @@ class PlayerService: LifecycleService() {
         updateNotification()
     }
 
-    private fun updatePlayers(playlists: Map<ActivePlaylistSummary, List<Uri>>) {
-        playerMap.update(playlists, isPlaying)
+    private fun buildActivePlaybacks(
+        activePlaylists: Map<ActivePlaylistSummary, List<Uri>>,
+        activeFolders: Map<ActiveFolderPlaylistSummary, List<Uri>>,
+    ): List<ActivePlayback> {
+        val directPlaybacks = activePlaylists.map { (playlist, uris) ->
+            ActivePlayback(
+                key = "playlist:${playlist.id}",
+                shuffle = playlist.shuffle,
+                tracks = uris.map { uri ->
+                    PlaybackTrack(
+                        playlistId = playlist.id,
+                        uri = uri,
+                        volume = playlist.volume,
+                        volumeBoostDb = playlist.volumeBoostDb,
+                        playbackSpeed = playlist.playbackSpeed)
+                })
+        }
+        val folderPlaybacks = activeFolders.entries
+            .groupBy { it.key.folderId }
+            .map { (folderId, entries) ->
+                val sortedEntries = entries.sortedBy { it.key.folderOrder }
+                ActivePlayback(
+                    key = "folder:$folderId",
+                    shuffle = sortedEntries.first().key.folderShuffle,
+                    tracks = sortedEntries.flatMap { (playlist, uris) ->
+                        uris.map { uri ->
+                            PlaybackTrack(
+                                playlistId = playlist.playlistId,
+                                uri = uri,
+                                volume = playlist.volume,
+                                volumeBoostDb = playlist.volumeBoostDb,
+                                playbackSpeed = playlist.playbackSpeed)
+                        }
+                    })
+            }
+        return directPlaybacks + folderPlaybacks
+    }
+
+    private fun updatePlayers(playbacks: List<ActivePlayback>) {
+        playerMap.update(playbacks, isPlaying)
 
         // If the new track list is empty when isPlaying is true, we want
         // to pause playback because there are no playlists to play.
-        if (isPlaying && playlists.isEmpty()) {
+        if (isPlaying && playbacks.isEmpty()) {
             setPlaybackState(STATE_PAUSED)
             // If this playback auto pause occurred due to the user making the last
             // active track inactive, then no user feedback should be necessary. If
@@ -325,6 +369,15 @@ class PlayerService: LifecycleService() {
 
     fun setPlaylistVolume(playlistId: Long, volume: Float) =
         playerMap.setPlayerVolume(playlistId, volume)
+
+    fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) =
+        playerMap.setPlayerSpeed(playlistId, speed)
+
+    fun getPlaylistProgress(playlistId: Long): PlaybackProgress =
+        playerMap.progressFor(playlistId) ?: PlaybackProgress()
+
+    fun seekPlaylistTo(playlistId: Long, positionMillis: Int) =
+        playerMap.seekTo(playlistId, positionMillis)
 
     /**
      * Automatically pause playback if the parameter [condition] is true and
@@ -390,6 +443,15 @@ class PlayerService: LifecycleService() {
 
         fun setPlaylistVolume(playlistId: Long, volume: Float) =
             this@PlayerService.setPlaylistVolume(playlistId, volume)
+
+        fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) =
+            this@PlayerService.setPlaylistPlaybackSpeed(playlistId, speed)
+
+        fun getPlaylistProgress(playlistId: Long) =
+            this@PlayerService.getPlaylistProgress(playlistId)
+
+        fun seekPlaylistTo(playlistId: Long, positionMillis: Int) =
+            this@PlayerService.seekPlaylistTo(playlistId, positionMillis)
     }
 
     /** PlaybackModule enables PlayerService to have its functionality extended

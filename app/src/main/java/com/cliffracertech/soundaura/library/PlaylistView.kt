@@ -10,26 +10,33 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,7 +51,14 @@ import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.rememberMutableStateOf
 import com.cliffracertech.soundaura.ui.MarqueeText
 import com.cliffracertech.soundaura.ui.minTouchTargetSize
+import com.cliffracertech.soundaura.ui.theme.AppCardSurface
+import com.cliffracertech.soundaura.ui.theme.OverlayActionStyle
+import com.cliffracertech.soundaura.ui.theme.rememberOverlayActionColors
+import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
+import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderPalette
 import com.cliffracertech.soundaura.ui.theme.SoundAuraTheme
+import com.cliffracertech.soundaura.service.PlaybackProgress
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 /**
@@ -70,6 +84,7 @@ data class Playlist(
     val isSingleTrack: Boolean,
     val volume: Float = 1.0f,
     val volumeBoostDb: Int = 0,
+    val playbackSpeed: Float = 1f,
     val hasError: Boolean = false)
 
 /** A collection of callbacks for [PlaylistView] interactions. The first parameter
@@ -81,6 +96,9 @@ interface PlaylistViewCallback {
     fun onVolumeChange(playlist: Playlist, volume: Float)
     /** The callback that will be invoked when the volume slider's handle is released */
     fun onVolumeChangeFinished(playlist: Playlist, volume: Float)
+    fun getProgress(playlist: Playlist): PlaybackProgress
+    fun onSeek(playlist: Playlist, positionMillis: Int)
+    fun onPlaybackSpeedClick(playlist: Playlist)
     /** The callback that will be invoked when the 'rename'
      * option of the playlist's options menu is clicked */
     fun onRenameClick(playlist: Playlist)
@@ -100,6 +118,9 @@ interface PlaylistViewCallback {
     onAddRemoveButtonClick: (Playlist) -> Unit = { _ -> },
     onVolumeChange: (Playlist, Float) -> Unit = { _, _ -> },
     onVolumeChangeFinished: (Playlist, Float) -> Unit = { _, _ -> },
+    getProgress: (Playlist) -> PlaybackProgress = { PlaybackProgress() },
+    onSeek: (Playlist, Int) -> Unit = { _, _ -> },
+    onPlaybackSpeedClick: (Playlist) -> Unit = {},
     onRenameClick: (Playlist) -> Unit = {},
     onExtraOptionsClick: (Playlist) -> Unit = {},
     onVolumeBoostClick: (Playlist) -> Unit = {},
@@ -108,6 +129,9 @@ interface PlaylistViewCallback {
     override fun onAddRemoveButtonClick(playlist: Playlist) = onAddRemoveButtonClick(playlist)
     override fun onVolumeChange(playlist: Playlist, volume: Float) = onVolumeChange(playlist, volume)
     override fun onVolumeChangeFinished(playlist: Playlist, volume: Float) = onVolumeChangeFinished(playlist, volume)
+    override fun getProgress(playlist: Playlist) = getProgress(playlist)
+    override fun onSeek(playlist: Playlist, positionMillis: Int) = onSeek(playlist, positionMillis)
+    override fun onPlaybackSpeedClick(playlist: Playlist) = onPlaybackSpeedClick(playlist)
     override fun onRenameClick(playlist: Playlist) = onRenameClick(playlist)
     override fun onExtraOptionsClick(playlist: Playlist) = onExtraOptionsClick(playlist)
     override fun onVolumeBoostClick(playlist: Playlist) = onVolumeBoostClick(playlist)
@@ -130,63 +154,67 @@ interface PlaylistViewCallback {
     playlist: Playlist,
     callback: PlaylistViewCallback,
     modifier: Modifier = Modifier
-) = Surface(modifier, MaterialTheme.shapes.large) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        AddRemoveButtonOrErrorIcon(
-            showError = playlist.hasError,
-            isAdded = playlist.isActive,
-            contentDescription = if (playlist.hasError) null else {
-                val id = if (playlist.isActive)
-                             R.string.set_playlist_inactive_description
-                         else R.string.set_playlist_active_description
-                stringResource(id, playlist.name)
-            }, onAddRemoveClick = {
-                callback.onAddRemoveButtonClick(playlist)
-            })
+) = AppCardSurface(modifier, MaterialTheme.shapes.large) {
+        val neutralActionColors = rememberOverlayActionColors(OverlayActionStyle.Neutral)
+        val primaryActionColors = rememberOverlayActionColors(OverlayActionStyle.Primary)
+        val secondaryActionColors = rememberOverlayActionColors(OverlayActionStyle.Secondary)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AddRemoveButtonOrErrorIcon(
+                showError = playlist.hasError,
+                isAdded = playlist.isActive,
+                contentDescription = if (playlist.hasError) null else {
+                    val id = if (playlist.isActive)
+                        R.string.set_playlist_inactive_description
+                    else R.string.set_playlist_active_description
+                    stringResource(id, playlist.name)
+                },
+                backgroundColor = neutralActionColors.containerColor,
+                tint = primaryActionColors.containerColor,
+                onAddRemoveClick = {
+                    callback.onAddRemoveButtonClick(playlist)
+                })
 
-        val volumeSliderInteractionSource = remember { MutableInteractionSource() }
-        var volumeSliderValue by remember(playlist.volume) { mutableFloatStateOf(playlist.volume) }
-        val volumeSliderIsBeingPressed by volumeSliderInteractionSource.collectIsPressedAsState()
-        val volumeSliderIsBeingDragged by volumeSliderInteractionSource.collectIsDraggedAsState()
+            val volumeSliderInteractionSource = remember { MutableInteractionSource() }
+            var volumeSliderValue by remember(playlist.volume) { mutableFloatStateOf(playlist.volume) }
+            val volumeSliderIsBeingPressed by volumeSliderInteractionSource.collectIsPressedAsState()
+            val volumeSliderIsBeingDragged by volumeSliderInteractionSource.collectIsDraggedAsState()
 
-        // A Box is used instead of a column so that the MarqueeText for
-        // the playlist name can partially overlap (only the part below
-        // the text baseline) with the volume slider to save space.
-        Box(Modifier.weight(1f)) {
-            // 1dp start padding is required to make the text align with the volume icon
-            MarqueeText(text = playlist.name,
-                        style = MaterialTheme.typography.h5,
-                        modifier = Modifier
-                            .padding(start = 1.dp, top = 10.dp)
-                            .paddingFromBaseline(bottom = 48.dp))
-            VolumeSliderOrErrorMessage(
+            Column(Modifier.weight(1f).padding(top = 8.dp, bottom = 4.dp)) {
+                MarqueeText(text = playlist.name,
+                    style = MaterialTheme.typography.h5,
+                    modifier = Modifier.padding(start = 1.dp))
+                VolumeSliderOrErrorMessage(
+                    volume = volumeSliderValue,
+                    onVolumeChange = { volume ->
+                        volumeSliderValue = volume
+                        callback.onVolumeChange(playlist, volume)
+                    }, onVolumeChangeFinished = {
+                        callback.onVolumeChangeFinished(playlist, volumeSliderValue)
+                    }, modifier = Modifier.fillMaxWidth(),
+                    sliderInteractionSource = volumeSliderInteractionSource,
+                    errorMessage = if (!playlist.hasError) null else
+                        stringResource(R.string.playlist_error_message))
+                if (!playlist.hasError)
+                    PlaylistProgressAndSpeed(
+                        playlist = playlist,
+                        callback = callback)
+            }
+            PlaylistViewEndContent(
+                content = when {
+                    playlist.hasError ->
+                        PlaylistViewEndContentType.DeleteButton
+                    volumeSliderIsBeingPressed || volumeSliderIsBeingDragged ->
+                        PlaylistViewEndContentType.VolumeDisplay
+                    else ->
+                        PlaylistViewEndContentType.MoreOptionsButton
+                }, playlist = playlist,
                 volume = volumeSliderValue,
-                onVolumeChange = { volume ->
-                    volumeSliderValue = volume
-                    callback.onVolumeChange(playlist, volume)
-                }, onVolumeChangeFinished = {
-                    callback.onVolumeChangeFinished(playlist, volumeSliderValue)
-                }, modifier = Modifier.align(Alignment.BottomStart),
-                sliderInteractionSource = volumeSliderInteractionSource,
-                errorMessage = if (!playlist.hasError) null else
-                    stringResource(R.string.playlist_error_message))
+                onRenameClick = { callback.onRenameClick(playlist) },
+                onPlaylistOptionsClick = { callback.onExtraOptionsClick(playlist) },
+                onVolumeBoostClick = { callback.onVolumeBoostClick(playlist) },
+                onRemoveClick = { callback.onRemoveClick(playlist) },
+                tint = secondaryActionColors.containerColor)
         }
-        PlaylistViewEndContent(
-            content = when {
-                playlist.hasError ->
-                    PlaylistViewEndContentType.DeleteButton
-                volumeSliderIsBeingPressed || volumeSliderIsBeingDragged ->
-                    PlaylistViewEndContentType.VolumeDisplay
-                else ->
-                    PlaylistViewEndContentType.MoreOptionsButton
-            }, playlist = playlist,
-            volume = volumeSliderValue,
-            onRenameClick = { callback.onRenameClick(playlist) },
-            onPlaylistOptionsClick = { callback.onExtraOptionsClick(playlist) },
-            onVolumeBoostClick = { callback.onVolumeBoostClick(playlist) },
-            onRemoveClick = { callback.onRemoveClick(playlist) },
-            tint = MaterialTheme.colors.secondaryVariant)
-    }
 }
 
 /**
@@ -210,6 +238,7 @@ interface PlaylistViewCallback {
     isAdded: Boolean,
     contentDescription: String? = null,
     backgroundColor: Color = MaterialTheme.colors.surface,
+    tint: Color = MaterialTheme.colors.primaryVariant,
     onAddRemoveClick: () -> Unit
 ) = AnimatedContent(
     targetState = showError,
@@ -224,7 +253,7 @@ interface PlaylistViewCallback {
         added = isAdded,
         contentDescription = contentDescription,
         backgroundColor = backgroundColor,
-        tint = MaterialTheme.colors.primaryVariant,
+        tint = tint,
         onClick = onAddRemoveClick)
 }
 
@@ -262,6 +291,7 @@ interface PlaylistViewCallback {
     // seem to work, so this inner box is necessary to make the error message
     // appear vertically centered in the space where the volume slider would be
     Row(verticalAlignment = Alignment.CenterVertically) {
+        val sliderPalette = rememberOverlaySliderPalette()
         if (hasError) Text(
             text = errorMessage ?: "",
             color = MaterialTheme.colors.error,
@@ -275,20 +305,91 @@ interface PlaylistViewCallback {
             Icon(imageVector = Icons.Default.VolumeUp,
                  contentDescription = null,
                  modifier = Modifier.size(20.dp),
-                 tint = MaterialTheme.colors.primaryVariant)
+                 tint = sliderPalette.accentStart)
             GradientSlider(
                 value = volume,
                 onValueChange = onVolumeChange,
                 onValueChangeFinished = { onVolumeChangeFinished?.invoke() },
                 interactionSource = sliderInteractionSource,
                 colors = GradientSliderDefaults.colors(
-                    thumbColor = MaterialTheme.colors.primaryVariant,
-                    thumbColorEnd = MaterialTheme.colors.secondaryVariant,
+                    thumbColor = sliderPalette.accentStart,
+                    thumbColorEnd = sliderPalette.accentEnd,
+                    inactiveTrackColor = sliderPalette.inactiveTrackColor,
                     activeTrackBrush = Brush.horizontalGradient(
-                        listOf(MaterialTheme.colors.primaryVariant,
-                               MaterialTheme.colors.secondaryVariant))))
+                        listOf(sliderPalette.accentStart,
+                               sliderPalette.accentEnd))))
         }
     }
+}
+
+@Composable private fun PlaylistProgressAndSpeed(
+    playlist: Playlist,
+    callback: PlaylistViewCallback,
+) {
+    var progress by remember(playlist.id) { mutableStateOf(callback.getProgress(playlist)) }
+    var sliderValue by remember(playlist.id) { mutableFloatStateOf(0f) }
+    val sliderPalette = rememberOverlaySliderPalette()
+    val sliderColors = rememberOverlaySliderColors()
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val isDragged by interactionSource.collectIsDraggedAsState()
+    val isSeeking = isPressed || isDragged
+
+    LaunchedEffect(playlist.id, playlist.isActive, isSeeking) {
+        while (true) {
+            val latest = callback.getProgress(playlist)
+            progress = latest
+            if (!isSeeking)
+                sliderValue = latest.positionMillis.toFloat()
+            delay(500L)
+        }
+    }
+
+    val max = progress.durationMillis.coerceAtLeast(1).toFloat()
+    Row(
+        modifier = Modifier.fillMaxWidth().height(32.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "${progress.positionMillis.formatMillis()}/${progress.durationMillis.formatMillis()}",
+            style = MaterialTheme.typography.caption,
+            color = LocalContentColor.current.copy(alpha = 0.74f))
+        Spacer(Modifier.width(8.dp))
+        Slider(
+            value = sliderValue.coerceIn(0f, max),
+            onValueChange = { sliderValue = it },
+            onValueChangeFinished = {
+                callback.onSeek(playlist, sliderValue.roundToInt())
+            },
+            valueRange = 0f..max,
+            interactionSource = interactionSource,
+            colors = sliderColors,
+            modifier = Modifier.weight(1f))
+        TextButton(
+            onClick = { callback.onPlaybackSpeedClick(playlist) },
+            modifier = Modifier.width(56.dp)
+        ) {
+            Text(
+                text = playlist.playbackSpeed.formatSpeed(),
+                color = sliderPalette.accentEnd,
+                style = MaterialTheme.typography.caption)
+        }
+    }
+}
+
+private fun Int.formatMillis(): String {
+    val totalSeconds = this.coerceAtLeast(0) / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%02d:%02d".format(minutes, seconds)
+}
+
+fun Float.formatSpeed(): String {
+    val coerced = coerceIn(0.1f, 5f)
+    val rounded = (coerced * 10).roundToInt() / 10f
+    return if (rounded % 1f == 0f)
+        "${rounded.toInt()}x"
+    else "${rounded}x"
 }
 
 /** An enum detailing the possible content for the end of a [PlaylistView]'s layout. */

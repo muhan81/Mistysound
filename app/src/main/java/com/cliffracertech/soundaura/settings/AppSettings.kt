@@ -19,13 +19,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material.Slider
 import androidx.compose.material.Switch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,12 +45,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.dialog.DialogWidth
 import com.cliffracertech.soundaura.ui.HorizontalDivider
+import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
 
 @Composable fun AppSettings(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-) = Surface(modifier, color = MaterialTheme.colors.background) {
+) {
     LazyColumn(
+        modifier = modifier,
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -67,7 +74,72 @@ import com.cliffracertech.soundaura.ui.HorizontalDivider
             valueNames = AppTheme.valueStrings(),
             currentValue = viewModel.appTheme,
             onValueClick = viewModel::onAppThemeClick)
+        FrostedGlassOpacitySetting(viewModel, paddingModifier)
+        HorizontalDivider(paddingModifier)
+        EnumDialogSetting(
+            title = stringResource(R.string.language_setting_title),
+            modifier = paddingModifier,
+            values = AppLanguage.values(),
+            valueNames = AppLanguage.valueStrings(),
+            currentValue = viewModel.appLanguage,
+            onValueClick = viewModel::onAppLanguageClick)
+        HorizontalDivider(paddingModifier)
+        Setting(
+            title = stringResource(R.string.main_background_setting_title),
+            modifier = paddingModifier,
+            subtitle = stringResource(R.string.main_background_setting_description),
+            icon = { androidx.compose.material.Icon(Icons.Default.Image, null) },
+            onClick = viewModel::onMainBackgroundClick,
+        ) {
+            androidx.compose.material.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.54f),
+            )
+        }
     }
+
+@Composable private fun FrostedGlassOpacitySetting(
+    viewModel: SettingsViewModel,
+    modifier: Modifier = Modifier,
+) = AnimatedVisibility(
+    visible = viewModel.frostedGlassOpacitySettingVisible,
+    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+) {
+    var sliderValue by remember(viewModel.frostedGlassOpacityPercent) {
+        mutableFloatStateOf(viewModel.frostedGlassOpacityPercent.toFloat())
+    }
+    val sliderColors = rememberOverlaySliderColors()
+    Column {
+        HorizontalDivider(modifier)
+        Setting(
+            title = stringResource(R.string.frosted_glass_opacity_title),
+            modifier = modifier,
+            subtitle = stringResource(
+                R.string.frosted_glass_opacity_description,
+                sliderValue.toInt(),
+            ),
+        ) {
+            androidx.compose.material.Text(
+                text = "${sliderValue.toInt()}%",
+                style = MaterialTheme.typography.subtitle1,
+            )
+        }
+        Slider(
+            value = sliderValue,
+            onValueChange = { value ->
+                sliderValue = value
+            },
+            onValueChangeFinished = {
+                viewModel.onFrostedGlassOpacityChange(sliderValue.toInt())
+            },
+            valueRange = 0f..100f,
+            colors = sliderColors,
+            modifier = modifier.padding(bottom = 12.dp),
+        )
+    }
+}
 
 @Composable private fun PlayInBackgroundSetting(
     viewModel: SettingsViewModel,

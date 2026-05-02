@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of Mistysound, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_player_service_description">用於播放使用者聲音組合的服務。</string>
+    <string name="player_notification_channel_name">播放器控制</string>
+    <string name="player_notification_channel_description">
+        帶有 Mistysound 背景音訊服務控制項的通知。</string>
+    <string name="player_no_active_playlists_warning_message">
+        沒有已啟用的音訊或播放清單。請先點按音訊或播放清單的新增按鈕。</string>
+
+    <string name="tile_inactive_description">播放 Mistysound 音訊</string>
+    <string name="tile_active_description">停止 Mistysound 音訊</string>
+
+    <string name="back">返回</string>
+    <string name="search">搜尋</string>
+    <string name="sort_options_description">開啟排序選項</string>
+    <string name="create_folder_button_description">建立資料夾</string>
+
+    <string name="empty_library_message">你的資料庫是空的。\n\n點按下方新增按鈕，將本機檔案加入資料庫。\n\n點按已新增音訊或播放清單旁的加號，可在開始播放時將其加入聲音組合。</string>
+    <string name="no_search_results_message">沒有音訊/播放清單符合搜尋內容。</string>
+    <string name="set_playlist_active_description">將 %1$s 加入聲音組合</string>
+    <string name="set_playlist_inactive_description">從聲音組合中移除 %1$s</string>
+    <string name="set_folder_active_description">將資料夾 %1$s 加入聲音組合</string>
+    <string name="set_folder_inactive_description">從聲音組合中移除資料夾 %1$s</string>
+    <string name="playlist_error_message">檔案遺失/損毀</string>
+    <string name="item_options_button_description">%1$s 的更多選項</string>
+    <string name="remove_item_description">移除 %1$s</string>
+
+    <string name="rename">重新命名</string>
+    <string name="default_rename_dialog_title">輸入新名稱</string>
+
+    <string name="volume_boost_description">音量增強</string>
+    <string name="volume_boost_explanation_part_1">這會在套用一般音量前，先提升播放清單/音訊的音量。每增加 10\u2009dB，聽感音量約翻倍。例如：</string>
+    <string name="volume_boost_explanation_part_2">
+        +\u200910\u2009dB = 2\u00D7 音量
+        \n+\u200920\u2009dB = 4\u00D7 音量
+        \n+\u200930\u2009dB = 8\u00D7 音量</string>
+
+    <string name="remove">移除</string>
+    <string name="confirm_remove_title">移除 %1$s？</string>
+    <string name="confirm_remove_track_message">這會從你的資料庫以及其所屬的所有預設中移除此音訊，但不會從裝置中刪除該檔案。</string>
+    <string name="confirm_remove_playlist_message">
+        這會從你的資料庫以及其所屬的所有預設中移除此播放清單，但不會從裝置中刪除播放清單內的檔案。</string>
+
+    <string name="create_playlist_title">建立播放清單</string>
+    <string name="playlist_options_title">播放清單選項</string>
+    <string name="playlist_track_count_description">%1$s 首音訊</string>
+    <string name="playlist_shuffle_switch_title">隨機播放</string>
+    <string name="playlist_shuffle_switch_description">開啟/關閉隨機播放</string>
+    <string name="playlist_track_handle_description">重新排序音訊 %1$s</string>
+    <string name="playlist_track_error_message">檔案遺失/損毀：</string>
+    <string name="playlist_track_delete_description">移除 %1$s</string>
+    <string name="playlist_add_tracks_button_description">將音訊加入 %1$s</string>
+
+    <string name="folder_source_dialog_title">使用以下內容建立資料夾</string>
+    <string name="folder_choose_local_audio">選擇本機音訊</string>
+    <string name="folder_choose_current_audio">選擇目前音訊</string>
+    <string name="folder_name_dialog_title">輸入資料夾名稱</string>
+    <string name="folder_add_audio_button_description">將音訊加入目前資料夾</string>
+    <string name="folder_no_current_audio_warning">請先在首頁選擇一個或多個音訊。</string>
+    <string name="empty_folder_message">此資料夾是空的。</string>
+    <string name="folder_item_count_description">%1$d 個音訊</string>
+    <string name="folder_add_audio">新增音訊</string>
+    <string name="folder_sequential_play">順序播放</string>
+    <string name="folder_random_play">隨機播放</string>
+    <string name="confirm_remove_folder_message">
+        這會移除該資料夾及其中的音訊歸類，但不會從資料庫中移除音訊，也不會刪除裝置檔案。</string>
+
+    <string name="file_chooser_no_valid_tracks_error_message">
+        請至少選擇一個尚未在播放清單中的檔案</string>
+    <string name="file_chooser_invalid_tracks_warning_message">
+        其中 %1$d 個檔案已在播放清單中</string>
+
+    <string name="playlist_options_request_storage_permission_explanation">
+        Mistysound 已使用 Android 允許應用程式在沒有完整儲存空間存取權時保留的 %1$d/%2$d 個檔案權限。必須授予讀取音訊檔案權限，才能將新音訊加入播放清單。
+    </string>
+
+    <string name="add_local_files_button_description">從本機檔案新增音訊或播放清單</string>
+    <string name="add_local_files_as_playlist_or_tracks_title">新增本機檔案</string>
+    <string name="add_local_files_as_playlist_or_tracks_question">
+        要將檔案新增為單獨音訊，還是新增為播放清單？</string>
+    <string name="add_local_files_individually_option">單獨新增</string>
+    <string name="add_local_files_as_playlist_option">播放清單</string>
+    <string name="add_local_files_as_tracks_dialog_title">確認音訊名稱</string>
+    <string name="add_local_files_as_playlist_dialog_title">確認播放清單名稱</string>
+    <string name="add_local_files_request_storage_permission_title">空間不足</string>
+    <string name="add_local_files_request_storage_permission_explanation_for_tracks">
+        Mistysound 已使用 Android 允許應用程式在沒有完整儲存空間存取權時保留的 %1$d/%2$d 個檔案權限。必須授予讀取音訊檔案權限，才能新增所有音訊。
+    </string>
+    <string name="add_local_files_request_storage_permission_explanation_for_playlist">
+        Mistysound 已使用 Android 允許應用程式在沒有完整儲存空間存取權時保留的 %1$d/%2$d 個檔案權限。必須授予讀取音訊檔案權限，才能新增整個播放清單。
+    </string>
+
+    <string name="add_multiple_tracks_name_error_message">音訊名稱必須唯一且不可空白</string>
+    <string name="name_dialog_blank_name_error_message">名稱不可空白</string>
+    <string name="name_dialog_duplicate_name_error_message">此名稱已被使用</string>
+
+    <string name="cant_add_tracks_warning">
+        無法新增檔案，因為會超出 Android 的檔案權限限制。請移除一些音訊或播放清單後重試，或授予應用程式讀取檔案權限。</string>
+    <string name="cant_add_playlist_warning">
+        無法新增播放清單，因為會超出 Android 的檔案權限限制。請移除一些音訊或播放清單後重試，或授予應用程式讀取檔案權限。</string>
+    <string name="cant_add_playlist_tracks_warning">
+        無法將新音訊加入播放清單，因為會超出 Android 的檔案權限限制。請移除一些音訊或播放清單後重試，或授予應用程式讀取檔案權限。
+    </string>
+
+    <string name="configure_playlist_dialog_title">設定播放清單選項</string>
+
+    <string name="preset_button_click_label">變更目前預設</string>
+    <string name="unsaved_preset_description">未儲存的預設</string>
+
+    <string name="play_button_description">播放 Mistysound 音訊</string>
+    <string name="pause_button_description">暫停 Mistysound 音訊</string>
+    <string name="playback_speed_dialog_title">播放倍速</string>
+    <string name="playback_speed_dialog_description">請輸入 0.1x 到 5x 之間的倍速。</string>
+    <string name="playback_speed_dialog_effective_value">目前使用 %1$s</string>
+
+    <string name="play_pause_button_long_click_description">設定自動停止計時器</string>
+    <string name="set_stop_timer_dialog_description">
+        設定播放自動停止前的時長。你可以使用上下按鈕調整数值，也可以上下拖曳數值。</string>
+
+    <string name="stop_timer_text">停止倒數</string>
+    <string name="stop_timer_click_label">取消自動停止計時器</string>
+    <string name="cancel_stop_timer_dialog_title">確認取消計時器</string>
+    <string name="cancel_stop_timer_dialog_text">
+        確定要取消自動停止計時器嗎？</string>
+
+    <string name="preset_selector_title">選擇預設</string>
+    <string name="empty_preset_list_message">你尚未儲存任何預設。點按下方新增按鈕，將目前聲音組合儲存為預設。</string>
+    <string name="preset_click_label">載入預設 %1$s</string>
+    <string name="close_preset_selector_description">關閉預設選擇器</string>
+
+    <string name="overwrite">覆寫</string>
+    <string name="overwrite_no_active_playlists_error_message">
+        預設必須至少包含一個已啟用的音訊或播放清單</string>
+    <string name="confirm_overwrite_preset_dialog_title">確認覆寫預設</string>
+    <string name="confirm_overwrite_preset_dialog_message">
+        這會覆寫預設 %1$s。確定嗎？</string>
+
+    <string name="delete">刪除</string>
+    <string name="confirm_delete_preset_title">刪除 %1$s？</string>
+    <string name="confirm_delete_preset_message">
+        這不會從你的資料庫中移除該預設裡的音訊或播放清單。</string>
+    <string name="preset_cannot_be_empty_warning_message">
+        沒有可加入預設的已啟用音訊或播放清單</string>
+    <string name="add_preset_button_description">建立新預設</string>
+    <string name="create_new_preset_dialog_title">輸入新預設名稱</string>
+
+    <string name="unsaved_preset_changes_warning_title">未儲存的變更</string>
+    <string name="unsaved_preset_changes_warning_message">預設 %1$s 有未儲存的變更。如果現在載入新預設，自上次儲存以來的變更將會遺失。</string>
+    <string name="unsaved_preset_changes_warning_save_first_option">先儲存變更</string>
+    <string name="unsaved_preset_changes_warning_load_anyways_option">仍然載入</string>
+
+    <string name="playing">播放中</string>
+    <string name="paused">已暫停</string>
+    <string name="stopped">已停止</string>
+    <string name="stop_timer_description">%1$s 後停止</string>
+    <string name="cancel_stop_timer_action">取消停止計時器</string>
+
+    <string name="play">播放</string>
+    <string name="pause">暫停</string>
+    <string name="close">關閉</string>
+    <string name="checked">已勾選</string>
+    <string name="unchecked">未勾選</string>
+    <string name="dismiss">關閉</string>
+    <string name="ok" tools:ignore="ButtonCase">確定</string>
+    <string name="cancel">取消</string>
+
+    <string name="show_active_playlists_first">優先顯示已啟用</string>
+    <string name="name_ascending">名稱遞增</string>
+    <string name="name_descending">名稱遞減</string>
+    <string name="order_added">新增順序</string>
+
+    <string name="play_button_long_click_hint_text">
+        提示：長按播放/暫停按鈕可以設定自動停止計時器</string>
+
+    <string name="app_settings_description">Mistysound 設定</string>
+    <string name="settings">設定</string>
+
+    <string name="display">顯示</string>
+    <string name="app_theme">應用程式主題</string>
+    <string name="match_system_theme">跟隨系統</string>
+    <string name="light_theme">淺色</string>
+    <string name="dark_theme">深色</string>
+    <string name="dark_frosted_glass_theme">深色磨砂玻璃</string>
+    <string name="light_frosted_glass_theme">淺色磨砂玻璃</string>
+    <string name="frosted_glass_opacity_title">磨砂玻璃不透明度</string>
+    <string name="frosted_glass_opacity_description">調整卡片不透明度（%1$d%%）</string>
+    <string name="language_setting_title">語言</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">한국어</string>
+
+    <string name="playback">播放</string>
+
+    <string name="play_in_background_setting_title">背景播放</string>
+    <string name="play_in_background_setting_description">點按查看詳細說明</string>
+    <string name="play_in_background_explanation">啟用背景播放將會：</string>
+    <string name="play_in_background_explanation_bullet_1">
+        允許與其他應用程式的播放同時進行</string>
+    <string name="play_in_background_explanation_bullet_2">
+        讓播放控制顯示為一般通知，而不是顯示在狀態列的媒體控制區域</string>
+    <string name="play_in_background_explanation_bullet_3">
+        除非應用程式位於前景，否則忽略硬體媒體按鈕（例如耳機的播放/暫停按鈕）</string>
+    <string name="play_in_background_explanation_bullet_4">
+        防止通話時自動暫停，除非已啟用「通話時自動暫停」設定且已授予讀取手機狀態權限
+    </string>
+
+    <string name="request_notification_permission_title">需要通知權限</string>
+    <string name="request_notification_permission_explanation_p1">
+        開啟背景播放時，Mistysound 必須使用一般通知來顯示播放器控制（而不是媒體工作階段卡片）。為此，它需要發布通知的權限。此權限是選用的，但如果沒有權限，開啟背景播放後 Mistysound 將無法顯示包含播放器控制的通知。</string>
+    <string name="request_notification_permission_explanation_p2">
+        如果你不想授予權限，或想節省通知空間，也可以改為%1$s。</string>
+    <string name="tile_tutorial_link_text">透過快速設定圖塊控制 Mistysound</string>
+
+    <string name="auto_pause_during_calls_setting_title">通話時自動暫停</string>
+    <string name="auto_pause_during_calls_setting_subtitle">
+        需要讀取手機狀態權限\n僅在背景播放時需要</string>
+    <string name="request_phone_state_permission_explanation">
+        不在背景播放音訊時，你的裝置會通知 Mistysound 在通話期間暫停播放。背景播放時不會發生這種情況。因此需要讀取手機狀態權限，以便 Mistysound 偵測通話並相應暫停播放。</string>
+
+    <string name="on_zero_volume_behavior_setting_title">
+        音量為零時的行為</string>
+    <string name="on_zero_volume_behavior_setting_description">
+        此設定決定當音訊裝置切換導致音量為零時，播放應如何回應（例如耳機中斷連線，而手機擴音器音量為零）。</string>
+    <string name="stop_playback_on_zero_volume_title">停止播放</string>
+    <string name="stop_playback_on_zero_volume_description">
+        自動停止應用程式的背景服務。</string>
+    <string name="pause_playback_on_zero_volume_title">暫停播放</string>
+    <string name="pause_playback_on_zero_volume_description">
+        如果另一次音訊裝置切換使媒體音量恢復到大於零（例如重新連接耳機），播放將自動恢復。由於應用程式會在背景保持暫停狀態，此設定可能會稍微增加電量消耗。</string>
+    <string name="do_nothing_on_zero_volume_title">不執行操作</string>
+    <string name="do_nothing_on_zero_volume_description">
+        此設定會造成最高電量消耗，因為即使聽不到聲音，應用程式仍會繼續播放。
+    </string>
+
+    <string name="control_playback_using_tile_setting_title">
+        使用圖塊控制播放</string>
+    <string name="tile_tutorial_title">圖塊教學</string>
+    <string name="multi_step_dialog_indicator">%1$d / %2$d</string>
+    <string name="previous">上一步</string>
+    <string name="next">下一步</string>
+    <string name="finish">完成</string>
+    <string name="tile_tutorial_intro_text">
+        除了通知之外，你也可以透過快速設定圖塊控制 Mistysound。</string>
+    <string name="tile_tutorial_add_tile_text">
+        要將它加入目前快速設定圖塊，請點按完全展開的狀態列中的編輯按鈕，然後將 Mistysound 圖塊拖入目前圖塊清單。</string>
+    <string name="tile_tutorial_add_tile_help_button_text">
+        救命！我不知道怎麼新增圖塊。</string>
+    <string name="tile_tutorial_add_tile_help_button_show_description">
+        顯示新增圖塊說明</string>
+    <string name="tile_tutorial_add_tile_help_button_hide_description">
+        隱藏新增圖塊說明</string>
+    <string name="tile_tutorial_add_tile_help_text">
+        編輯快速設定圖塊的按鈕可能會因裝置製造商和 Android 版本而有所不同。可以在搜尋引擎中搜尋「編輯快速設定圖塊」加上你的裝置製造商名稱。</string>
+    <string name="tile_tutorial_add_tile_button_text">新增圖塊</string>
+    <string name="tile_tutorial_tile_usage_text">
+        點按圖塊會在播放和停止狀態之間切換 Mistysound 的背景音訊服務。長按圖塊會開啟 Mistysound。</string>
+    <string name="tile_tutorial_hide_notification_text">
+        如果想隱藏 Mistysound 的通知以節省空間，你可以在%1$s中自行隱藏。點按「通知」，然後停用「播放器控制」通知。</string>
+    <string name="tile_tutorial_hide_notification_link_text">
+        Mistysound 的系統設定頁面</string>
+
+    <string name="stop_instead_of_pause_setting_title">停止而不是暫停</string>
+    <string name="stop_instead_of_pause_setting_description">
+        音訊/播放清單將從頭開始播放，而不是繼續播放</string>
+
+    <string name="about">關於</string>
+    <string name="privacy_policy_setting_title">隱私權政策</string>
+    <string name="privacy_policy_setting_body">
+        Mistysound 不會收集、儲存或傳輸任何個人資訊。</string>
+    <string name="open_source_licenses">開放原始碼授權</string>
+    <string name="about_app_setting_title">關於 Mistysound</string>
+    <string name="about_app_setting_body">
+        Mistysound 是一款開放原始碼環境音應用程式。原始碼依 Apache License 2.0 條款發布。</string>
+    <string name="view_source_code">查看原始碼</string>
+</resources>

@@ -1,0 +1,5 @@
+Version 3.0
+
+- Added custom main backgrounds and shared card backgrounds
+- Added background libraries with import, preview, rename, reorder, remove, and crop tools
+- Updated search so the library, folder view, and each background page search their own content independently

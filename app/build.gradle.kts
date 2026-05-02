@@ -1,5 +1,23 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+val soundAuraVersionCode = 20
+val soundAuraVersionName = "3.2.3"
+val privateDir = rootProject.projectDir.parentFile.resolve("SoundAura_private")
+val privatePersonalResDir = privateDir.resolve("app/src/personal/res")
+val privateArtifactsDir = privateDir.resolve("release_artifacts")
+val personalReleaseKeystore = privateDir.resolve("soundaura-personal.jks")
+val personalReleasePasswordFile = privateDir.resolve("soundaura-personal-password.txt")
+val hasPersonalReleaseSigning =
+    personalReleaseKeystore.isFile && personalReleasePasswordFile.isFile
+
+fun personalReleaseSigningValue(label: String): String? =
+    personalReleasePasswordFile
+        .takeIf { it.isFile }
+        ?.readLines()
+        ?.firstOrNull { it.startsWith("$label:") }
+        ?.substringAfter(':')
+        ?.trim()
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,16 +33,40 @@ kotlin.compilerOptions.jvmTarget = JvmTarget.fromTarget("21")
 android {
     namespace = "com.cliffracertech.soundaura"
     compileSdk = 36
-    sourceSets.getByName("androidTest")
-        .assets.srcDir("$projectDir/schemas")
+    flavorDimensions += "edition"
+    sourceSets {
+        getByName("androidTest")
+            .assets.srcDir("$projectDir/schemas")
+        maybeCreate("personal").res.srcDir(privatePersonalResDir)
+        maybeCreate("public")
+    }
 
     defaultConfig {
         applicationId = "com.cliffracertech.soundaura"
         minSdk = 24
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.6.2"
+        versionCode = soundAuraVersionCode
+        versionName = soundAuraVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    productFlavors {
+        create("personal") {
+            dimension = "edition"
+        }
+        create("public") {
+            dimension = "edition"
+        }
+    }
+    signingConfigs {
+        create("personalRelease") {
+            if (hasPersonalReleaseSigning) {
+                storeFile = personalReleaseKeystore
+                storePassword = personalReleaseSigningValue("Keystore password")
+                keyAlias = personalReleaseSigningValue("Alias")
+                keyPassword = personalReleaseSigningValue("Key password")
+                enableV4Signing = true
+            }
+        }
     }
     buildTypes {
         debug {
@@ -37,6 +79,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
+            if (hasPersonalReleaseSigning)
+                signingConfig = signingConfigs.getByName("personalRelease")
             proguardFiles(getDefaultProguardFile(
                 "proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -57,6 +101,16 @@ android {
     testOptions.unitTests.isIncludeAndroidResources = true
 }
 
+gradle.taskGraph.whenReady {
+    val needsPersonalFlavor = allTasks.any { it.name.contains("Personal", ignoreCase = true) }
+    if (needsPersonalFlavor && !privatePersonalResDir.isDirectory) {
+        throw GradleException(
+            "Personal flavor resources are missing. Expected private assets under: " +
+                privatePersonalResDir.absolutePath
+        )
+    }
+}
+
 class RoomSchemaArgProvider(
     @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
     val schemaDir: File
@@ -65,6 +119,46 @@ class RoomSchemaArgProvider(
 }
 ksp {
     arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
+}
+
+val copyPersonalReleaseArtifacts by tasks.registering(Copy::class) {
+    dependsOn("assemblePersonalRelease")
+    from(layout.buildDirectory.dir("outputs/apk/personal/release"))
+    include("*.apk", "*.idsig")
+    into(privateArtifactsDir)
+    rename { fileName ->
+        when (fileName) {
+            "app-personal-release.apk" ->
+                "Mistysound-$soundAuraVersionName-personal-release.apk"
+            "app-personal-release.apk.idsig" ->
+                "Mistysound-$soundAuraVersionName-personal-release.apk.idsig"
+            "app-personal-release-unsigned.apk" ->
+                "Mistysound-$soundAuraVersionName-personal-release-unsigned.apk"
+            else -> fileName
+        }
+    }
+}
+
+val copyPublicReleaseArtifacts by tasks.registering(Copy::class) {
+    dependsOn("assemblePublicRelease")
+    from(layout.buildDirectory.dir("outputs/apk/public/release"))
+    include("*.apk", "*.idsig")
+    into(privateArtifactsDir)
+    rename { fileName ->
+        when (fileName) {
+            "app-public-release.apk" ->
+                "Mistysound-$soundAuraVersionName-public-release.apk"
+            "app-public-release.apk.idsig" ->
+                "Mistysound-$soundAuraVersionName-public-release.apk.idsig"
+            "app-public-release-unsigned.apk" ->
+                "Mistysound-$soundAuraVersionName-public-release-unsigned.apk"
+            else -> fileName
+        }
+    }
+}
+
+tasks.register("copyDualReleaseArtifacts") {
+    dependsOn(copyPersonalReleaseArtifacts, copyPublicReleaseArtifacts)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

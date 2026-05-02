@@ -1,24 +1,25 @@
-<!-- This file is part of SoundAura, which is released under
+<!-- This file is part of Mistysound, which is released under
    ~ the terms of the Apache License 2.0. See license.md in
    ~ the project's root directory to see the full license. -->
 
 <resources
     xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">SoundAura</string>
+    <string name="app_name" translatable="false">Mistysound</string>
 
     <string name="app_player_service_description">A service to play the user’s sound mix.</string>
     <string name="player_notification_channel_name">Player controls</string>
     <string name="player_notification_channel_description">
-        A notification with controls for SoundAura’s background audio service.</string>
+        A notification with controls for Mistysound’s background audio service.</string>
     <string name="player_no_active_playlists_warning_message">
         There are no active tracks or playlists. Tap a track or playlist’s add button first.</string>
 
-    <string name="tile_inactive_description">Play SoundAura audio</string>
-    <string name="tile_active_description">Stop SoundAura audio</string>
+    <string name="tile_inactive_description">Play Mistysound audio</string>
+    <string name="tile_active_description">Stop Mistysound audio</string>
 
     <string name="back">Back</string>
     <string name="search">Search</string>
     <string name="sort_options_description">Open sorting options</string>
+    <string name="create_folder_button_description">Create folder</string>
 
     <string name="empty_library_message">Your library is empty.\n\nTap the add button below to add
         local files to your library.\n\nTap the plus symbol next to an added track or playlist to
@@ -26,6 +27,8 @@
     <string name="no_search_results_message">No tracks/playlists match the query.</string>
     <string name="set_playlist_active_description">Add %1$s to sound mix</string>
     <string name="set_playlist_inactive_description">Remove %1$s from sound mix</string>
+    <string name="set_folder_active_description">Add folder %1$s to sound mix</string>
+    <string name="set_folder_inactive_description">Remove folder %1$s from sound mix</string>
     <string name="playlist_error_message">Files missing/corrupt</string>
     <string name="item_options_button_description">%1$s more options</string>
     <string name="remove_item_description">Remove %1$s</string>
@@ -61,13 +64,28 @@
     <string name="playlist_track_delete_description">Remove %1$s</string>
     <string name="playlist_add_tracks_button_description">Add tracks to %1$s</string>
 
+    <string name="folder_source_dialog_title">Create folder from</string>
+    <string name="folder_choose_local_audio">Choose local audio</string>
+    <string name="folder_choose_current_audio">Choose current audio</string>
+    <string name="folder_name_dialog_title">Enter folder name</string>
+    <string name="folder_add_audio_button_description">Add audio to this folder</string>
+    <string name="folder_no_current_audio_warning">Select one or more audio items on the home screen first.</string>
+    <string name="empty_folder_message">This folder is empty.</string>
+    <string name="folder_item_count_description">%1$d item(s)</string>
+    <string name="folder_add_audio">Add audio</string>
+    <string name="folder_sequential_play">Sequential play</string>
+    <string name="folder_random_play">Random play</string>
+    <string name="confirm_remove_folder_message">
+        This will remove the folder and its audio assignments, but will not remove
+        audio from your library or delete files from your device.</string>
+
     <string name="file_chooser_no_valid_tracks_error_message">
         Choose at least one file that is not already in the playlist</string>
     <string name="file_chooser_invalid_tracks_warning_message">
         %1$d of the files were already in the playlist</string>
 
     <string name="playlist_options_request_storage_permission_explanation">
-        SoundAura has used %1$d of the %2$d file permissions Android allows for
+        Mistysound has used %1$d of the %2$d file permissions Android allows for
         apps without full storage access. The read audio files permission must
         be granted in order to add the new tracks to the playlist.
     </string>
@@ -82,12 +100,12 @@
     <string name="add_local_files_as_playlist_dialog_title">Confirm playlist name</string>
     <string name="add_local_files_request_storage_permission_title">Insufficient space</string>
     <string name="add_local_files_request_storage_permission_explanation_for_tracks">
-        SoundAura has used %1$d of the %2$d file permissions Android allows for
+        Mistysound has used %1$d of the %2$d file permissions Android allows for
         apps without full storage access. The read audio files permission must
         be granted in order to add all of the tracks.
     </string>
     <string name="add_local_files_request_storage_permission_explanation_for_playlist">
-        SoundAura has used %1$d of the %2$d file permissions Android allows for
+        Mistysound has used %1$d of the %2$d file permissions Android allows for
         apps without full storage access. The read audio files permission must
         be granted in order to add the entire playlist.
     </string>
@@ -115,8 +133,11 @@
     <string name="preset_button_click_label">Change active preset</string>
     <string name="unsaved_preset_description">Unsaved preset</string>
 
-    <string name="play_button_description">Play SoundAura audio</string>
-    <string name="pause_button_description">Pause SoundAura audio</string>
+    <string name="play_button_description">Play Mistysound audio</string>
+    <string name="pause_button_description">Pause Mistysound audio</string>
+    <string name="playback_speed_dialog_title">Playback speed</string>
+    <string name="playback_speed_dialog_description">Enter a speed from 0.1x to 5x.</string>
+    <string name="playback_speed_dialog_effective_value">Using %1$s</string>
 
     <string name="play_pause_button_long_click_description">Set auto stop timer</string>
     <string name="set_stop_timer_dialog_description">
@@ -181,7 +202,7 @@
     <string name="play_button_long_click_hint_text">
         Hint: You can long press the play/pause button to set an automatic stop timer</string>
 
-    <string name="app_settings_description">SoundAura settings</string>
+    <string name="app_settings_description">Mistysound settings</string>
     <string name="settings">Settings</string>
 
     <string name="display">Display</string>
@@ -189,6 +210,43 @@
     <string name="match_system_theme">Match system</string>
     <string name="light_theme">Light</string>
     <string name="dark_theme">Dark</string>
+    <string name="dark_frosted_glass_theme">Dark frosted glass</string>
+    <string name="light_frosted_glass_theme">Light frosted glass</string>
+    <string name="frosted_glass_opacity_title">Frosted glass opacity</string>
+    <string name="frosted_glass_opacity_description">Adjust card opacity (%1$d%%)</string>
+    <string name="main_background_setting_title">Customize main background</string>
+    <string name="main_background_setting_description">Manage the large background used behind the main pages</string>
+    <string name="card_background_setting_title">Customize card background</string>
+    <string name="card_background_setting_description">Manage the shared background used by audio and folder cards</string>
+    <string name="main_background_page_title">Main background</string>
+    <string name="card_background_page_title">Card background</string>
+    <string name="main_background_editor_title">Edit main background</string>
+    <string name="card_background_editor_title">Edit card background</string>
+    <string name="background_preview_title">Preview</string>
+    <string name="background_current_badge">Current</string>
+    <string name="background_no_preview_message">Choose an image card to preview it here.</string>
+    <string name="background_empty_state_message">No images imported yet. Tap the + button to add one.</string>
+    <string name="background_import_button_description">Import background image</string>
+    <string name="background_save_effect_button">Save effect</string>
+    <string name="background_rename_dialog_title">Rename background image</string>
+    <string name="background_remove_dialog_title">Remove background image</string>
+    <string name="background_remove_dialog_message">Remove "%1$s" from this background library?</string>
+    <string name="background_editor_instruction">Drag and pinch the image to adjust the visible area.</string>
+    <string name="background_apply_crop_button">Apply crop</string>
+    <string name="background_discard_changes_title">Discard crop changes?</string>
+    <string name="background_discard_changes_message">Your crop adjustments have not been applied yet.</string>
+    <string name="background_preview_folder_name">Folder preview</string>
+    <string name="background_preview_track_name">Audio preview</string>
+    <string name="background_import_failure_message">This image could not be imported.</string>
+    <string name="background_editor_loading_message">Loading image editor...</string>
+    <string name="background_default_image_name">Image</string>
+    <string name="edit">Edit</string>
+    <string name="language_setting_title">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">한국어</string>
 
     <string name="playback">Playback</string>
 
@@ -210,25 +268,25 @@
 
     <string name="request_notification_permission_title">Notification permission required</string>
     <string name="request_notification_permission_explanation_p1">
-        When play in background is turned on, SoundAura must use a regular
+        When play in background is turned on, Mistysound must use a regular
         notification to display the player controls (as opposed to a media session
         card). In order to do this, it must have permission to post notifications.
-        This is optional, but without permission SoundAura will be unable to display
+        This is optional, but without permission Mistysound will be unable to display
         a notification containing player controls when play in background is turned
         on.</string>
     <string name="request_notification_permission_explanation_p2">
         If you would rather not give permission, or if you would like to save
         the notification space, you can alternatively %1$s.</string>
-    <string name="tile_tutorial_link_text">control SoundAura through its quick settings tile</string>
+    <string name="tile_tutorial_link_text">control Mistysound through its quick settings tile</string>
 
     <string name="auto_pause_during_calls_setting_title">Auto-pause during calls</string>
     <string name="auto_pause_during_calls_setting_subtitle">
         Requires read phone state permission\nOnly needed when playing in background</string>
     <string name="request_phone_state_permission_explanation">
-        When not playing audio in the background, your device will let SoundAura
+        When not playing audio in the background, your device will let Mistysound
         know that it should pause playback during a call. This will not occur when
         audio is playing in the background. The read phone state permission is
-        needed in this case so that SoundAura can detect when a call is ongoing
+        needed in this case so that Mistysound can detect when a call is ongoing
         and pause playback accordingly.</string>
 
     <string name="on_zero_volume_behavior_setting_title">
@@ -261,11 +319,11 @@
     <string name="next">Next</string>
     <string name="finish">Finish</string>
     <string name="tile_tutorial_intro_text">
-        In addition to its notification, you can control SoundAura
+        In addition to its notification, you can control Mistysound
         through a quick settings tile.</string>
     <string name="tile_tutorial_add_tile_text">
         To add it to your active quick settings tiles, tap the fully
-        expanded status bar’s edit button, and drag the SoundAura
+        expanded status bar’s edit button, and drag the Mistysound
         tile into your list of current tiles.</string>
     <string name="tile_tutorial_add_tile_help_button_text">
         Help! I can’t figure out how to add tiles.</string>
@@ -281,15 +339,15 @@
         engine.</string>
     <string name="tile_tutorial_add_tile_button_text">Add tile</string>
     <string name="tile_tutorial_tile_usage_text">
-        Tapping the tile will toggle SoundAura’s background audio
+        Tapping the tile will toggle Mistysound’s background audio
         service between its playing and stopped states. Long tapping
-        the tile will open SoundAura.</string>
+        the tile will open Mistysound.</string>
     <string name="tile_tutorial_hide_notification_text">
-        If you would like to hide SoundAura’s notification to save
+        If you would like to hide Mistysound’s notification to save
         space, you can hide it yourself in the %1$s. Tap ‘Notifications’
         and disable the ‘Player controls’ notification.</string>
     <string name="tile_tutorial_hide_notification_link_text">
-        system settings page for SoundAura</string>
+        system settings page for Mistysound</string>
 
     <string name="stop_instead_of_pause_setting_title">Stop instead of pause</string>
     <string name="stop_instead_of_pause_setting_description">
@@ -298,11 +356,11 @@
     <string name="about">About</string>
     <string name="privacy_policy_setting_title">Privacy policy</string>
     <string name="privacy_policy_setting_body">
-        SoundAura does not collect, store, or transmit any personal information.</string>
+        Mistysound does not collect, store, or transmit any personal information.</string>
     <string name="open_source_licenses">Open source licenses</string>
-    <string name="about_app_setting_title">About SoundAura</string>
+    <string name="about_app_setting_title">About Mistysound</string>
     <string name="about_app_setting_body">
-        SoundAura is an open source ambient sound app. The source code
+        Mistysound is an open source ambient sound app. The source code
         is available under the terms of the Apache License, version 2.0.</string>
     <string name="view_source_code">View source code</string>
 

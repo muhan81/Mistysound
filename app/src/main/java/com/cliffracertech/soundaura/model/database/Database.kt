@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.content.Context
 import androidx.room.*
 import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,18 +16,48 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Database(version = 7, exportSchema = true,
+@Database(version = 9, exportSchema = true,
           entities = [Playlist::class, PlaylistTrack::class, Track::class,
-                      Preset::class, PresetPlaylist::class])
+                       Preset::class, PresetPlaylist::class,
+                       Folder::class, FolderPlaylist::class,
+                       BackgroundImageEntity::class, BackgroundConfigEntity::class])
 @TypeConverters(Track.UriStringConverter::class)
 abstract class SoundAuraDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
     abstract fun presetDao(): PresetDao
+    abstract fun backgroundDao(): BackgroundDao
 
     companion object {
+        private val initializeBackgroundConfigCallback = object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                insertDefaultBackgroundConfigs(db)
+            }
+
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                insertDefaultBackgroundConfigs(db)
+            }
+        }
+
         fun addAllMigrations(builder: Builder<SoundAuraDatabase>) =
             builder.addMigrations(migration1to2, migration2to3, migration3to4,
-                                  migration4to5, migration5to6, migration6to7)
+                                  migration4to5, migration5to6, migration6to7,
+                                  migration7to8, migration8to9)
+
+        fun addInitializationCallbacks(builder: Builder<SoundAuraDatabase>) =
+            builder.addCallback(initializeBackgroundConfigCallback)
+
+        private fun insertDefaultBackgroundConfigs(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "INSERT OR IGNORE INTO backgroundConfig (`collection`, `mode`, `currentImageId`) " +
+                    "VALUES ('main', 'Fixed', NULL)"
+            )
+            db.execSQL(
+                "INSERT OR IGNORE INTO backgroundConfig (`collection`, `mode`, `currentImageId`) " +
+                    "VALUES ('card', 'Fixed', NULL)"
+            )
+        }
 
         private val migration1to2 = Migration(1,2) { db ->
             db.execSQL("PRAGMA foreign_keys=off")
@@ -181,6 +212,56 @@ abstract class SoundAuraDatabase : RoomDatabase() {
         private val migration6to7 = Migration(6, 7) { db ->
             db.execSQL("ALTER TABLE playlist ADD COLUMN `volumeBoostDb` INTEGER NOT NULL DEFAULT 0")
         }
+
+        private val migration7to8 = Migration(7, 8) { db ->
+            db.execSQL("ALTER TABLE playlist ADD COLUMN `playbackSpeed` REAL NOT NULL DEFAULT 1.0")
+            db.execSQL("""CREATE TABLE folder (
+                    `id` INTEGER NOT NULL PRIMARY KEY,
+                    `name` TEXT NOT NULL,
+                    `shuffle` INTEGER NOT NULL DEFAULT 0,
+                    `isActive` INTEGER NOT NULL DEFAULT 0)""")
+            db.execSQL("CREATE UNIQUE INDEX index_folder_name ON folder (`name`)")
+            db.execSQL("""CREATE TABLE folderPlaylist (
+                    `folderId` INTEGER NOT NULL,
+                    `folderOrder` INTEGER NOT NULL,
+                    `playlistId` INTEGER NOT NULL,
+                PRIMARY KEY (`folderId`, `playlistId`),
+                FOREIGN KEY (`folderId`) REFERENCES `folder`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (`playlistId`) REFERENCES `playlist`(`id`) ON UPDATE CASCADE ON DELETE CASCADE)""")
+            db.execSQL("CREATE INDEX index_folderPlaylist_playlistId ON folderPlaylist (`playlistId`)")
+        }
+
+        private val migration8to9 = Migration(8, 9) { db ->
+            db.execSQL("""CREATE TABLE backgroundImage (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `collection` TEXT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `originalFileName` TEXT NOT NULL,
+                    `thumbnailFileName` TEXT NOT NULL,
+                    `width` INTEGER NOT NULL,
+                    `height` INTEGER NOT NULL,
+                    `focusX` REAL NOT NULL DEFAULT 0.5,
+                    `focusY` REAL NOT NULL DEFAULT 0.5,
+                    `zoom` REAL NOT NULL DEFAULT 1.0,
+                    `sortOrder` INTEGER NOT NULL,
+                    `isEnabled` INTEGER NOT NULL DEFAULT 1)""")
+            db.execSQL(
+                "CREATE UNIQUE INDEX index_backgroundImage_collection_name " +
+                    "ON backgroundImage (`collection`, `name`)"
+            )
+            db.execSQL(
+                "CREATE INDEX index_backgroundImage_collection_sortOrder " +
+                    "ON backgroundImage (`collection`, `sortOrder`)"
+            )
+            db.execSQL("""CREATE TABLE backgroundConfig (
+                    `collection` TEXT NOT NULL PRIMARY KEY,
+                    `mode` TEXT NOT NULL,
+                    `currentImageId` INTEGER,
+                    FOREIGN KEY(`currentImageId`) REFERENCES `backgroundImage`(`id`) ON UPDATE CASCADE ON DELETE SET NULL)""")
+            db.execSQL("CREATE INDEX index_backgroundConfig_currentImageId ON backgroundConfig (`currentImageId`)")
+            db.execSQL("INSERT INTO backgroundConfig (`collection`, `mode`, `currentImageId`) VALUES ('main', 'Fixed', NULL)")
+            db.execSQL("INSERT INTO backgroundConfig (`collection`, `mode`, `currentImageId`) VALUES ('card', 'Fixed', NULL)")
+        }
     }
 }
 
@@ -189,7 +270,9 @@ class DatabaseModule {
     @Singleton @Provides
     fun provideDatabase(@ApplicationContext app: Context): SoundAuraDatabase =
         Room.databaseBuilder(app, SoundAuraDatabase::class.java, "SoundAuraDb")
-            .also(SoundAuraDatabase::addAllMigrations).build()
+            .also(SoundAuraDatabase::addAllMigrations)
+            .also(SoundAuraDatabase::addInitializationCallbacks)
+            .build()
 
     @Qualifier @Retention(AnnotationRetention.BINARY)
     annotation class InMemoryDatabase
@@ -197,8 +280,11 @@ class DatabaseModule {
     @InMemoryDatabase @Singleton @Provides
     fun provideInMemoryDatabase(@ApplicationContext app: Context) =
         Room.inMemoryDatabaseBuilder(app, SoundAuraDatabase::class.java)
-            .also(SoundAuraDatabase::addAllMigrations).build()
+            .also(SoundAuraDatabase::addAllMigrations)
+            .also(SoundAuraDatabase::addInitializationCallbacks)
+            .build()
 
     @Provides fun providePlaylistDao(db: SoundAuraDatabase) = db.playlistDao()
     @Provides fun providePresetDao(db: SoundAuraDatabase) = db.presetDao()
+    @Provides fun provideBackgroundDao(db: SoundAuraDatabase) = db.backgroundDao()
 }

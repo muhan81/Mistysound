@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -224,6 +225,7 @@ class ActivePresetViewState(
     sizes: MediaControllerSizes,
     hasStopTimer: Boolean,
     backgroundBrush: Brush,
+    panelBackgroundColor: Color,
     transitionProgressProvider: () -> Float,
     activePresetState: ActivePresetViewState,
     presetListState: PresetListState,
@@ -248,7 +250,7 @@ class ActivePresetViewState(
                     alpha = transitionProgressProvider()
                     scaleY = transitionProgressProvider()
                     scaleX = minScaleX + (1f - minScaleX) * transitionProgressProvider()
-                }.background(MaterialTheme.colors.surface,
+                }.background(panelBackgroundColor,
                              MaterialTheme.shapes.large),
             contentPadding = PaddingValues(bottom = 64.dp),
             activePresetState = activePresetState,
@@ -312,6 +314,7 @@ class MediaControllerState(
     sizes: MediaControllerSizes,
     state: MediaControllerState,
     backgroundBrush: Brush,
+    panelBackgroundColor: Color,
     alignment: BiasAlignment,
     padding: PaddingValues,
     modifier: Modifier = Modifier,
@@ -367,7 +370,7 @@ class MediaControllerState(
             }
             if (expandTransitionProgress > 0f)
                 MediaControllerPresetList(
-                    sizes, hasStopTime, backgroundBrush,
+                    sizes, hasStopTime, backgroundBrush, panelBackgroundColor,
                     transitionProgressProvider,
                     state.activePreset, state.presetList)
         }
@@ -418,6 +421,7 @@ fun MediaControllerPreview() = SoundAuraTheme {
         )}, backgroundBrush = Brush.horizontalGradient(
             listOf(MaterialTheme.colors.primaryVariant,
                 MaterialTheme.colors.secondaryVariant)),
+        panelBackgroundColor = MaterialTheme.colors.surface,
         alignment = Alignment.BottomStart as BiasAlignment,
         padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp))
 }

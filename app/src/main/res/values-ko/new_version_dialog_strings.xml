@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of SoundAura, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources>
+    <string name="new_version_dialog_title">버전 %1$s</string>
+    <string name="bug_fixes_section_title">버그 수정</string>
+
+    <string name="feature_playlists_title">재생목록 지원 추가</string>
+    <string name="feature_playlists_description">
+        새 트랙을 추가할 때 여러 파일을 한 번에 선택하거나, 트랙의 옵션 메뉴에서 “%1$s” 옵션을 선택한 뒤 추가 트랙을 하나 이상 선택하여 재생목록을 만들 수 있습니다.</string>
+
+    <string name="feature_volume_boost_title">볼륨 부스트 추가</string>
+    <string name="feature_volume_boost_description">
+        트랙 또는 재생목록의 옵션 메뉴에서 “%1$s” 옵션을 선택하면 원본 파일을 수정하지 않고 볼륨을 최대 30dB까지 높일 수 있습니다.</string>
+
+    <string name="version_1_6_change_storage_permission_title">트랙 한도 초과</string>
+    <string name="version_1_6_change_storage_permission_explanation">일반적으로 허용되는 트랙 수를 초과한 경우, 앱에 저장소 읽기 권한을 부여하면 원하는 수의 트랙을 추가할 수 있습니다.</string>
+    <string name="version_1_6_change_bug_fixes_description">허용된 최대 트랙 수를 초과할 때 발생하던 충돌을 수정했습니다.\n빠른 설정 타일 상태가 업데이트되지 않던 문제를 수정했습니다.</string>
+
+    <string name="version_1_6_2_change_crash_on_adding_media_fix">일부 사용자가 미디어를 추가할 때 겪던 충돌을 수정했습니다(아마도요).</string>
+
+    <string name="version_1_7_change_audio_controls_title">오디오별 컨트롤</string>
+    <string name="version_1_7_change_audio_controls_description">각 오디오 항목에 독립적인 재생 진행 슬라이더와 0.1x부터 5x까지의 재생 속도 설정을 추가했습니다.</string>
+    <string name="version_1_7_change_folders_title">오디오 폴더</string>
+    <string name="version_1_7_change_folders_description">로컬 오디오 또는 선택한 라이브러리 항목으로 폴더를 만들고, 폴더에 오디오를 추가하고, 길게 눌러 드래그해 순서를 바꾸며, 여러 폴더를 동시에 재생할 수 있습니다.</string>
+    <string name="version_1_7_change_language_title">언어 업데이트</string>
+    <string name="version_1_7_change_language_description">중국어 오디오 관련 표현을 더 일관되게 조정했습니다.</string>
+
+    <string name="version_2_0_change_brand_title">Mistysound 새 단장</string>
+    <string name="version_2_0_change_brand_description">SoundAura가 Mistysound로 새 이름과 새 아이콘을 적용했습니다.</string>
+    <string name="version_2_0_change_folder_loading_title">폴더 열기 경험 개선</string>
+    <string name="version_2_0_change_folder_loading_description">폴더 페이지가 즉시 열리고 오디오 목록이 점진적으로 나타나도록 바뀌어 짧은 로딩에서의 번쩍임을 줄였습니다.</string>
+    <string name="version_2_0_change_stability_title">폴더 안정성 향상</string>
+    <string name="version_2_0_change_stability_description">폴더 내용이 모두 로드되기 전에 폴더를 열 때 발생할 수 있던 충돌을 수정했습니다.</string>
+    <string name="version_3_0_change_backgrounds_title">Custom backgrounds</string>
+    <string name="version_3_0_change_backgrounds_description">You can now manage separate main backgrounds and shared card backgrounds, import your own images, preview them, and save the one you want to apply.</string>
+    <string name="version_3_0_change_library_search_title">Smarter page-based search</string>
+    <string name="version_3_0_change_library_search_description">Search now follows the page you are on, so the library, folder view, and each background library all search their own content independently.</string>
+    <string name="version_3_0_change_background_tools_title">Background editing tools</string>
+    <string name="version_3_0_change_background_tools_description">Background images can be renamed, reordered, enabled or disabled, removed, and cropped with a dedicated editor before you save the effect.</string>
+    <string name="version_3_0_1_fix_background_crash_description">Fixed a launch crash that could happen after updating from an older version, and fixed a crash when opening the custom background pages on a fresh install.</string>
+    <string name="version_3_1_0_change_frosted_glass_title">Frosted glass themes</string>
+    <string name="version_3_1_0_change_frosted_glass_description">Added dark and light frosted glass themes that give cards a translucent glass-style appearance across the library, settings, and background image pages.</string>
+    <string name="version_3_1_0_change_opacity_title">Glass opacity control</string>
+    <string name="version_3_1_0_change_opacity_description">When a frosted glass theme is selected, the display settings now show a 0-100% slider so you can fine-tune card opacity.</string>
+    <string name="version_3_1_0_change_background_visibility_title">Backgrounds visible in more places</string>
+    <string name="version_3_1_0_change_background_visibility_description">The top app bar is now transparent and the main background remains visible behind it and behind the settings page while still respecting the system status bar area.</string>
+    <string name="version_3_2_1_change_editor_confirm_title">배경 편집 확인 개선</string>
+    <string name="version_3_2_1_change_editor_confirm_description">메인 배경 편집 화면 오른쪽 아래에 떠 있는 확인 버튼을 추가해, 자르기와 확대/축소 조정 내용을 더 직관적으로 저장할 수 있습니다.</string>
+    <string name="version_3_2_1_change_glass_controls_title">반투명 유리 컨트롤 통일</string>
+    <string name="version_3_2_1_change_glass_controls_description">플로팅 버튼, 카드 위 컨트롤, 슬라이더, 재생 컨트롤이 반투명 유리 테마를 더 일관되게 따르도록 다듬었고 색상도 더 밝고 투명하게 조정했습니다.</string>
+    <string name="version_3_2_1_change_gesture_title">드래그와 핀치 조작 개선</string>
+    <string name="version_3_2_1_change_gesture_description">반투명 유리 불투명도 슬라이더의 반응성을 개선했고, 배경 편집 화면의 이미지 드래그와 핀치 줌도 더 부드럽고 조작하기 쉬워졌습니다.</string>
+    <string name="version_3_2_1_change_icons_title">릴리스별 아이콘 구분</string>
+    <string name="version_3_2_1_change_icons_description">개인판과 공개판 릴리스 빌드가 각각 다른 런처 아이콘을 사용하도록 해 두 앱 패키지를 더 쉽게 구분할 수 있습니다.</string>
+    <string name="version_3_2_3_change_glass_tuning_title">반투명 유리 컨트롤 추가 조정</string>
+    <string name="version_3_2_3_change_glass_tuning_description">반투명 유리 컨트롤의 색 강도와 투명도를 다시 다듬어 전체적으로 더 가볍고 배경이 더 비치도록 조정하면서도, 다크 테마에서 너무 밝거나 눈부시지 않게 맞췄습니다.</string>
+    <string name="version_3_2_3_change_slider_title">활성 슬라이더 레이어 경량화</string>
+    <string name="version_3_2_3_change_slider_description">홈 화면과 표시 설정의 녹색 활성 트랙과 원형 손잡이의 시각적 무게를 더 줄여 배경이 더 자연스럽게 보이도록 했습니다.</string>
+    <string name="version_3_2_3_change_floating_controls_title">플로팅 컨트롤 통일감 향상</string>
+    <string name="version_3_2_3_change_floating_controls_description">하단 재생 바, 오른쪽 아래 추가 버튼, 그 외 플로팅 버튼을 더 조정해 반투명 유리 테마와 한층 자연스럽게 어우러지도록 했습니다.</string>
+</resources>

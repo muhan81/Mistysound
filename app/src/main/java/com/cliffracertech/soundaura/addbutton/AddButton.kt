@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,12 +38,17 @@ import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.dialog.ValidatedNamingState
 import com.cliffracertech.soundaura.launchIO
 import com.cliffracertech.soundaura.model.AddToLibraryUseCase
+import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.ReadModifyPresetsUseCase
 import com.cliffracertech.soundaura.model.StringResource
 import com.cliffracertech.soundaura.model.database.Track
 import com.cliffracertech.soundaura.ui.tweenDuration
+import com.cliffracertech.soundaura.ui.theme.LocalCardAppearance
+import com.cliffracertech.soundaura.ui.theme.OverlayActionColors
+import com.cliffracertech.soundaura.ui.theme.OverlayActionStyle
+import com.cliffracertech.soundaura.ui.theme.rememberOverlayActionColors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -74,16 +80,20 @@ class AddButtonViewModel @Inject constructor(
     private val navigationState: NavigationState,
     private val readModifyPresetsUseCase: ReadModifyPresetsUseCase,
     private val addToLibrary: AddToLibraryUseCase,
+    private val folderUseCases: FolderUseCases,
 ): ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
 
     var dialogState by mutableStateOf<AddButtonDialogState?>(null)
         private set
+    private var pendingFolderUris = emptyList<Uri>()
 
     private fun hideDialog() { dialogState = null }
 
     val onClickContentDescriptionResId get() = when {
         navigationState.showingAppSettings -> null
+        navigationState.openFolderId != null ->
+            R.string.folder_add_audio_button_description
         navigationState.mediaControllerState.isExpanded ->
             R.string.add_preset_button_description
         else -> R.string.add_local_files_button_description
@@ -91,7 +101,16 @@ class AddButtonViewModel @Inject constructor(
 
     val onClick: () -> Unit = { when {
         navigationState.showingAppSettings -> {}
-        navigationState.mediaControllerState.isExpanded -> {
+        navigationState.openFolderId != null -> {
+            navigationState.openFolderId?.let { folderId ->
+                dialogState = AddButtonDialogState.SelectingFiles(
+                    onDismissRequest = ::hideDialog,
+                    onFilesSelected = { chosenUris ->
+                        pendingFolderUris = chosenUris
+                        addLocalFilesToFolder(folderId, chosenUris)
+                    })
+            }
+        } navigationState.mediaControllerState.isExpanded -> {
             scope.launch {
                 val namingState = readModifyPresetsUseCase.newPresetNamingState(
                     scope = scope, onAddPreset = ::hideDialog)
@@ -112,6 +131,30 @@ class AddButtonViewModel @Inject constructor(
                 })
         }
     }}
+
+    private fun addLocalFilesToFolder(folderId: Long, uris: List<Uri>) {
+        scope.launch {
+            when (val result = withContext(Dispatcher.IO) {
+                folderUseCases.addLocalFilesToFolder(folderId, uris)
+            }) {
+                FolderUseCases.Result.Success,
+                FolderUseCases.Result.EmptySelection -> hideDialog()
+                is FolderUseCases.Result.Failure ->
+                    showStoragePermissionExplanation(
+                        addingPlaylist = false,
+                        permissionsUsed = result.permissionsUsed,
+                        permissionsAllowed = result.permissionAllowance,
+                    ) { permissionGranted ->
+                        if (permissionGranted) scope.launchIO {
+                            folderUseCases.addLocalFilesToFolder(folderId, pendingFolderUris)
+                        } else messageHandler.postMessage(
+                            stringResource = StringResource(R.string.cant_add_playlist_tracks_warning),
+                            duration = SnackbarDuration.Long)
+                        hideDialog()
+                    }
+            }
+        }
+    }
 
     private fun showAddIndividuallyOrAsPlaylistQueryStep(chosenUris: List<Uri>) {
         dialogState = AddButtonDialogState.AddIndividuallyOrAsPlaylistQuery(
@@ -267,6 +310,16 @@ class AddButtonViewModel @Inject constructor(
     modifier: Modifier = Modifier,
 ) {
     val viewModel: AddButtonViewModel = viewModel()
+    val cardAppearance = LocalCardAppearance.current
+    val defaultContentColor = MaterialTheme.colors.onPrimary
+    val resolvedColors = if (cardAppearance.isFrostedGlass)
+        rememberOverlayActionColors(OverlayActionStyle.Secondary)
+    else remember(backgroundColor, defaultContentColor) {
+        OverlayActionColors(
+            containerColor = backgroundColor,
+            contentColor = defaultContentColor,
+        )
+    }
 
     val enterSpec = tween<Float>(
         durationMillis = tweenDuration,
@@ -283,13 +336,14 @@ class AddButtonViewModel @Inject constructor(
     ) {
         FloatingActionButton(
             onClick = viewModel.onClick,
-            backgroundColor = backgroundColor,
+            backgroundColor = resolvedColors.containerColor,
+            contentColor = resolvedColors.contentColor,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp)
         ) {
             Icon(imageVector = Icons.Default.Add,
                 contentDescription = viewModel.onClickContentDescriptionResId?.let {
                     stringResource(it)
-                }, tint = MaterialTheme.colors.onPrimary)
+                }, tint = resolvedColors.contentColor)
         }
     }
 

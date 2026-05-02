@@ -3,17 +3,27 @@
  * the project's root directory to see the full license. */
 package com.cliffracertech.soundaura.library
 
+import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -21,6 +31,7 @@ import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -39,7 +51,9 @@ import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.collectAsState
 import com.cliffracertech.soundaura.launchIO
 import com.cliffracertech.soundaura.model.MessageHandler
+import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.ModifyLibraryUseCase
+import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
 import com.cliffracertech.soundaura.model.ReadLibraryUseCase
 import com.cliffracertech.soundaura.model.SearchQueryState
@@ -47,10 +61,18 @@ import com.cliffracertech.soundaura.model.StringResource
 import com.cliffracertech.soundaura.model.database.Track
 import com.cliffracertech.soundaura.screenSizeBasedHorizontalPadding
 import com.cliffracertech.soundaura.ui.tweenDuration
+import com.cliffracertech.soundaura.ui.theme.AppCardSurface
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import javax.inject.Inject
 
 /** LibraryState's subtypes, [Loading], [Empty], and [Content], represent
@@ -69,9 +91,17 @@ sealed class LibraryState {
      * can be used as an item callback in, e.g., a [PlaylistView]. */
     class Content(
         private val getPlaylists: () -> ImmutableList<Playlist>?,
+        private val getFolders: () -> ImmutableList<Folder>?,
+        private val getFolderPlaylists: () -> ImmutableList<Playlist>?,
+        private val isFolderSearchActive: () -> Boolean,
         val playlistViewCallback: PlaylistViewCallback,
+        val folderViewCallback: FolderViewCallback,
+        val onFolderPlaylistMove: (fromIndex: Int, toIndex: Int) -> Unit,
     ): LibraryState() {
         val playlists get() = getPlaylists()
+        val folders get() = getFolders()
+        val folderPlaylists get() = getFolderPlaylists()
+        val folderSearchActive get() = isFolderSearchActive()
     }
 }
 
@@ -91,45 +121,176 @@ sealed class LibraryState {
     lazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues,
     shownDialog: PlaylistDialog?,
+    shownFolderDialog: FolderDialog?,
+    openFolderId: Long?,
     libraryState: LibraryState,
 ) {
     PlaylistDialogShower(shownDialog)
+    FolderDialogShower(shownFolderDialog)
 
     Crossfade(
         targetState = libraryState,
         modifier = modifier,
         animationSpec = tween(tweenDuration),
         label = "LibraryView loading/empty/content crossfade",
-    ) { viewState -> when(viewState) {
-        is LibraryState.Loading -> {
-            // The CircularProgressIndicator is not center aligned properly when
-            // Modifier.wrapContentSize() is used, so a fillMaxSize box is used instead
-            Box(Modifier.fillMaxSize().padding(contentPadding), Alignment.Center) {
-                CircularProgressIndicator(strokeCap = StrokeCap.Round)
+    ) { viewState ->
+        when (viewState) {
+            is LibraryState.Loading -> {
+                // The CircularProgressIndicator is not center aligned properly when
+                // Modifier.wrapContentSize() is used, so a fillMaxSize box is used instead
+                Box(Modifier.fillMaxSize().padding(contentPadding), Alignment.Center) {
+                    CircularProgressIndicator(strokeCap = StrokeCap.Round)
+                }
             }
-        } is LibraryState.Empty -> {
-            val context = LocalContext.current
-            val text = remember(viewState) { viewState.message.resolve(context) }
-            Text(text = text,
-                 modifier = Modifier
-                     .fillMaxSize()
-                     .padding(contentPadding)
-                     .screenSizeBasedHorizontalPadding(48.dp)
-                     .wrapContentSize(),
-                 textAlign = TextAlign.Justify)
-        } is LibraryState.Content -> {
-            val items = (viewState.playlists ?: emptyList()) as ImmutableList<Playlist>
-            LazyColumn(
-                Modifier, lazyListState, contentPadding,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(items, key = Playlist::name::get) { playlist ->
-                    PlaylistView(playlist, viewState.playlistViewCallback,
-                                 Modifier.animateItem())
+            is LibraryState.Empty -> {
+                val context = LocalContext.current
+                val text = remember(viewState) { viewState.message.resolve(context) }
+                Text(text = text,
+                     modifier = Modifier
+                         .fillMaxSize()
+                         .padding(contentPadding)
+                         .screenSizeBasedHorizontalPadding(48.dp)
+                         .wrapContentSize(),
+                     textAlign = TextAlign.Justify)
+            }
+            is LibraryState.Content -> {
+                if (openFolderId == null) {
+                    val folders = viewState.folders.orEmpty()
+                    val playlists = viewState.playlists.orEmpty()
+                    LazyColumn(
+                        Modifier, lazyListState, contentPadding,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(folders, key = Folder::id::get) { folder ->
+                            FolderView(folder, viewState.folderViewCallback,
+                                       Modifier.animateItem())
+                        }
+                        items(playlists, key = Playlist::name::get) { playlist ->
+                            PlaylistView(playlist, viewState.playlistViewCallback,
+                                         Modifier.animateItem())
+                        }
+                    }
+                } else FolderDetailView(
+                    folderId = openFolderId,
+                    contentPadding = contentPadding,
+                    libraryState = viewState,
+                    lazyListState = lazyListState)
+            }
+        }
+    }
+}
+
+@Composable private fun FolderDetailView(
+    folderId: Long,
+    contentPadding: PaddingValues,
+    libraryState: LibraryState.Content,
+    lazyListState: LazyListState,
+) {
+    val playlists = libraryState.folderPlaylists
+    var showLoadingPlaceholder by remember(folderId) { mutableStateOf(false) }
+
+    LaunchedEffect(folderId, playlists == null) {
+        if (playlists == null) {
+            showLoadingPlaceholder = false
+            delay(140L)
+            showLoadingPlaceholder = true
+        } else showLoadingPlaceholder = false
+    }
+
+    if (playlists == null) {
+        if (showLoadingPlaceholder)
+            FolderDetailLoadingPlaceholder(contentPadding, lazyListState)
+        else Box(Modifier.fillMaxSize().padding(contentPadding))
+    } else if (playlists.isEmpty()) {
+        Text(
+            text = stringResource(
+                if (libraryState.folderSearchActive)
+                    R.string.no_search_results_message
+                else
+                    R.string.empty_folder_message),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .screenSizeBasedHorizontalPadding(48.dp)
+                .wrapContentSize(),
+            textAlign = TextAlign.Justify)
+    } else {
+        val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+            libraryState.onFolderPlaylistMove(from.index, to.index)
+        }
+        LazyColumn(
+            Modifier,
+            lazyListState,
+            contentPadding,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(playlists, key = { _, playlist -> playlist.id }) { _, playlist ->
+                ReorderableItem(reorderableState, key = playlist.id) {
+                    PlaylistView(
+                        playlist = playlist,
+                        callback = libraryState.playlistViewCallback,
+                        modifier = Modifier
+                            .animateItem()
+                            .longPressDraggableHandle())
                 }
             }
         }
-    }}
+    }
+}
+
+@Composable private fun FolderDetailLoadingPlaceholder(
+    contentPadding: PaddingValues,
+    lazyListState: LazyListState,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+        contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        userScrollEnabled = false,
+    ) {
+        items(4) { FolderDetailLoadingPlaceholderRow() }
+    }
+}
+
+@Composable private fun FolderDetailLoadingPlaceholderRow() = AppCardSurface(
+    shape = MaterialTheme.shapes.large,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(
+                    MaterialTheme.colors.onSurface.copy(alpha = 0.18f),
+                    CircleShape))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.56f)
+                    .height(18.dp)
+                    .background(MaterialTheme.colors.onSurface.copy(alpha = 0.18f)))
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.82f)
+                    .height(12.dp)
+                    .background(MaterialTheme.colors.onSurface.copy(alpha = 0.12f)))
+        }
+        Spacer(Modifier.size(12.dp))
+        Box(
+            modifier = Modifier
+                .size(width = 42.dp, height = 18.dp)
+                .background(MaterialTheme.colors.onSurface.copy(alpha = 0.12f)))
+    }
 }
 
 /**
@@ -142,8 +303,10 @@ sealed class LibraryState {
  * [shownDialog].
  */
 @HiltViewModel class LibraryViewModel @Inject constructor(
-    readLibrary: ReadLibraryUseCase,
+    private val readLibrary: ReadLibraryUseCase,
     private val modifyLibrary: ModifyLibraryUseCase,
+    private val folderUseCases: FolderUseCases,
+    private val navigationState: NavigationState,
     private val searchQueryState: SearchQueryState,
     private val messageHandler: MessageHandler,
     playbackState: PlaybackState,
@@ -152,6 +315,12 @@ sealed class LibraryState {
 
     var shownDialog by mutableStateOf<PlaylistDialog?>(null)
     private fun dismissDialog() { shownDialog = null }
+    var shownFolderDialog by mutableStateOf<FolderDialog?>(null)
+    private fun dismissFolderDialog() { shownFolderDialog = null }
+    private var folderPlaylistJob: Job? = null
+    private var folderPlaylists by mutableStateOf<ImmutableList<Playlist>?>(null)
+    private var pendingFolderId = 0L
+    private var pendingFolderUris = emptyList<Uri>()
 
     private val itemCallback = object : PlaylistViewCallback {
         override fun onAddRemoveButtonClick(playlist: Playlist) {
@@ -162,6 +331,21 @@ sealed class LibraryState {
         }
         override fun onVolumeChangeFinished(playlist: Playlist, volume: Float) {
             scope.launchIO { modifyLibrary.setPlaylistVolume(playlist.id, volume) }
+        }
+        override fun getProgress(playlist: Playlist) =
+            playbackState.getPlaylistProgress(playlist.id)
+        override fun onSeek(playlist: Playlist, positionMillis: Int) {
+            playbackState.seekPlaylistTo(playlist.id, positionMillis)
+        }
+        override fun onPlaybackSpeedClick(playlist: Playlist) {
+            shownDialog = PlaylistDialog.PlaybackSpeed(
+                target = playlist,
+                onDismissRequest = ::dismissDialog,
+                onConfirm = { speed ->
+                    dismissDialog()
+                    playbackState.setPlaylistPlaybackSpeed(playlist.id, speed)
+                    scope.launchIO { modifyLibrary.setPlaylistPlaybackSpeed(playlist.id, speed) }
+                })
         }
         override fun onRenameClick(playlist: Playlist) {
             shownDialog = PlaylistDialog.Rename(
@@ -206,19 +390,154 @@ sealed class LibraryState {
         }
     }
 
+    private val folderCallback = object : FolderViewCallback {
+        override fun onAddRemoveButtonClick(folder: Folder) {
+            scope.launchIO { folderUseCases.toggleFolderIsActive(folder.id) }
+        }
+
+        override fun onOpenFolder(folder: Folder) {
+            navigationState.openFolder(folder.id, folder.name)
+            folderPlaylistJob?.cancel()
+            folderPlaylists = null
+            folderPlaylistJob = readLibrary.folderPlaylistsFlow(folder.id)
+                .onEach { folderPlaylists = it }
+                .launchIn(scope)
+        }
+
+        override fun onRenameClick(folder: Folder) {
+            shownFolderDialog = FolderDialog.Rename(
+                onDismissRequest = ::dismissFolderDialog,
+                namingState = folderUseCases.renameState(
+                    folder.id, folder.name, scope, ::dismissFolderDialog))
+        }
+
+        override fun onAddAudioClick(folder: Folder) {
+            showAddToFolderSourceChoice(folder.id)
+        }
+
+        override fun onShuffleClick(folder: Folder) {
+            scope.launchIO {
+                val ids = readLibrary.getFolderPlaylistIds(folder.id)
+                folderUseCases.setFolderShuffleAndPlaylists(
+                    folder.id, !folder.shuffle, ids)
+            }
+        }
+
+        override fun onRemoveClick(folder: Folder) {
+            shownFolderDialog = FolderDialog.Remove(
+                folder = folder,
+                onDismissRequest = ::dismissFolderDialog,
+                onConfirmClick = {
+                    scope.launchIO { folderUseCases.removeFolder(folder.id) }
+                    if (navigationState.openFolderId == folder.id)
+                        navigationState.closeFolder()
+                })
+        }
+    }
+
     private val playlists by readLibrary.playlistsFlow.collectAsState(null, scope)
+    private val folders by readLibrary.foldersFlow.collectAsState(null, scope)
     private val noSearchResultsState = LibraryState.Empty(StringResource(R.string.no_search_results_message))
     private val emptyLibraryState = LibraryState.Empty(StringResource(R.string.empty_library_message))
-    private val contentState = LibraryState.Content(::playlists, itemCallback)
+    private val contentState = LibraryState.Content(
+        ::playlists,
+        ::folders,
+        ::folderPlaylists,
+        { searchQueryState.isActive(com.cliffracertech.soundaura.model.SearchScope.Folder) },
+        itemCallback,
+        folderCallback,
+        ::moveFolderPlaylist)
+    val openFolderId get() = navigationState.openFolderId
 
     val viewState get() = when {
-        playlists == null ->
+        playlists == null || folders == null ->
             LibraryState.Loading
-        playlists?.isEmpty() == true -> {
-            if (searchQueryState.isActive)
+        playlists?.isEmpty() == true && folders?.isEmpty() == true -> {
+            if (searchQueryState.isActive(com.cliffracertech.soundaura.model.SearchScope.Library))
                 noSearchResultsState
             else emptyLibraryState
         } else -> contentState
+    }
+
+    private fun showAddToFolderSourceChoice(folderId: Long) {
+        shownFolderDialog = FolderDialog.SourceChoice(
+            onDismissRequest = ::dismissFolderDialog,
+            onLocalAudioClick = {
+                shownFolderDialog = FolderDialog.SelectingFiles(
+                    onDismissRequest = ::dismissFolderDialog,
+                    onFilesSelected = { uris ->
+                        pendingFolderId = folderId
+                        pendingFolderUris = uris
+                        scope.launchIO { addLocalFilesToFolder(folderId, uris) }
+                    })
+            },
+            onCurrentAudioClick = {
+                scope.launchIO {
+                    val playlists = folderUseCases.activeLibraryPlaylists()
+                    withContext(Dispatcher.Immediate) {
+                        if (playlists.isEmpty()) {
+                            dismissFolderDialog()
+                            messageHandler.postMessage(
+                                R.string.folder_no_current_audio_warning,
+                                SnackbarDuration.Long)
+                        } else scope.launchIO {
+                            addPlaylistsToFolder(folderId, playlists.map { it.id })
+                        }
+                    }
+                }
+            })
+    }
+
+    private suspend fun addPlaylistsToFolder(folderId: Long, playlistIds: List<Long>) {
+        when (folderUseCases.addPlaylistsToFolder(folderId, playlistIds)) {
+            FolderUseCases.Result.Success -> dismissFolderDialog()
+            FolderUseCases.Result.EmptySelection -> dismissFolderDialog()
+            is FolderUseCases.Result.Failure -> Unit
+        }
+    }
+
+    private suspend fun addLocalFilesToFolder(folderId: Long, uris: List<Uri>) {
+        when (val result = folderUseCases.addLocalFilesToFolder(folderId, uris)) {
+            FolderUseCases.Result.Success -> dismissFolderDialog()
+            FolderUseCases.Result.EmptySelection -> dismissFolderDialog()
+            is FolderUseCases.Result.Failure -> showFolderStoragePermissionRequest(result)
+        }
+    }
+
+    private fun showFolderStoragePermissionRequest(result: FolderUseCases.Result.Failure) {
+        shownFolderDialog = FolderDialog.RequestStoragePermissionExplanation(
+            permissionsUsed = result.permissionsUsed,
+            permissionsAllowed = result.permissionAllowance,
+            onDismissRequest = ::dismissFolderDialog,
+            onOkClick = {
+                shownFolderDialog = FolderDialog.RequestStoragePermission(
+                    onDismissRequest = ::dismissFolderDialog,
+                    onResult = { granted ->
+                        if (granted) scope.launchIO {
+                            addLocalFilesToFolder(pendingFolderId, pendingFolderUris)
+                        } else {
+                            messageHandler.postMessage(
+                                R.string.cant_add_playlist_tracks_warning,
+                                SnackbarDuration.Long)
+                            dismissFolderDialog()
+                        }
+                    })
+            })
+    }
+
+    private fun moveFolderPlaylist(fromIndex: Int, toIndex: Int) {
+        val folderId = navigationState.openFolderId ?: return
+        val current = folderPlaylists?.toMutableList() ?: return
+        if (fromIndex !in current.indices || toIndex !in current.indices)
+            return
+        current.add(toIndex, current.removeAt(fromIndex))
+        folderPlaylists = current.toImmutableList()
+        scope.launchIO {
+            folderUseCases.setFolderShuffleAndPlaylists(
+                folderId,
+                readLibrary.getFolderShuffle(folderId),
+                current.map { it.id })
+        }
     }
 
     private fun showFileChooser(
@@ -315,12 +634,14 @@ sealed class LibraryState {
     modifier: Modifier = Modifier,
     padding: PaddingValues,
     state: LazyListState = rememberLazyListState(),
-) = Surface(modifier, color = MaterialTheme.colors.background) {
+) {
     val viewModel: LibraryViewModel = viewModel()
     LibraryView(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         lazyListState = state,
         contentPadding = padding,
         shownDialog = viewModel.shownDialog,
+        shownFolderDialog = viewModel.shownFolderDialog,
+        openFolderId = viewModel.openFolderId,
         libraryState = viewModel.viewState)
 }

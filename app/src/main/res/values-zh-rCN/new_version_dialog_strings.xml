@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of SoundAura, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources>
+    <string name="new_version_dialog_title">版本 %1$s</string>
+    <string name="bug_fixes_section_title">问题修复</string>
+
+    <string name="feature_playlists_title">新增播放列表支持</string>
+    <string name="feature_playlists_description">
+        添加新音频时可一次选择多个文件，或从音频的选项菜单选择“%1$s”选项，并至少选择一首额外音频来创建播放列表。</string>
+
+    <string name="feature_volume_boost_title">新增音量增强</string>
+    <string name="feature_volume_boost_description">
+        从音频或播放列表的选项菜单选择“%1$s”选项，可在不修改源文件的情况下将音量增强最多 30dB。</string>
+
+    <string name="version_1_6_change_storage_permission_title">突破音频限制</string>
+    <string name="version_1_6_change_storage_permission_explanation">如果超出通常允许的音频数量，授予应用读取存储权限后即可添加任意数量的音频。</string>
+    <string name="version_1_6_change_bug_fixes_description">修复了超出允许的最大音频数量时的崩溃问题。\n修复了快速设置磁贴状态不更新的问题。</string>
+
+    <string name="version_1_6_2_change_crash_on_adding_media_fix">修复了部分用户添加媒体时遇到的崩溃问题（希望如此）。</string>
+
+    <string name="version_1_7_change_audio_controls_title">独立音频控制</string>
+    <string name="version_1_7_change_audio_controls_description">每个音频现在都有独立的播放进度条和 0.1x 到 5x 的倍速设置。</string>
+    <string name="version_1_7_change_folders_title">音频文件夹</string>
+    <string name="version_1_7_change_folders_description">可用本地音频或已选中的库内容创建文件夹，向文件夹添加音频，长按拖动调整文件夹内顺序，并同时播放多个文件夹。</string>
+    <string name="version_1_7_change_language_title">语言更新</string>
+    <string name="version_1_7_change_language_description">中文界面用词已调整，音频相关表述更统一。</string>
+
+    <string name="version_2_0_change_brand_title">Mistysound 全新名称与图标</string>
+    <string name="version_2_0_change_brand_description">SoundAura 现已更名为 Mistysound，并启用了新的应用名称与图标。</string>
+    <string name="version_2_0_change_folder_loading_title">文件夹打开更顺滑</string>
+    <string name="version_2_0_change_folder_loading_description">文件夹页面现在会立即打开，音频列表会渐进显示，减少短加载时的闪烁感。</string>
+    <string name="version_2_0_change_stability_title">文件夹稳定性修复</string>
+    <string name="version_2_0_change_stability_description">修复了在文件夹内容尚未加载完成时打开文件夹可能导致的闪退问题。</string>
+    <string name="version_3_0_change_backgrounds_title">自定义背景</string>
+    <string name="version_3_0_change_backgrounds_description">现在可以分别管理主背景和卡片背景，导入自己的图片，先预览，再把想要的效果保存生效。</string>
+    <string name="version_3_0_change_library_search_title">按页面分开的搜索</string>
+    <string name="version_3_0_change_library_search_description">搜索现在会跟随当前页面分别工作，主页面、文件夹页面，以及两个背景库页面都会各自搜索自己的内容。</string>
+    <string name="version_3_0_change_background_tools_title">背景编辑工具</string>
+    <string name="version_3_0_change_background_tools_description">背景图片现在支持重命名、排序、启用或停用、移除，以及在保存生效前通过专用编辑器调整裁切范围。</string>
+    <string name="version_3_0_1_fix_background_crash_description">修复了从旧版本更新后启动可能闪退的问题，也修复了全新安装后打开自定义背景页面时的闪退问题。</string>
+    <string name="version_3_1_0_change_frosted_glass_title">磨砂玻璃主题</string>
+    <string name="version_3_1_0_change_frosted_glass_description">新增深色和浅色磨砂玻璃主题，让主页卡片、设置卡片以及背景图片页面的卡片统一呈现半透明玻璃风格。</string>
+    <string name="version_3_1_0_change_opacity_title">玻璃不透明度调节</string>
+    <string name="version_3_1_0_change_opacity_description">选择磨砂玻璃主题后，显示设置会出现 0-100% 的不透明度滑杆，方便你调整卡片的通透程度。</string>
+    <string name="version_3_1_0_change_background_visibility_title">背景显示范围扩大</string>
+    <string name="version_3_1_0_change_background_visibility_description">顶部栏现已透明化，主背景图也会继续显示在顶部栏和设置页面后方，同时仍会避开系统状态栏区域。</string>
+    <string name="version_3_2_1_change_editor_confirm_title">背景编辑确认更明确</string>
+    <string name="version_3_2_1_change_editor_confirm_description">主背景编辑页现在会在右下角显示悬浮确认按钮，让裁切和缩放调整的保存时机更加直观。</string>
+    <string name="version_3_2_1_change_glass_controls_title">磨砂玻璃控件样式统一</string>
+    <string name="version_3_2_1_change_glass_controls_description">悬浮按钮、卡片覆盖控件、滑动条和播放控制现在会更一致地跟随磨砂玻璃主题，颜色也更浅、更通透。</string>
+    <string name="version_3_2_1_change_gesture_title">拖动与缩放更顺手</string>
+    <string name="version_3_2_1_change_gesture_description">优化了磨砂玻璃不透明度滑动条的跟手性，也让背景编辑页中的图片拖动和双指缩放更流畅、更容易控制。</string>
+    <string name="version_3_2_1_change_icons_title">区分个人版与公开版图标</string>
+    <string name="version_3_2_1_change_icons_description">个人版和公开版安装包现在会使用各自独立的启动图标，更方便区分两个应用包。</string>
+    <string name="version_3_2_3_change_glass_tuning_title">磨砂玻璃控件继续调优</string>
+    <string name="version_3_2_3_change_glass_tuning_description">继续微调磨砂玻璃控件的颜色强度与透明度，让整体更轻、更通透，同时避免深色磨砂玻璃主题出现刺眼发白的问题。</string>
+    <string name="version_3_2_3_change_slider_title">滑动条高亮层更透背景</string>
+    <string name="version_3_2_3_change_slider_description">进一步减轻主页和显示设置中绿色高亮轨道与圆点的视觉重量，让背景能更自然地透出来。</string>
+    <string name="version_3_2_3_change_floating_controls_title">悬浮按钮样式更统一</string>
+    <string name="version_3_2_3_change_floating_controls_description">继续调整底部播放条、右下角加号和其他悬浮按钮，让它们更贴合磨砂玻璃主题，观感更轻盈。</string>
+</resources>

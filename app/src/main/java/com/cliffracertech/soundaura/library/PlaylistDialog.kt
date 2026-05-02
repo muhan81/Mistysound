@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -208,6 +209,21 @@ sealed class PlaylistDialog(
         val onConfirmClick = { onConfirm(volumeBoost.toInt().coerceIn(0, 30)) }
     }
 
+    class PlaybackSpeed(
+        target: Playlist,
+        onDismissRequest: () -> Unit,
+        private val onConfirm: (Float) -> Unit,
+    ): PlaylistDialog(target, onDismissRequest) {
+        var speedText by mutableStateOf(target.playbackSpeed.formatSpeed().removeSuffix("x"))
+            private set
+
+        val speed get() = (speedText.toFloatOrNull() ?: 1f).coerceIn(0.1f, 5f)
+        val onSpeedChange = { value: String ->
+            speedText = value.filter { it.isDigit() || it == '.' }.take(4)
+        }
+        val onConfirmClick = { onConfirm(speed) }
+    }
+
     /**
      * The remove dialog for a playlist
      *
@@ -244,6 +260,9 @@ sealed class PlaylistDialog(
     is PlaylistDialog.RequestStoragePermission ->
         AccessAudioFilesPermissionRequester(onPermissionGranted = dialogState.onResult)
     is PlaylistDialog.BoostVolume -> BoostVolumeDialog(
+        modifier = modifier,
+        state = dialogState)
+    is PlaylistDialog.PlaybackSpeed -> PlaybackSpeedDialog(
         modifier = modifier,
         state = dialogState)
     is Remove -> ConfirmRemoveDialog(
@@ -310,6 +329,37 @@ sealed class PlaylistDialog(
                          Manifest.permission.READ_MEDIA_AUDIO
                      else Manifest.permission.READ_EXTERNAL_STORAGE
     LaunchedEffect(Unit) { launcher.launch(permission) }
+}
+
+@Composable fun PlaybackSpeedDialog(
+    state: PlaylistDialog.PlaybackSpeed,
+    modifier: Modifier = Modifier,
+) = SoundAuraDialog(
+    modifier = modifier,
+    width = DialogWidth.MatchToScreenSize(),
+    title = stringResource(R.string.playback_speed_dialog_title),
+    onDismissRequest = state.onDismissRequest,
+    onConfirm = state.onConfirmClick,
+) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            text = stringResource(R.string.playback_speed_dialog_description),
+            style = MaterialTheme.typography.body1,
+            textAlign = TextAlign.Justify)
+        TextField(
+            value = state.speedText,
+            onValueChange = state.onSpeedChange,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.body1,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 8.dp))
+        Text(
+            text = stringResource(
+                R.string.playback_speed_dialog_effective_value,
+                state.speed.formatSpeed()),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+                .padding(bottom = 12.dp),
+            style = MaterialTheme.typography.body1)
+    }
 }
 
 /** Show a dialog to change a playlist's volume boost. */

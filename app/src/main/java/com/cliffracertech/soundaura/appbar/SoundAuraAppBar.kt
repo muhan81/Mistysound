@@ -3,6 +3,8 @@
  * the project's root directory to see the full license. */
 package com.cliffracertech.soundaura.appbar
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.DropdownMenuItem
@@ -11,7 +13,11 @@ import androidx.compose.material.Switch
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,20 +32,29 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cliffracertech.soundaura.addbutton.getDisplayName
 import com.cliffracertech.soundaura.Dispatcher
 import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.edit
 import com.cliffracertech.soundaura.enumPreferenceState
+import com.cliffracertech.soundaura.launchIO
+import com.cliffracertech.soundaura.library.FolderDialog
+import com.cliffracertech.soundaura.library.FolderDialogShower
+import com.cliffracertech.soundaura.model.FolderUseCases
+import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.SearchQueryState
+import com.cliffracertech.soundaura.model.SearchScope
 import com.cliffracertech.soundaura.model.StringResource
 import com.cliffracertech.soundaura.model.database.Playlist
 import com.cliffracertech.soundaura.preferenceState
 import com.cliffracertech.soundaura.settings.PrefKeys
 import com.cliffracertech.soundaura.ui.SimpleIconButton
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -55,33 +70,73 @@ import javax.inject.Inject
  * button that uses the property [onSettingsButtonClick] as its onClick action.
  */
 @HiltViewModel class AppBarViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val dataStore: DataStore<Preferences>,
     private val navigationState: NavigationState,
-    private val searchQuery: SearchQueryState
+    private val searchQuery: SearchQueryState,
+    private val folderUseCases: FolderUseCases,
+    private val messageHandler: MessageHandler,
 ) : ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
+    var shownFolderDialog by mutableStateOf<FolderDialog?>(null)
+        private set
 
-    val onBackButtonClick: (() -> Unit)? get() = when {
-        searchQuery.isActive ->
-            searchQuery::clear
+    private var pendingLocalUris = emptyList<Uri>()
+    private var pendingFolderName = ""
+    private fun dismissFolderDialog() { shownFolderDialog = null }
+    private val currentSearchScope get() = navigationState.currentSearchScope
+
+    val onBackButtonClick: (() -> Unit)? get() = currentSearchScope
+        ?.takeIf(searchQuery::isActive)
+        ?.let { scope ->
+            { searchQuery.clear(scope) }
+        }
+        ?: when {
+        navigationState.showingBackgroundEditor -> {
+            { navigationState.onBackgroundEditorBackClick() }
+        }
+        navigationState.showingBackgroundCollectionPage -> {
+            { navigationState.onBackButtonClick() }
+        }
         navigationState.showingAppSettings -> {
+            { navigationState.onBackButtonClick() }
+        } navigationState.openFolderId != null -> {
             { navigationState.onBackButtonClick() }
         } else -> null
     }
 
-    val title get() = StringResource(
-        if (navigationState.showingAppSettings)
-            R.string.app_settings_description
-        else R.string.app_name)
+    val title get() = when {
+        navigationState.showingBackgroundEditor ->
+            StringResource(navigationState.backgroundCollectionType?.editorTitleResId ?: R.string.app_name)
+        navigationState.showingBackgroundCollectionPage ->
+            StringResource(navigationState.backgroundCollectionType?.pageTitleResId ?: R.string.app_name)
+        navigationState.showingAppSettings ->
+            StringResource(R.string.app_settings_description)
+        navigationState.openFolderId != null ->
+            StringResource(navigationState.openFolderName.orEmpty())
+        else -> StringResource(R.string.app_name)
+    }
 
-    val showIconButtons get() = !navigationState.showingAppSettings
+    val showSearchButton get() = currentSearchScope != null
+    val showSortButton get() =
+        !navigationState.showingAppSettings &&
+            !navigationState.showingBackgroundCollectionPage &&
+            !navigationState.showingBackgroundEditor
+    val showLibraryButtons get() = showSortButton
 
     val searchQueryViewState = SearchQueryViewState(
-        getQuery = searchQuery::value,
-        onQueryChange = searchQuery::set,
-        onButtonClick = searchQuery::toggleIsActive,
+        getQuery = {
+            currentSearchScope?.let(searchQuery::value)
+        },
+        onQueryChange = { query ->
+            currentSearchScope?.let { scope -> searchQuery.set(scope, query) }
+        },
+        onButtonClick = {
+            currentSearchScope?.let(searchQuery::toggleIsActive)
+        },
         getIcon = {
-            if (searchQuery.isActive) SearchQueryViewState.Icon.Close
+            if (currentSearchScope?.let(searchQuery::isActive) == true)
+                SearchQueryViewState.Icon.Close
             else                      SearchQueryViewState.Icon.Search
         })
 
@@ -110,9 +165,98 @@ import javax.inject.Inject
         })
 
     fun onSettingsButtonClick() {
-        if (searchQuery.isActive)
-            searchQuery.clear()
+        currentSearchScope?.takeIf(searchQuery::isActive)?.let(searchQuery::clear)
         navigationState.showAppSettings()
+    }
+
+    fun onCreateFolderClick() {
+        shownFolderDialog = FolderDialog.SourceChoice(
+            onDismissRequest = ::dismissFolderDialog,
+            onLocalAudioClick = ::showLocalAudioChooser,
+            onCurrentAudioClick = ::showNameCurrentAudioFolder)
+    }
+
+    private fun showLocalAudioChooser() {
+        shownFolderDialog = FolderDialog.SelectingFiles(
+            onDismissRequest = ::dismissFolderDialog,
+            onFilesSelected = { uris ->
+                pendingLocalUris = uris
+                val initialName = uris.firstOrNull()?.getDisplayName(context).orEmpty()
+                showNameFolder(initialName) { name ->
+                    createFolderFromLocalFiles(name, uris)
+                }
+            })
+    }
+
+    private fun showNameCurrentAudioFolder() {
+        scope.launchIO {
+            val playlists = folderUseCases.activeLibraryPlaylists()
+            withContext(Dispatcher.Immediate) {
+                if (playlists.isEmpty()) {
+                    dismissFolderDialog()
+                    messageHandler.postMessage(
+                        R.string.folder_no_current_audio_warning,
+                        SnackbarDuration.Long)
+                } else showNameFolder(playlists.first().name) { name ->
+                    createFolderFromCurrentAudio(name, playlists.map { it.id })
+                }
+            }
+        }
+    }
+
+    private fun showNameFolder(
+        initialName: String,
+        onNameValidated: suspend (String) -> Unit,
+    ) {
+        shownFolderDialog = FolderDialog.NameFolder(
+            onDismissRequest = ::dismissFolderDialog,
+            namingState = folderUseCases.newFolderNamingState(
+                scope = scope,
+                initialName = initialName,
+                onNameValidated = onNameValidated))
+    }
+
+    private suspend fun createFolderFromCurrentAudio(name: String, playlistIds: List<Long>) {
+        when (folderUseCases.createFolderFromPlaylists(name, playlistIds)) {
+            FolderUseCases.Result.Success -> dismissFolderDialog()
+            FolderUseCases.Result.EmptySelection -> {
+                dismissFolderDialog()
+                messageHandler.postMessage(
+                    R.string.folder_no_current_audio_warning,
+                    SnackbarDuration.Long)
+            }
+            is FolderUseCases.Result.Failure -> Unit
+        }
+    }
+
+    private suspend fun createFolderFromLocalFiles(name: String, uris: List<Uri>) {
+        pendingFolderName = name
+        when (val result = folderUseCases.createFolderFromLocalFiles(name, uris)) {
+            FolderUseCases.Result.Success -> dismissFolderDialog()
+            FolderUseCases.Result.EmptySelection -> dismissFolderDialog()
+            is FolderUseCases.Result.Failure -> showRequestStoragePermission(result)
+        }
+    }
+
+    private fun showRequestStoragePermission(result: FolderUseCases.Result.Failure) {
+        shownFolderDialog = FolderDialog.RequestStoragePermissionExplanation(
+            permissionsUsed = result.permissionsUsed,
+            permissionsAllowed = result.permissionAllowance,
+            onDismissRequest = ::dismissFolderDialog,
+            onOkClick = {
+                shownFolderDialog = FolderDialog.RequestStoragePermission(
+                    onDismissRequest = ::dismissFolderDialog,
+                    onResult = { granted ->
+                        if (granted) scope.launchIO {
+                            createFolderFromLocalFiles(pendingFolderName, pendingLocalUris)
+                        } else {
+                            messageHandler.postMessage(
+                                R.string.cant_add_tracks_warning,
+                                SnackbarDuration.Long)
+                            dismissFolderDialog()
+                        }
+                    })
+            })
     }
 }
 
@@ -129,7 +273,8 @@ import javax.inject.Inject
         modifier = modifier,
         onBackButtonClick = viewModel.onBackButtonClick,
         title = title,
-        showIconButtons = viewModel.showIconButtons,
+        showSearchButton = viewModel.showSearchButton,
+        showSortButton = viewModel.showSortButton,
         searchQueryState = viewModel.searchQueryViewState,
         sortMenuState = viewModel.sortMenuState,
         otherSortMenuContent = {
@@ -141,10 +286,18 @@ import javax.inject.Inject
                        onCheckedChange = null)
             }
             Divider()
+        }, leadingIconButtons = {
+            if (viewModel.showLibraryButtons)
+                SimpleIconButton(
+                    icon = Icons.Default.CreateNewFolder,
+                    contentDescription = stringResource(R.string.create_folder_button_description),
+                    onClick = viewModel::onCreateFolderClick)
         }, otherIconButtons = {
-            SimpleIconButton(
-                icon = Icons.Default.Settings,
-                contentDescription = stringResource(R.string.app_settings_description),
-                onClick = viewModel::onSettingsButtonClick)
+            if (viewModel.showLibraryButtons)
+                SimpleIconButton(
+                    icon = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.app_settings_description),
+                    onClick = viewModel::onSettingsButtonClick)
         })
+    FolderDialogShower(viewModel.shownFolderDialog)
 }

@@ -8,6 +8,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.cliffracertech.soundaura.settings.AppTheme
 
 private val lightColorPalette = lightColors(
     primary = LightThemePrimary,
@@ -41,4 +43,38 @@ private val darkColorPalette = darkColors(
              else           lightColorPalette,
     typography = Typography,
     shapes = Shapes,
-    content = content)
+    content = {
+        val cardAppearance = rememberCardAppearance(
+            darkTheme = darkTheme,
+            frostedGlass = false,
+            opacityPercent = 72,
+        )
+        CompositionLocalProvider(LocalCardAppearance provides cardAppearance) {
+            content()
+        }
+    })
+
+@Composable
+fun SoundAuraTheme(
+    appTheme: AppTheme,
+    frostedGlassOpacityPercent: Int,
+    content: @Composable () -> Unit,
+) {
+    val systemDark = isSystemInDarkTheme()
+    val darkTheme = appTheme.resolvesToDark(systemDark)
+    val colors = if (darkTheme) darkColorPalette else lightColorPalette
+    val cardAppearance = rememberCardAppearance(
+        darkTheme = darkTheme,
+        frostedGlass = appTheme.isFrostedGlass,
+        opacityPercent = frostedGlassOpacityPercent,
+    )
+    MaterialTheme(
+        colors = colors,
+        typography = Typography,
+        shapes = Shapes,
+    ) {
+        CompositionLocalProvider(LocalCardAppearance provides cardAppearance) {
+            content()
+        }
+    }
+}

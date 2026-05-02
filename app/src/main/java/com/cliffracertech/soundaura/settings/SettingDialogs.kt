@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -385,10 +386,10 @@ import com.mikepenz.aboutlibraries.ui.compose.libraryColors
                                .align(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painter = painterResource(R.drawable.tile_and_notification_icon),
+            Image(
+                painter = painterResource(R.drawable.mistysound_launcher_source),
                 contentDescription = null,
-                modifier = Modifier.size(22.dp),
-                tint = MaterialTheme.colors.primary)
+                modifier = Modifier.size(24.dp))
             Spacer(Modifier.width(8.dp))
             Text(text = stringResource(R.string.app_name),
                 modifier = Modifier.alignByBaseline(),

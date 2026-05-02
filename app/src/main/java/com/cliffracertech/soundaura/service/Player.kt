@@ -13,20 +13,40 @@ data class ActivePlaylistSummary(
     val id: Long,
     val shuffle: Boolean,
     val volume: Float,
-    val volumeBoostDb: Int)
+    val volumeBoostDb: Int,
+    val playbackSpeed: Float)
 
-typealias ActivePlaylist = Map.Entry<ActivePlaylistSummary, List<Uri>>
-val ActivePlaylist.id get() = key.id
-val ActivePlaylist.shuffle get() = key.shuffle
-val ActivePlaylist.volume get() = key.volume
-val ActivePlaylist.volumeBoostDb get() = key.volumeBoostDb
-val ActivePlaylist.tracks get() = value
+data class ActiveFolderPlaylistSummary(
+    val folderId: Long,
+    val folderShuffle: Boolean,
+    val folderOrder: Int,
+    val playlistId: Long,
+    val playlistShuffle: Boolean,
+    val volume: Float,
+    val volumeBoostDb: Int,
+    val playbackSpeed: Float)
+
+data class PlaybackProgress(
+    val positionMillis: Int = 0,
+    val durationMillis: Int = 0)
+
+data class PlaybackTrack(
+    val playlistId: Long,
+    val uri: Uri,
+    val volume: Float,
+    val volumeBoostDb: Int,
+    val playbackSpeed: Float)
+
+data class ActivePlayback(
+    val key: String,
+    val shuffle: Boolean,
+    val tracks: List<PlaybackTrack>)
 
 /**
  * A [MediaPlayer] wrapper that allows for seamless looping of the provided
- * [ActivePlaylist]. The [update] method can be used when the [ActivePlaylist]'s
+ * [ActivePlayback]. The [update] method can be used when the [ActivePlayback]'s
  * properties change. The property [volume] describes the current volume for
- * both audio channels, and is initialized to the [ActivePlaylist]'s [volume]
+ * both audio channels, and is initialized from the current [PlaybackTrack]'s [volume]
  * field.
  *
  * The methods [play], [pause], and [stop] can be used to control playback of
@@ -34,8 +54,8 @@ val ActivePlaylist.tracks get() = value
  * same name, except for [stop]. [Player]'s [stop] method is functionally the
  * same as pausing while seeking to the start of the media.
  *
- * If there is a problem with one or more [Uri]s within the [ActivePlaylist]'s
- * [tracks], playback of the next track will be attempted until one is found
+ * If there is a problem with one or more [Uri]s within the [ActivePlayback],
+ * playback of the next track will be attempted until one is found
  * that can be played. If [MediaPlayer] creation fails for all of the tracks,
  * no playback will occur, and calling [play] will have no effect. When one or
  * more tracks fail to play, the provided callback [onPlaybackFailure] will be
@@ -44,7 +64,7 @@ val ActivePlaylist.tracks get() = value
  * @param context A [Context] instance. Note that the provided context instance
  *     is held onto for the lifetime of the Player instance, and so should not
  *     be a [Context] that the Player might outlive.
- * @param playlist The [ActivePlaylist] whose contents will be played
+ * @param playback The [ActivePlayback] whose contents will be played
  * @param startImmediately Whether or not the Player should start playback
  *     as soon as it is ready
  * @param onPlaybackFailure A callback that will be invoked if MediaPlayer
@@ -52,13 +72,14 @@ val ActivePlaylist.tracks get() = value
  */
 class Player(
     private val context: Context,
-    private var playlist: ActivePlaylist,
+    private var playback: ActivePlayback,
     startImmediately: Boolean = false,
     private val onPlaybackFailure: (List<Uri>) -> Unit,
 ) {
-    private var uriIterator = uriIterator(playlist)
+    private var trackIterator = trackIterator(playback)
     private var mediaPlayer: MediaPlayer? = null
     private var volumeBooster: LoudnessEnhancer? = null
+    private var currentTrack: PlaybackTrack? = null
     // Without tracking the intended playing/paused state in this property,
     // an issue can occur if an attempt to pause is made when the internal
     // MediaPlayer is in the process of switching to the next track in a
@@ -67,12 +88,11 @@ class Player(
     private var isPlaying = startImmediately
 
     private val onCompletionListener = MediaPlayer.OnCompletionListener {
-        initializePlayerForNextUri(startImmediately = isPlaying)
+        initializePlayerForNextTrack(startImmediately = isPlaying)
     }
 
     init {
-        initializePlayerForNextUri(startImmediately)
-        mediaPlayer?.initializeFor(playlist)
+        initializePlayerForNextTrack(startImmediately)
     }
 
     fun play() {
@@ -87,12 +107,12 @@ class Player(
 
     fun stop() {
         isPlaying = false
-        if (playlist.tracks.size < 2) {
+        if (playback.tracks.size < 2) {
             mediaPlayer?.pause()
             mediaPlayer?.seekTo(0)
         } else {
-            uriIterator = uriIterator(playlist)
-            initializePlayerForNextUri(startImmediately = false)
+            trackIterator = trackIterator(playback)
+            initializePlayerForNextTrack(startImmediately = false)
         }
     }
 
@@ -100,27 +120,70 @@ class Player(
         mediaPlayer?.setVolume(volume, volume)
     }
 
-    /** Reset the Player to play the [newPlaylist]*/
-    fun update(newPlaylist: ActivePlaylist, startImmediately: Boolean) {
+    fun setPlaybackSpeed(speed: Float) {
+        mediaPlayer?.setPlaybackSpeed(speed)
+    }
+
+    fun setPlaylistVolume(playlistId: Long, volume: Float) {
+        val coercedVolume = volume.coerceIn(0f, 1f)
+        playback = playback.copy(tracks = playback.tracks.map { track ->
+            if (track.playlistId == playlistId)
+                track.copy(volume = coercedVolume)
+            else track
+        })
+        if (currentTrack?.playlistId == playlistId) {
+            currentTrack = currentTrack?.copy(volume = coercedVolume)
+            setVolume(coercedVolume)
+        }
+    }
+
+    fun setPlaylistSpeed(playlistId: Long, speed: Float) {
+        val coercedSpeed = speed.coerceIn(0.1f, 5f)
+        playback = playback.copy(tracks = playback.tracks.map { track ->
+            if (track.playlistId == playlistId)
+                track.copy(playbackSpeed = coercedSpeed)
+            else track
+        })
+        if (currentTrack?.playlistId == playlistId) {
+            currentTrack = currentTrack?.copy(playbackSpeed = coercedSpeed)
+            setPlaybackSpeed(coercedSpeed)
+        }
+    }
+
+    fun progressFor(playlistId: Long): PlaybackProgress? {
+        val player = mediaPlayer ?: return null
+        if (currentTrack?.playlistId != playlistId) return null
+        return PlaybackProgress(
+            positionMillis = player.currentPosition.coerceAtLeast(0),
+            durationMillis = player.duration.coerceAtLeast(0))
+    }
+
+    fun seekTo(playlistId: Long, positionMillis: Int) {
+        val player = mediaPlayer ?: return
+        if (currentTrack?.playlistId != playlistId) return
+        player.seekTo(positionMillis.coerceIn(0, player.duration.coerceAtLeast(0)))
+    }
+
+    /** Reset the Player to play the [newPlayback]. */
+    fun update(newPlayback: ActivePlayback, startImmediately: Boolean) {
         isPlaying = startImmediately
 
-        if (newPlaylist.shuffle != playlist.shuffle ||
-            newPlaylist.tracks != playlist.tracks
-        ) {
-            uriIterator = uriIterator(newPlaylist)
-            initializePlayerForNextUri(startImmediately)
-            mediaPlayer?.initializeFor(newPlaylist)
-            // initializePlayerForNextUri and MediaPlayer.initializeFor will
-            // start the player and apply the volume and volumeBoost if necessary,
-            // so this does not need to be done manually in this case.
+        if (!newPlayback.hasSameSequenceAs(playback)) {
+            playback = newPlayback
+            trackIterator = trackIterator(newPlayback)
+            initializePlayerForNextTrack(startImmediately)
         } else {
-            setVolume(newPlaylist.volume)
-            if (newPlaylist.volumeBoostDb != playlist.volumeBoostDb)
-                mediaPlayer?.boostVolume(newPlaylist.volumeBoostDb)
+            val newCurrentTrack = currentTrack?.let { track ->
+                newPlayback.tracks.find {
+                    it.playlistId == track.playlistId && it.uri == track.uri
+                }
+            }
+            newCurrentTrack?.let { mediaPlayer?.initializeFor(it, newPlayback.tracks.size < 2) }
             if (startImmediately)
                 mediaPlayer?.start()
+            playback = newPlayback
+            currentTrack = newCurrentTrack
         }
-        playlist = newPlaylist
     }
 
     fun release() {
@@ -128,26 +191,34 @@ class Player(
         mediaPlayer?.release()
     }
 
-    private fun uriIterator(playlist: ActivePlaylist) = (
-            if (!playlist.shuffle)
-                InfiniteSequence(playlist.tracks)
+    private fun trackIterator(playback: ActivePlayback) = (
+            if (!playback.shuffle)
+                InfiniteSequence(playback.tracks)
             else ShuffledInfiniteSequence(
-                unshuffledValues = playlist.tracks,
-                memorySize = maxOf(1, playlist.tracks.size / 3))
+                unshuffledValues = playback.tracks,
+                memorySize = maxOf(1, playback.tracks.size / 3))
         ).iterator()
 
+    private fun ActivePlayback.hasSameSequenceAs(other: ActivePlayback) =
+        shuffle == other.shuffle &&
+        tracks.map { it.playlistId to it.uri } ==
+            other.tracks.map { it.playlistId to it.uri }
+
+    private fun PlaybackTrack.withLatestSettings() =
+        playback.tracks.find { it.playlistId == playlistId && it.uri == uri } ?: this
+
     /**
-     * Determine the next target [Uri], and either create a new [MediaPlayer]
+     * Determine the next target [PlaybackTrack], and either create a new [MediaPlayer]
      * instance if [mediaPlayer] is null, or attempt to reset the existing
-     * player to use the target [Uri] as a data source. When the new or
+     * player to use the target [PlaybackTrack.uri] as a data source. When the new or
      * existing player is prepared, playback will start immediately if
      * [startImmediately] is true.
      *
-     * initializePlayerForNextUri must be called once for each [Uri] that is
+     * initializePlayerForNextTrack must be called once for each [Uri] that is
      * to be played. A single track playlist only needs to call it once, but
      * a multi-track playlist will need to have it called for each track.
      */
-    private fun initializePlayerForNextUri(startImmediately: Boolean) {
+    private fun initializePlayerForNextTrack(startImmediately: Boolean) {
         // The number of player creation/data source setting attempts is
         // recorded and compared to the playlist's track count so that we
         // know when we have done one full loop of the playlist's tracks
@@ -155,8 +226,10 @@ class Player(
         var failedUris: MutableList<Uri>? = null
         var newPlayer: MediaPlayer? = null
 
-        while (newPlayer == null && ++attempts <= playlist.tracks.size) {
-            val uri = uriIterator.next()
+        var newTrack: PlaybackTrack? = null
+        while (newPlayer == null && ++attempts <= playback.tracks.size) {
+            val track = trackIterator.next().withLatestSettings()
+            val uri = track.uri
             newPlayer = mediaPlayer.let {
                 if (it == null)
                     MediaPlayer.create(context, uri)
@@ -172,24 +245,33 @@ class Player(
                 else failedUris.add(uri)
             } else if (startImmediately)
                 newPlayer.start()
+            if (newPlayer != null)
+                newTrack = track
         }
         failedUris?.let(onPlaybackFailure)
         mediaPlayer = newPlayer
+        currentTrack = newTrack
+        newTrack?.let { newPlayer?.initializeFor(it, playback.tracks.size < 2) }
     }
 
     /**
      * Set the receiver's volume, [MediaPlayer.isLooping] property, and
      * [MediaPlayer.setOnCompletionListener] to their appropriate values
-     * to play the content of [playlist]. init must be called only once
-     * for each [ActivePlaylist].
+     * to play the content of [track]. init must be called only once
+     * for each [PlaybackTrack].
      */
-    private fun MediaPlayer.initializeFor(playlist: ActivePlaylist) {
-        setVolume(playlist.volume, playlist.volume)
-        isLooping = playlist.tracks.size < 2
-        boostVolume(playlist.volumeBoostDb)
+    private fun MediaPlayer.initializeFor(track: PlaybackTrack, looping: Boolean) {
+        setVolume(track.volume, track.volume)
+        isLooping = looping
+        setPlaybackSpeed(track.playbackSpeed)
+        boostVolume(track.volumeBoostDb)
         setOnCompletionListener(
-            if (playlist.tracks.size < 2) null
+            if (looping) null
             else onCompletionListener)
+    }
+
+    private fun MediaPlayer.setPlaybackSpeed(speed: Float) {
+        playbackParams = playbackParams.setSpeed(speed.coerceIn(0.1f, 5f))
     }
 
     private fun MediaPlayer.boostVolume(dbBoost: Int) {
@@ -206,7 +288,7 @@ class Player(
  * A collection of [Player] instances.
  *
  * [PlayerMap] manages a collection of [Player] instances for a collection
- * of [ActivePlaylist]s. The collection of [Player]s is updated via the
+ * of [ActivePlayback]s. The collection of [Player]s is updated via the
  * method [update]. Whether or not the collection of players is empty can
  * be queried with the property [isEmpty].
  *
@@ -225,7 +307,7 @@ class PlayerMap(
     private val context: Context,
     private val onPlaybackFailure: (uris: List<Uri>) -> Unit,
 ) {
-    private var playerMap: MutableMap<Long, Player> = hashMapOf()
+    private var playerMap: MutableMap<String, Player> = hashMapOf()
 
     val isEmpty get() = playerMap.isEmpty()
 
@@ -234,24 +316,33 @@ class PlayerMap(
     fun stop() = playerMap.values.forEach(Player::stop)
 
     fun setPlayerVolume(playlistId: Long, volume: Float) =
-        playerMap[playlistId]?.setVolume(volume)
+        playerMap.values.forEach { it.setPlaylistVolume(playlistId, volume) }
+
+    fun setPlayerSpeed(playlistId: Long, speed: Float) =
+        playerMap.values.forEach { it.setPlaylistSpeed(playlistId, speed) }
+
+    fun progressFor(playlistId: Long): PlaybackProgress? =
+        playerMap.values.firstNotNullOfOrNull { it.progressFor(playlistId) }
+
+    fun seekTo(playlistId: Long, positionMillis: Int) =
+        playerMap.values.forEach { it.seekTo(playlistId, positionMillis) }
 
     fun releaseAll() = playerMap.values.forEach(Player::release)
 
     /** Update the PlayerSet with new [Player]s to match the provided [playlists].
      * If [startPlaying] is true, playback will start immediately. Otherwise, the
      * [Player]s will begin paused. */
-    fun update(playlists: Map<ActivePlaylistSummary, List<Uri>>, startPlaying: Boolean) {
+    fun update(playbacks: List<ActivePlayback>, startPlaying: Boolean) {
         val oldMap = playerMap
-        playerMap = HashMap(playlists.size)
+        playerMap = HashMap(playbacks.size)
 
-        for (playlist in playlists) {
+        for (playback in playbacks) {
             val existingPlayer = oldMap
-                .remove(playlist.id)
-                ?.apply { update(playlist, startPlaying) }
+                .remove(playback.key)
+                ?.apply { update(playback, startPlaying) }
 
-            playerMap[playlist.id] = existingPlayer ?:
-                Player(context, playlist, startPlaying, onPlaybackFailure)
+            playerMap[playback.key] = existingPlayer ?:
+                Player(context, playback, startPlaying, onPlaybackFailure)
         }
         oldMap.values.forEach(Player::release)
     }

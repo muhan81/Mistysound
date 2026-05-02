@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is part of SoundAura, which is released under
+   ~ the terms of the Apache License 2.0. See license.md in
+   ~ the project's root directory to see the full license. -->
+
+<resources>
+    <string name="new_version_dialog_title">バージョン %1$s</string>
+    <string name="bug_fixes_section_title">不具合修正</string>
+
+    <string name="feature_playlists_title">プレイリスト対応を追加</string>
+    <string name="feature_playlists_description">
+        新しいトラックを追加するときに複数のファイルを一度に選択できます。または、トラックのオプションメニューから「%1$s」オプションを選択し、少なくとも 1 つの追加トラックを選んでプレイリストを作成できます。</string>
+
+    <string name="feature_volume_boost_title">音量ブーストを追加</string>
+    <string name="feature_volume_boost_description">
+        トラックまたはプレイリストのオプションメニューから「%1$s」オプションを選択すると、元のファイルを変更せずに音量を最大 30dB までブーストできます。</string>
+
+    <string name="version_1_6_change_storage_permission_title">トラック上限を超過</string>
+    <string name="version_1_6_change_storage_permission_explanation">通常許可されるトラック数を超えた場合でも、アプリにストレージ読み取り権限を付与すると、任意の数のトラックを追加できます。</string>
+    <string name="version_1_6_change_bug_fixes_description">許可された最大トラック数を超えたときにクラッシュする問題を修正しました。\nクイック設定タイルの状態が更新されない問題を修正しました。</string>
+
+    <string name="version_1_6_2_change_crash_on_adding_media_fix">一部のユーザーがメディア追加時に遭遇していたクラッシュを修正しました（おそらく）。</string>
+
+    <string name="version_1_7_change_audio_controls_title">音声ごとの操作</string>
+    <string name="version_1_7_change_audio_controls_description">各音声項目に個別の再生位置スライダーと、0.1x から 5x までの再生速度設定を追加しました。</string>
+    <string name="version_1_7_change_folders_title">音声フォルダー</string>
+    <string name="version_1_7_change_folders_description">端末内の音声または選択中のライブラリ項目からフォルダーを作成し、音声を追加し、長押しドラッグで並べ替え、複数のフォルダーを同時に再生できます。</string>
+    <string name="version_1_7_change_language_title">言語更新</string>
+    <string name="version_1_7_change_language_description">中国語の音声関連表現をより一貫したものに調整しました。</string>
+
+    <string name="version_2_0_change_brand_title">Mistysound へ刷新</string>
+    <string name="version_2_0_change_brand_description">SoundAura は Mistysound に生まれ変わり、新しいアプリ名とアイコンになりました。</string>
+    <string name="version_2_0_change_folder_loading_title">フォルダーの開き方を改善</string>
+    <string name="version_2_0_change_folder_loading_description">フォルダーページがすぐに開き、音声リストは段階的に表示されるようになり、短い読み込み時のちらつきを抑えました。</string>
+    <string name="version_2_0_change_stability_title">フォルダーの安定性向上</string>
+    <string name="version_2_0_change_stability_description">フォルダー内容の読み込み完了前に開いたときに発生することがあったクラッシュを修正しました。</string>
+    <string name="version_3_0_change_backgrounds_title">Custom backgrounds</string>
+    <string name="version_3_0_change_backgrounds_description">You can now manage separate main backgrounds and shared card backgrounds, import your own images, preview them, and save the one you want to apply.</string>
+    <string name="version_3_0_change_library_search_title">Smarter page-based search</string>
+    <string name="version_3_0_change_library_search_description">Search now follows the page you are on, so the library, folder view, and each background library all search their own content independently.</string>
+    <string name="version_3_0_change_background_tools_title">Background editing tools</string>
+    <string name="version_3_0_change_background_tools_description">Background images can be renamed, reordered, enabled or disabled, removed, and cropped with a dedicated editor before you save the effect.</string>
+    <string name="version_3_0_1_fix_background_crash_description">Fixed a launch crash that could happen after updating from an older version, and fixed a crash when opening the custom background pages on a fresh install.</string>
+    <string name="version_3_1_0_change_frosted_glass_title">Frosted glass themes</string>
+    <string name="version_3_1_0_change_frosted_glass_description">Added dark and light frosted glass themes that give cards a translucent glass-style appearance across the library, settings, and background image pages.</string>
+    <string name="version_3_1_0_change_opacity_title">Glass opacity control</string>
+    <string name="version_3_1_0_change_opacity_description">When a frosted glass theme is selected, the display settings now show a 0-100% slider so you can fine-tune card opacity.</string>
+    <string name="version_3_1_0_change_background_visibility_title">Backgrounds visible in more places</string>
+    <string name="version_3_1_0_change_background_visibility_description">The top app bar is now transparent and the main background remains visible behind it and behind the settings page while still respecting the system status bar area.</string>
+    <string name="version_3_2_1_change_editor_confirm_title">背景編集の確認をわかりやすく</string>
+    <string name="version_3_2_1_change_editor_confirm_description">メイン背景の編集画面に右下のフローティング確認ボタンを追加し、切り抜きやズーム調整の保存がより直感的になりました。</string>
+    <string name="version_3_2_1_change_glass_controls_title">すりガラス風コントロールの統一</string>
+    <string name="version_3_2_1_change_glass_controls_description">フローティングボタン、カード上の操作、スライダー、再生コントロールが、すりガラステーマにより一貫して馴染むようになり、色もより淡く透ける見た目になりました。</string>
+    <string name="version_3_2_1_change_gesture_title">ドラッグとピンチ操作を改善</string>
+    <string name="version_3_2_1_change_gesture_description">すりガラス不透明度スライダーの追従性を改善し、背景編集画面での画像ドラッグとピンチズームも、より滑らかで操作しやすくなりました。</string>
+    <string name="version_3_2_1_change_icons_title">リリースごとのアイコンを分離</string>
+    <string name="version_3_2_1_change_icons_description">個人版と公開版のリリースビルドで、それぞれ別のランチャーアイコンを使うようになり、2 つのアプリを見分けやすくしました。</string>
+    <string name="version_3_2_3_change_glass_tuning_title">すりガラス操作部をさらに調整</string>
+    <string name="version_3_2_3_change_glass_tuning_description">すりガラス風コントロールの色の強さと透明感をさらに見直し、全体をより軽く透ける見た目にしつつ、ダークテーマでまぶしくなりすぎないよう調整しました。</string>
+    <string name="version_3_2_3_change_slider_title">アクティブなスライダー表示を軽量化</string>
+    <string name="version_3_2_3_change_slider_description">ホーム画面と表示設定にある緑色のアクティブなトラックとつまみをさらに軽くし、背景がより自然に見えるようにしました。</string>
+    <string name="version_3_2_3_change_floating_controls_title">フローティング操作の統一感を向上</string>
+    <string name="version_3_2_3_change_floating_controls_description">下部の再生バー、右下の追加ボタン、そのほかのフローティングボタンをさらに調整し、すりガラステーマにより自然になじむようにしました。</string>
+</resources>

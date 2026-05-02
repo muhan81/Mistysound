@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.cliffracertech.soundaura.service.PlayerService
+import com.cliffracertech.soundaura.service.PlaybackProgress
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,6 +40,10 @@ interface PlaybackState {
 
     /** Set the playlist identified by [playlistId]'s volume to [volume]. */
     fun setPlaylistVolume(playlistId: Long, @FloatRange(0.0, 1.0) volume: Float)
+
+    fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float)
+    fun getPlaylistProgress(playlistId: Long): PlaybackProgress
+    fun seekPlaylistTo(playlistId: Long, positionMillis: Int)
 }
 
 /** An implementation of [PlaybackState] that is backed by a [PlayerService] instance. */
@@ -76,6 +81,17 @@ class PlayerServicePlaybackState(
         // the active tracks (and their volumes) are read from the database.
         PlayerService.binder?.setPlaylistVolume(playlistId, volume)
     }
+
+    override fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) {
+        PlayerService.binder?.setPlaylistPlaybackSpeed(playlistId, speed)
+    }
+
+    override fun getPlaylistProgress(playlistId: Long): PlaybackProgress =
+        PlayerService.binder?.getPlaylistProgress(playlistId) ?: PlaybackProgress()
+
+    override fun seekPlaylistTo(playlistId: Long, positionMillis: Int) {
+        PlayerService.binder?.seekPlaylistTo(playlistId, positionMillis)
+    }
 }
 
 @Module @InstallIn(ActivityRetainedComponent::class)
@@ -107,4 +123,8 @@ class TestPlaybackState: PlaybackState {
     override fun clearTimer() { stopTime = null }
 
     override fun setPlaylistVolume(playlistId: Long, volume: Float) = Unit
+
+    override fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) = Unit
+    override fun getPlaylistProgress(playlistId: Long) = PlaybackProgress()
+    override fun seekPlaylistTo(playlistId: Long, positionMillis: Int) = Unit
 }

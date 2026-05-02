@@ -63,7 +63,12 @@ data class Playlist(
     /** An additional volume boost in dB that will be applied to the track
      * before the volume adjustment. The supported range of values is 0-30db. */
     @ColumnInfo(defaultValue = "0")
-    val volumeBoostDb: Int = 0
+    val volumeBoostDb: Int = 0,
+
+    /** The playback speed multiplier for this [Playlist]. */
+    @FloatRange(from = 0.1, to = 5.0)
+    @ColumnInfo(defaultValue = "1.0")
+    val playbackSpeed: Float = 1f
 ) {
     enum class Sort { NameAsc, NameDesc, OrderAdded;
         fun name(context: Context) = when (this) {
@@ -73,6 +78,39 @@ data class Playlist(
         }
     }
 }
+
+@Entity(
+    tableName = "folder",
+    indices = [Index(value = ["name"], unique = true)])
+data class Folder(
+    @PrimaryKey val id: Long,
+    val name: String,
+    @ColumnInfo(defaultValue = "0")
+    val shuffle: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val isActive: Boolean = false)
+
+@Entity(
+    tableName = "folderPlaylist",
+    primaryKeys = ["folderId", "playlistId"],
+    indices = [Index(value = ["playlistId"])],
+    foreignKeys = [
+        ForeignKey(
+            entity = Folder::class,
+            parentColumns = ["id"],
+            childColumns = ["folderId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE),
+        ForeignKey(
+            entity = Playlist::class,
+            parentColumns = ["id"],
+            childColumns = ["playlistId"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE)])
+data class FolderPlaylist(
+    val folderId: Long,
+    val folderOrder: Int,
+    val playlistId: Long)
 
 @Entity(tableName = "playlistTrack",
     primaryKeys = ["playlistId", "trackUri"],
@@ -182,6 +220,37 @@ fun playlistRenameValidator(
         name.isBlank() ->
             Validator.Message.Error(R.string.name_dialog_blank_name_error_message)
         withContext(Dispatcher.IO) { dao.exists(name) } ->
+            Validator.Message.Error(R.string.name_dialog_duplicate_name_error_message)
+        else -> null
+    }})
+
+fun newFolderNameValidator(
+    dao: PlaylistDao,
+    coroutineScope: CoroutineScope,
+    initialName: String = "",
+) = Validator(
+    initialValue = initialName,
+    coroutineScope = coroutineScope,
+    messageFor = { name, hasBeenChanged -> when {
+        name.isBlank() && hasBeenChanged ->
+            Validator.Message.Error(R.string.name_dialog_blank_name_error_message)
+        withContext(Dispatcher.IO) { dao.folderExists(name) } ->
+            Validator.Message.Error(R.string.name_dialog_duplicate_name_error_message)
+        else -> null
+    }})
+
+fun folderRenameValidator(
+    dao: PlaylistDao,
+    oldName: String,
+    coroutineScope: CoroutineScope,
+) = Validator(
+    initialValue = oldName,
+    coroutineScope = coroutineScope,
+    messageFor = { name, _ -> when {
+        name == oldName -> null
+        name.isBlank() ->
+            Validator.Message.Error(R.string.name_dialog_blank_name_error_message)
+        withContext(Dispatcher.IO) { dao.folderExists(name) } ->
             Validator.Message.Error(R.string.name_dialog_duplicate_name_error_message)
         else -> null
     }})
