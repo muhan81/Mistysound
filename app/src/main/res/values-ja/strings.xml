@@ -45,6 +45,8 @@
     <string name="confirm_remove_track_message">このトラックをライブラリと含まれているすべてのプリセットから削除します。ただし、端末上のファイルは削除されません。</string>
     <string name="confirm_remove_playlist_message">
         このプレイリストをライブラリと含まれているすべてのプリセットから削除します。ただし、プレイリスト内のファイルは端末から削除されません。</string>
+    <string name="confirm_remove_from_folder_message">
+        この音声は現在のフォルダーからのみ削除されます。メディアライブラリには残り、端末上のファイルも削除されません。</string>
 
     <string name="create_playlist_title">プレイリストを作成</string>
     <string name="playlist_options_title">プレイリストのオプション</string>

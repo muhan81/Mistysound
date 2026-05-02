@@ -61,4 +61,10 @@
     <string name="version_3_2_3_change_slider_description">홈 화면과 표시 설정의 녹색 활성 트랙과 원형 손잡이의 시각적 무게를 더 줄여 배경이 더 자연스럽게 보이도록 했습니다.</string>
     <string name="version_3_2_3_change_floating_controls_title">플로팅 컨트롤 통일감 향상</string>
     <string name="version_3_2_3_change_floating_controls_description">하단 재생 바, 오른쪽 아래 추가 버튼, 그 외 플로팅 버튼을 더 조정해 반투명 유리 테마와 한층 자연스럽게 어우러지도록 했습니다.</string>
+    <string name="version_3_2_5_change_folder_remove_title">폴더 제거 동작 개선</string>
+    <string name="version_3_2_5_change_folder_remove_description">폴더 화면에서 오디오를 제거하면 이제 현재 폴더에서만 제거됩니다. 오디오는 미디어 라이브러리에 남아 있으며 기기의 파일도 삭제되지 않습니다.</string>
+    <string name="version_3_2_5_change_source_link_title">소스 코드 링크 업데이트</string>
+    <string name="version_3_2_5_change_source_link_description">Mistysound 정보 화면의 소스 코드 링크가 이제 Mistysound 저장소를 엽니다.</string>
+    <string name="version_3_2_5_change_top_bar_title">상단 버튼 가독성 개선</string>
+    <string name="version_3_2_5_change_top_bar_description">화면 상단의 제목, 검색 텍스트, 아이콘 버튼에 더 진하고 불투명한 색을 사용해 사용자 지정 배경 위에서도 더 잘 보이도록 했습니다.</string>
 </resources>

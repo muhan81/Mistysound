@@ -61,4 +61,10 @@
     <string name="version_3_2_3_change_slider_description">ホーム画面と表示設定にある緑色のアクティブなトラックとつまみをさらに軽くし、背景がより自然に見えるようにしました。</string>
     <string name="version_3_2_3_change_floating_controls_title">フローティング操作の統一感を向上</string>
     <string name="version_3_2_3_change_floating_controls_description">下部の再生バー、右下の追加ボタン、そのほかのフローティングボタンをさらに調整し、すりガラステーマにより自然になじむようにしました。</string>
+    <string name="version_3_2_5_change_folder_remove_title">フォルダーからの削除を安全に</string>
+    <string name="version_3_2_5_change_folder_remove_description">フォルダー画面で音声を削除しても、現在のフォルダーからのみ削除されるようになりました。音声はメディアライブラリに残り、端末上のファイルも削除されません。</string>
+    <string name="version_3_2_5_change_source_link_title">ソースコードリンクを更新</string>
+    <string name="version_3_2_5_change_source_link_description">Mistysound について画面のソースコードリンクが Mistysound リポジトリを開くようになりました。</string>
+    <string name="version_3_2_5_change_top_bar_title">トップバーを見やすく</string>
+    <string name="version_3_2_5_change_top_bar_description">画面上部のタイトル、検索文字、アイコンボタンに、より濃く不透明な色を使うようにし、カスタム背景の上でも見やすくしました。</string>
 </resources>

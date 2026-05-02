@@ -105,6 +105,10 @@ class FolderUseCases(
         dao.deleteFolder(folderId)
     }
 
+    suspend fun removePlaylistFromFolder(folderId: Long, playlistId: Long) {
+        dao.deletePlaylistFromFolder(folderId, playlistId)
+    }
+
     suspend fun activeLibraryPlaylists() = dao.getActiveLibraryPlaylists()
 
     private suspend fun addLocalFilesAsPlaylists(uris: List<Uri>): List<Long>? {

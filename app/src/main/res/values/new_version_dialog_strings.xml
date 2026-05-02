@@ -64,4 +64,10 @@
     <string name="version_3_2_3_change_slider_description">Reduced the visual weight of the active green slider layer and thumb so more of the background shows through on the home screen and in display settings.</string>
     <string name="version_3_2_3_change_floating_controls_title">Floating buttons refined</string>
     <string name="version_3_2_3_change_floating_controls_description">Adjusted floating action buttons and the bottom playback bar to better match the frosted glass theme with lighter, more see-through surfaces.</string>
+    <string name="version_3_2_5_change_folder_remove_title">Safer folder removal</string>
+    <string name="version_3_2_5_change_folder_remove_description">Removing audio from a folder now only removes it from that folder. The audio stays in your library and device files are not deleted.</string>
+    <string name="version_3_2_5_change_source_link_title">Mistysound source link</string>
+    <string name="version_3_2_5_change_source_link_description">The About Mistysound source code link now opens the Mistysound repository.</string>
+    <string name="version_3_2_5_change_top_bar_title">Clearer top bar controls</string>
+    <string name="version_3_2_5_change_top_bar_description">Top bar titles, search text, and icon buttons now use stronger opaque colors so they are easier to see on custom backgrounds.</string>
 </resources>

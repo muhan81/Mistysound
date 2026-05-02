@@ -53,6 +53,9 @@
     <string name="confirm_remove_playlist_message">
         This will remove the playlist from your library and any presets it is a
         part of, but will not delete the files in the playlist from your device.</string>
+    <string name="confirm_remove_from_folder_message">
+        This will remove the audio from this folder only. It will stay in your
+        library and will not delete files from your device.</string>
 
     <string name="create_playlist_title">Create playlist</string>
     <string name="playlist_options_title">Playlist options</string>

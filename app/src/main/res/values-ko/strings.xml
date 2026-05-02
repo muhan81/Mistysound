@@ -45,6 +45,8 @@
     <string name="confirm_remove_track_message">이 트랙을 라이브러리와 포함된 모든 프리셋에서 제거하지만, 기기의 파일은 삭제하지 않습니다.</string>
     <string name="confirm_remove_playlist_message">
         이 재생목록을 라이브러리와 포함된 모든 프리셋에서 제거하지만, 재생목록 안의 파일은 기기에서 삭제하지 않습니다.</string>
+    <string name="confirm_remove_from_folder_message">
+        이 오디오는 현재 폴더에서만 제거됩니다. 미디어 라이브러리에는 그대로 남으며 기기의 파일도 삭제하지 않습니다.</string>
 
     <string name="create_playlist_title">재생목록 만들기</string>
     <string name="playlist_options_title">재생목록 옵션</string>

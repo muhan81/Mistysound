@@ -61,4 +61,10 @@
     <string name="version_3_2_3_change_slider_description">進一步減輕主頁與顯示設定中綠色高亮軌道與圓點的視覺重量，讓背景能更自然地透出來。</string>
     <string name="version_3_2_3_change_floating_controls_title">懸浮按鈕樣式更統一</string>
     <string name="version_3_2_3_change_floating_controls_description">持續調整底部播放條、右下角加號和其他懸浮按鈕，讓它們更貼合磨砂玻璃主題，觀感更輕盈。</string>
+    <string name="version_3_2_5_change_folder_remove_title">資料夾移除更安全</string>
+    <string name="version_3_2_5_change_folder_remove_description">在資料夾頁面移除音訊時，現在只會從目前資料夾移除。音訊仍會保留在媒體庫中，也不會刪除裝置檔案。</string>
+    <string name="version_3_2_5_change_source_link_title">原始碼連結已更新</string>
+    <string name="version_3_2_5_change_source_link_description">關於 Mistysound 中的「查看原始碼」現在會開啟 Mistysound 倉庫。</string>
+    <string name="version_3_2_5_change_top_bar_title">頂部按鈕更清晰</string>
+    <string name="version_3_2_5_change_top_bar_description">頁面頂部的標題、搜尋文字和圖示按鈕現在使用更深、更不透明的顏色，在自訂背景上更容易看清。</string>
 </resources>

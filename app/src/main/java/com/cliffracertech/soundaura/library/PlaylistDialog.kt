@@ -38,6 +38,7 @@ import com.cliffracertech.soundaura.dialog.ValidatedNamingState
 import com.cliffracertech.soundaura.library.PlaylistDialog.FileChooser
 import com.cliffracertech.soundaura.library.PlaylistDialog.PlaylistOptions
 import com.cliffracertech.soundaura.library.PlaylistDialog.Remove
+import com.cliffracertech.soundaura.library.PlaylistDialog.RemoveFromFolder
 import com.cliffracertech.soundaura.library.PlaylistDialog.Rename
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.StringResource
@@ -238,6 +239,12 @@ sealed class PlaylistDialog(
         onDismissRequest: () -> Unit,
         val onConfirmClick: () -> Unit,
     ): PlaylistDialog(target, onDismissRequest)
+
+    class RemoveFromFolder(
+        target: Playlist,
+        onDismissRequest: () -> Unit,
+        val onConfirmClick: () -> Unit,
+    ): PlaylistDialog(target, onDismissRequest)
 }
 
 /** Display the appropriate [Playlist]-related dialog, as identified by [dialogState]. */
@@ -269,6 +276,11 @@ sealed class PlaylistDialog(
         modifier = modifier,
         playlistName = dialogState.target.name,
         isSingleTrack = dialogState.target.isSingleTrack,
+        onDismissRequest = dialogState.onDismissRequest,
+        onConfirmClick = dialogState.onConfirmClick)
+    is RemoveFromFolder -> ConfirmRemoveFromFolderDialog(
+        modifier = modifier,
+        playlistName = dialogState.target.name,
         onDismissRequest = dialogState.onDismissRequest,
         onConfirmClick = dialogState.onConfirmClick)
 }
@@ -409,6 +421,22 @@ sealed class PlaylistDialog(
     text = stringResource(
         if (isSingleTrack) R.string.confirm_remove_track_message
         else               R.string.confirm_remove_playlist_message),
+    confirmText = stringResource(R.string.remove),
+    onConfirm = {
+        onConfirmClick()
+        onDismissRequest()
+    })
+
+@Composable fun ConfirmRemoveFromFolderDialog(
+    playlistName: String,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    onConfirmClick: () -> Unit
+) = SoundAuraDialog(
+    modifier = modifier,
+    onDismissRequest = onDismissRequest,
+    title = stringResource(R.string.confirm_remove_title, playlistName),
+    text = stringResource(R.string.confirm_remove_from_folder_message),
     confirmText = stringResource(R.string.remove),
     onConfirm = {
         onConfirmClick()

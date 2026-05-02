@@ -15,6 +15,7 @@ import com.cliffracertech.soundaura.settings.AppTheme
 import com.cliffracertech.soundaura.settings.OnZeroVolumeAudioDeviceBehavior
 import com.cliffracertech.soundaura.settings.PrefKeys
 import com.cliffracertech.soundaura.settings.SettingsViewModel
+import com.cliffracertech.soundaura.model.NavigationState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -53,7 +54,7 @@ class SettingsViewModelTests {
         context.checkSelfPermission(READ_PHONE_STATE) == PERMISSION_GRANTED
 
     @Before fun init() {
-        instance = SettingsViewModel(context, dataStore)
+        instance = SettingsViewModel(context, dataStore, NavigationState())
     }
 
     @After fun cleanUp() {

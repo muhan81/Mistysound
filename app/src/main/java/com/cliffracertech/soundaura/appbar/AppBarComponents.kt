@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.cliffracertech.soundaura.rememberMutableStateOf
@@ -44,7 +45,7 @@ import com.cliffracertech.soundaura.ui.minTouchTargetSize
 import kotlinx.collections.immutable.ImmutableList
 
 /** Compose a transparent [Row] with status/navigation bar safe spacing,
- * while providing the current theme's onPrimary color as the [LocalContentColor]. */
+ * while providing a high-contrast color as the [LocalContentColor]. */
 @Composable
 fun GradientToolBar(
     modifier: Modifier = Modifier,
@@ -63,7 +64,7 @@ fun GradientToolBar(
             .height(56.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val color = MaterialTheme.colors.onPrimary
+        val color = if (MaterialTheme.colors.isLight) Color.Black else Color.White
         CompositionLocalProvider(LocalContentColor provides color) { content() }
     }
 }
@@ -120,7 +121,7 @@ fun GradientToolBar(
     BasicTextField(
         value = query,
         onValueChange = state.onQueryChange,
-        textStyle = MaterialTheme.typography.h6,
+        textStyle = MaterialTheme.typography.h6.copy(color = LocalContentColor.current),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         modifier = modifier.minTouchTargetSize(),
         singleLine = true,

@@ -95,6 +95,7 @@ sealed class LibraryState {
         private val getFolderPlaylists: () -> ImmutableList<Playlist>?,
         private val isFolderSearchActive: () -> Boolean,
         val playlistViewCallback: PlaylistViewCallback,
+        val folderPlaylistViewCallback: PlaylistViewCallback,
         val folderViewCallback: FolderViewCallback,
         val onFolderPlaylistMove: (fromIndex: Int, toIndex: Int) -> Unit,
     ): LibraryState() {
@@ -228,7 +229,7 @@ sealed class LibraryState {
                 ReorderableItem(reorderableState, key = playlist.id) {
                     PlaylistView(
                         playlist = playlist,
-                        callback = libraryState.playlistViewCallback,
+                        callback = libraryState.folderPlaylistViewCallback,
                         modifier = Modifier
                             .animateItem()
                             .longPressDraggableHandle())
@@ -390,6 +391,39 @@ sealed class LibraryState {
         }
     }
 
+    private val folderPlaylistCallback = object : PlaylistViewCallback {
+        override fun onAddRemoveButtonClick(playlist: Playlist) =
+            itemCallback.onAddRemoveButtonClick(playlist)
+        override fun onVolumeChange(playlist: Playlist, volume: Float) =
+            itemCallback.onVolumeChange(playlist, volume)
+        override fun onVolumeChangeFinished(playlist: Playlist, volume: Float) =
+            itemCallback.onVolumeChangeFinished(playlist, volume)
+        override fun getProgress(playlist: Playlist) =
+            itemCallback.getProgress(playlist)
+        override fun onSeek(playlist: Playlist, positionMillis: Int) =
+            itemCallback.onSeek(playlist, positionMillis)
+        override fun onPlaybackSpeedClick(playlist: Playlist) =
+            itemCallback.onPlaybackSpeedClick(playlist)
+        override fun onRenameClick(playlist: Playlist) =
+            itemCallback.onRenameClick(playlist)
+        override fun onExtraOptionsClick(playlist: Playlist) =
+            itemCallback.onExtraOptionsClick(playlist)
+        override fun onVolumeBoostClick(playlist: Playlist) =
+            itemCallback.onVolumeBoostClick(playlist)
+        override fun onRemoveClick(playlist: Playlist) {
+            val folderId = navigationState.openFolderId ?: return
+            shownDialog = PlaylistDialog.RemoveFromFolder(
+                target = playlist,
+                onDismissRequest = ::dismissDialog,
+                onConfirmClick = {
+                    dismissDialog()
+                    scope.launchIO {
+                        folderUseCases.removePlaylistFromFolder(folderId, playlist.id)
+                    }
+                })
+        }
+    }
+
     private val folderCallback = object : FolderViewCallback {
         override fun onAddRemoveButtonClick(folder: Folder) {
             scope.launchIO { folderUseCases.toggleFolderIsActive(folder.id) }
@@ -445,6 +479,7 @@ sealed class LibraryState {
         ::folderPlaylists,
         { searchQueryState.isActive(com.cliffracertech.soundaura.model.SearchScope.Folder) },
         itemCallback,
+        folderPlaylistCallback,
         folderCallback,
         ::moveFolderPlaylist)
     val openFolderId get() = navigationState.openFolderId

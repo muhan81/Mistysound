@@ -442,6 +442,9 @@ private const val folderPlaylistSelectWithFilter =
     @Query("DELETE FROM folderPlaylist WHERE folderId = :folderId")
     protected abstract suspend fun deleteFolderPlaylists(folderId: Long)
 
+    @Query("DELETE FROM folderPlaylist WHERE folderId = :folderId AND playlistId = :playlistId")
+    abstract suspend fun deletePlaylistFromFolder(folderId: Long, playlistId: Long)
+
     @Transaction
     open suspend fun setFolderShuffleAndPlaylists(
         folderId: Long,

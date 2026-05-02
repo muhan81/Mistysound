@@ -1,0 +1,5 @@
+Version 3.2.5
+
+- Removing audio from a folder now only removes it from that folder; the audio stays in the library and device files are not deleted
+- The About Mistysound source code link now opens https://github.com/muhan81/Mistysound
+- Top bar titles, search text, and icon buttons now use stronger opaque colors so they are easier to see on custom backgrounds

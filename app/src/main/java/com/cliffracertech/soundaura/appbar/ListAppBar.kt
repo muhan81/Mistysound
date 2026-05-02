@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -117,7 +118,9 @@ import kotlinx.collections.immutable.toImmutableList
         ) {
             Text(text = it,
                 modifier = Modifier.height(48.dp).wrapContentHeight(),
-                style = MaterialTheme.typography.h5, maxLines = 1)
+                style = MaterialTheme.typography.h5,
+                color = LocalContentColor.current,
+                maxLines = 1)
         }
     }
 
@@ -135,14 +138,18 @@ import kotlinx.collections.immutable.toImmutableList
                 val painter = rememberAnimatedVectorPainter(vector,
                     searchQueryState.icon == SearchQueryViewState.Icon.Close)
                 IconButton(onClick = searchQueryState.onButtonClick) {
-                    Icon(painter, stringResource(R.string.search))
+                    Icon(
+                        painter = painter,
+                        contentDescription = stringResource(R.string.search),
+                        tint = LocalContentColor.current)
                 }
             }
             // Sort button
             if (showSortButton) {
                 IconButton(onClick = sortMenuState.onButtonClick) {
                     Icon(imageVector = Icons.Default.Sort,
-                        stringResource(R.string.sort_options_description))
+                        contentDescription = stringResource(R.string.sort_options_description),
+                        tint = LocalContentColor.current)
                     RadioDropdownMenu(
                         expanded = sortMenuState.showingPopup,
                         options = sortMenuState.optionNames(LocalContext.current),

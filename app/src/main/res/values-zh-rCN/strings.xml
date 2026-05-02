@@ -45,6 +45,8 @@
     <string name="confirm_remove_track_message">这会从你的库以及其所属的所有预设中移除此音频，但不会从设备中删除该文件。</string>
     <string name="confirm_remove_playlist_message">
         这会从你的库以及其所属的所有预设中移除此播放列表，但不会从设备中删除播放列表内的文件。</string>
+    <string name="confirm_remove_from_folder_message">
+        这只会将该音频从当前文件夹移除。它仍会保留在你的媒体库中，也不会删除设备文件。</string>
 
     <string name="create_playlist_title">创建播放列表</string>
     <string name="playlist_options_title">播放列表选项</string>

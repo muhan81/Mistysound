@@ -45,6 +45,8 @@
     <string name="confirm_remove_track_message">這會從你的資料庫以及其所屬的所有預設中移除此音訊，但不會從裝置中刪除該檔案。</string>
     <string name="confirm_remove_playlist_message">
         這會從你的資料庫以及其所屬的所有預設中移除此播放清單，但不會從裝置中刪除播放清單內的檔案。</string>
+    <string name="confirm_remove_from_folder_message">
+        這只會將該音訊從目前資料夾移除。它仍會保留在你的媒體庫中，也不會刪除裝置檔案。</string>
 
     <string name="create_playlist_title">建立播放清單</string>
     <string name="playlist_options_title">播放清單選項</string>

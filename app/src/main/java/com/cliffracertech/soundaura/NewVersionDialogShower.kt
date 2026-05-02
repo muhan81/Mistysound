@@ -116,6 +116,13 @@ import com.cliffracertech.soundaura.dialog.SoundAuraDialog
                     stringResource(R.string.version_3_2_3_change_slider_description),
                 stringResource(R.string.version_3_2_3_change_floating_controls_title) to
                     stringResource(R.string.version_3_2_3_change_floating_controls_description))
+            21 -> listOf(
+                stringResource(R.string.version_3_2_5_change_folder_remove_title) to
+                    stringResource(R.string.version_3_2_5_change_folder_remove_description),
+                stringResource(R.string.version_3_2_5_change_source_link_title) to
+                    stringResource(R.string.version_3_2_5_change_source_link_description),
+                stringResource(R.string.version_3_2_5_change_top_bar_title) to
+                    stringResource(R.string.version_3_2_5_change_top_bar_description))
             else -> listOf(
                 stringResource(R.string.bug_fixes_section_title) to
                     stringResource(R.string.version_1_6_2_change_crash_on_adding_media_fix)

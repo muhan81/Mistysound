@@ -22,6 +22,7 @@ import com.cliffracertech.soundaura.model.ModifyLibraryUseCase
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
 import com.cliffracertech.soundaura.model.ReadLibraryUseCase
+import com.cliffracertech.soundaura.model.SearchScope
 import com.cliffracertech.soundaura.model.SearchQueryState
 import com.cliffracertech.soundaura.model.TestPermissionHandler
 import com.cliffracertech.soundaura.model.TestPlaybackState
@@ -89,6 +90,7 @@ class LibraryViewModelTests {
     private val playlistOptionsDialog get() = instance.shownDialog as PlaylistDialog.PlaylistOptions
     private val requestStoragePermissionExplanationDialog get() = instance.shownDialog as PlaylistDialog.RequestStoragePermissionExplanation
     private val removeDialog get() = instance.shownDialog as PlaylistDialog.Remove
+    private val removeFromFolderDialog get() = instance.shownDialog as PlaylistDialog.RemoveFromFolder
 
     private val emptyState get() = instance.viewState as LibraryState.Empty
     private val contentState get() = instance.viewState as LibraryState.Content
@@ -130,7 +132,7 @@ class LibraryViewModelTests {
     }
 
     @Test fun empty_search_results_state() = runTest {
-        searchQueryState.set("query")
+        searchQueryState.set(SearchScope.Library, "query")
         waitUntil { instance.viewState is LibraryState.Empty }
         assertThat(instance.viewState).isInstanceOf(LibraryState.Empty::class)
         assertThat(emptyState.message.stringResId).isEqualTo(R.string.no_search_results_message)
@@ -182,21 +184,21 @@ class LibraryViewModelTests {
 
     @Test fun playlist_property_reflects_search_query() = runTest {
         insertTestPlaylists()
-        searchQueryState.set("playlist ")
+        searchQueryState.set(SearchScope.Library, "playlist ")
         waitUntil { instance.viewState != LibraryState.Loading }
         waitUntil { (contentState.playlists?.size ?: 0) < 5 } // should time out
         assertThat(instance.viewState).isInstanceOf(LibraryState.Content::class)
         assertThat(contentState.playlists).containsExactlyElementsIn(testPlaylists).inOrder()
 
-        searchQueryState.set("2")
+        searchQueryState.set(SearchScope.Library, "2")
         waitUntil { (contentState.playlists?.size ?: 0) == 1 }
         assertThat(contentState.playlists).containsExactly(testPlaylists[2])
 
-        searchQueryState.set("4")
+        searchQueryState.set(SearchScope.Library, "4")
         waitUntil { contentState.playlists?.contains(testPlaylists[4]) == true }
         assertThat(contentState.playlists).containsExactly(testPlaylists[4])
 
-        searchQueryState.toggleIsActive()
+        searchQueryState.toggleIsActive(SearchScope.Library)
         waitUntil { (contentState.playlists?.size ?: 0) == 5 }
         assertThat(contentState.playlists).containsExactlyElementsIn(testPlaylists).inOrder()
     }
@@ -454,6 +456,31 @@ class LibraryViewModelTests {
         waitUntil { instance.shownDialog !is PlaylistDialog.RequestStoragePermissionExplanation }
         assertThat(instance.shownDialog).isNull()
         assertThat(dao.getPlaylistUris(testPlaylists[4].id)).containsExactlyElementsIn(testUris)
+    }
+
+    @Test fun folder_playlist_remove_confirmation_only_removes_folder_link() = runTest {
+        insertTestPlaylists()
+        val folderId = dao.insertFolder(
+            name = "folder",
+            playlistIds = listOf(testPlaylists[0].id, testPlaylists[1].id))
+        waitUntil { contentState.folders?.any { it.id == folderId } == true }
+
+        val folder = contentState.folders!!.first { it.id == folderId }
+        contentState.folderViewCallback.onOpenFolder(folder)
+        waitUntil { contentState.folderPlaylists?.size == 2 }
+        val playlist = contentState.folderPlaylists!!.first()
+
+        contentState.folderPlaylistViewCallback.onRemoveClick(playlist)
+        assertThat(instance.shownDialog).isInstanceOf(PlaylistDialog.RemoveFromFolder::class)
+        assertThat(removeFromFolderDialog.target).isEqualTo(playlist)
+
+        removeFromFolderDialog.onConfirmClick()
+        waitUntil {
+            contentState.folderPlaylists?.map(Playlist::id) == listOf(testPlaylists[1].id)
+        }
+        assertThat(instance.shownDialog).isNull()
+        assertThat(dao.getFolderPlaylistIds(folderId)).containsExactly(testPlaylists[1].id)
+        assertThat(dao.getPlaylistNames()).containsExactlyElementsIn(testPlaylistNames)
     }
 
     @Test fun remove_dialog_appearance() = runTest {

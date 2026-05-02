@@ -13,6 +13,7 @@ import com.cliffracertech.soundaura.appbar.SearchQueryViewState
 import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
+import com.cliffracertech.soundaura.model.SearchScope
 import com.cliffracertech.soundaura.model.SearchQueryState
 import com.cliffracertech.soundaura.model.TestPermissionHandler
 import com.cliffracertech.soundaura.model.database.Playlist
@@ -89,10 +90,10 @@ class AppBarViewModelTests {
 
     @Test fun search_query_reflects_underlying_state() = runTest {
         val testQuery = "test query"
-        searchQueryState.set(testQuery)
+        searchQueryState.set(SearchScope.Library, testQuery)
         assertThat(instance.searchQueryViewState.query).isEqualTo(testQuery)
 
-        searchQueryState.toggleIsActive()
+        searchQueryState.toggleIsActive(SearchScope.Library)
         assertThat(instance.searchQueryViewState.query).isNull()
     }
 
@@ -103,13 +104,13 @@ class AppBarViewModelTests {
         assertThat(instance.searchQueryViewState.query).isNull()
 
         val testQuery = "test query"
-        searchQueryState.set(testQuery)
+        searchQueryState.set(SearchScope.Library, testQuery)
         instance.searchQueryViewState.onButtonClick()
     }
 
     @Test fun settings_button_clears_search_query() {
         val testQuery = "test query"
-        searchQueryState.set(testQuery)
+        searchQueryState.set(SearchScope.Library, testQuery)
         instance.onSettingsButtonClick()
         assertThat(instance.searchQueryViewState.query).isNull()
         instance.onBackButtonClick?.invoke()
