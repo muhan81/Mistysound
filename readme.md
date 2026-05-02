@@ -1,12 +1,12 @@
 ![API](https://badgen.net/badge/API/24+/green)
-# SoundAura
+# Mistysound
 
-SoundAura is an open source ambient sound app. It does not include any audio
+Mistysound is an open source ambient sound app. It does not include any audio
 tracks to save on download size, but allows users to add local files from
 their device and play any (reasonable) number of them concurrently, with
-individual volume controls for each track. SoundAura can also switch between
+individual volume controls for each track. Mistysound can also switch between
 an audio focus respecting mode, and a ‘play in background’ mode that ignores
-audio focus rules and allows SoundAura to play audio alongside other apps.
+audio focus rules and allows Mistysound to play audio alongside other apps.
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
@@ -49,7 +49,7 @@ https://user-images.githubusercontent.com/42116365/214144949-1600d19f-edbb-436d-
 </p>
 
 ## Tech Stack
-SoundAura is built using:
+Mistysound is built using:
 - Kotlin
 - MVVM paradigm (though without a repository layer due to there being only one data source)
 - Room persistence library and Jetpack DataStore for the data
@@ -58,9 +58,9 @@ SoundAura is built using:
 - Junit and Robolectric for testing
 
 ## Privacy Policy
-SoundAura does not collect, store, or transmit any personal information.
+Mistysound does not collect, store, or transmit any personal information.
 
 ## License
-SoundAura’s source code is released under the terms of the Apache License,
+Mistysound’s source code is released under the terms of the Apache License,
 version 2.0. See the file ‘license’ in the repository’s root directory to
 see the full license text.

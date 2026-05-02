@@ -37,13 +37,13 @@
     <string name="version_2_0_change_folder_loading_description">Folder pages now open immediately, and their audio lists appear progressively to reduce flashing during short loads.</string>
     <string name="version_2_0_change_stability_title">Folder stability improvements</string>
     <string name="version_2_0_change_stability_description">Fixed a crash that could occur when opening a folder before its contents finished loading.</string>
-    <string name="version_3_0_change_backgrounds_title">Custom backgrounds</string>
-    <string name="version_3_0_change_backgrounds_description">You can now manage separate main backgrounds and shared card backgrounds, import your own images, preview them, and save the one you want to apply.</string>
+    <string name="version_3_0_change_backgrounds_title">Custom main backgrounds</string>
+    <string name="version_3_0_change_backgrounds_description">You can now manage main backgrounds, import your own images, preview them, and save the one you want to apply.</string>
     <string name="version_3_0_change_library_search_title">Smarter page-based search</string>
-    <string name="version_3_0_change_library_search_description">Search now follows the page you are on, so the library, folder view, and each background library all search their own content independently.</string>
+    <string name="version_3_0_change_library_search_description">Search now follows the page you are on, so the library, folder view, and main background page all search their own content independently.</string>
     <string name="version_3_0_change_background_tools_title">Background editing tools</string>
     <string name="version_3_0_change_background_tools_description">Background images can be renamed, reordered, enabled or disabled, removed, and cropped with a dedicated editor before you save the effect.</string>
-    <string name="version_3_0_1_fix_background_crash_description">Fixed a launch crash that could happen after updating from an older version, and fixed a crash when opening the custom background pages on a fresh install.</string>
+    <string name="version_3_0_1_fix_background_crash_description">Fixed a launch crash that could happen after updating from an older version, and fixed a crash when opening the custom main background page on a fresh install.</string>
     <string name="version_3_1_0_change_frosted_glass_title">Frosted glass themes</string>
     <string name="version_3_1_0_change_frosted_glass_description">Added dark and light frosted glass themes that give cards a translucent glass-style appearance across the library, settings, and background image pages.</string>
     <string name="version_3_1_0_change_opacity_title">Glass opacity control</string>

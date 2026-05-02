@@ -34,13 +34,13 @@
     <string name="version_2_0_change_folder_loading_description">文件夹页面现在会立即打开，音频列表会渐进显示，减少短加载时的闪烁感。</string>
     <string name="version_2_0_change_stability_title">文件夹稳定性修复</string>
     <string name="version_2_0_change_stability_description">修复了在文件夹内容尚未加载完成时打开文件夹可能导致的闪退问题。</string>
-    <string name="version_3_0_change_backgrounds_title">自定义背景</string>
-    <string name="version_3_0_change_backgrounds_description">现在可以分别管理主背景和卡片背景，导入自己的图片，先预览，再把想要的效果保存生效。</string>
+    <string name="version_3_0_change_backgrounds_title">自定义主背景</string>
+    <string name="version_3_0_change_backgrounds_description">现在可以管理主背景，导入自己的图片，先预览，再把想要的效果保存生效。</string>
     <string name="version_3_0_change_library_search_title">按页面分开的搜索</string>
-    <string name="version_3_0_change_library_search_description">搜索现在会跟随当前页面分别工作，主页面、文件夹页面，以及两个背景库页面都会各自搜索自己的内容。</string>
+    <string name="version_3_0_change_library_search_description">搜索现在会跟随当前页面分别工作，主页面、文件夹页面和主背景页面都会各自搜索自己的内容。</string>
     <string name="version_3_0_change_background_tools_title">背景编辑工具</string>
     <string name="version_3_0_change_background_tools_description">背景图片现在支持重命名、排序、启用或停用、移除，以及在保存生效前通过专用编辑器调整裁切范围。</string>
-    <string name="version_3_0_1_fix_background_crash_description">修复了从旧版本更新后启动可能闪退的问题，也修复了全新安装后打开自定义背景页面时的闪退问题。</string>
+    <string name="version_3_0_1_fix_background_crash_description">修复了从旧版本更新后启动可能闪退的问题，也修复了全新安装后打开自定义主背景页面时的闪退问题。</string>
     <string name="version_3_1_0_change_frosted_glass_title">磨砂玻璃主题</string>
     <string name="version_3_1_0_change_frosted_glass_description">新增深色和浅色磨砂玻璃主题，让主页卡片、设置卡片以及背景图片页面的卡片统一呈现半透明玻璃风格。</string>
     <string name="version_3_1_0_change_opacity_title">玻璃不透明度调节</string>
