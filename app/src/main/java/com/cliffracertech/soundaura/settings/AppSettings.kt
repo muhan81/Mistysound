@@ -38,11 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cliffracertech.soundaura.R
+import com.cliffracertech.soundaura.UpdateAvailableDialog
 import com.cliffracertech.soundaura.dialog.DialogWidth
 import com.cliffracertech.soundaura.ui.HorizontalDivider
 import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
@@ -255,12 +257,40 @@ import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
 
 @Composable private fun AboutSettingsCategory() =
     SettingCategory(stringResource(R.string.about)) { paddingModifier ->
+        val viewModel: SettingsViewModel = viewModel()
+        val uriHandler = LocalUriHandler.current
         DialogSetting(stringResource(R.string.privacy_policy_setting_title), paddingModifier) {
             PrivacyPolicyDialog(onDismissRequest = it)
         }
         HorizontalDivider(paddingModifier)
         DialogSetting(stringResource(R.string.open_source_licenses), paddingModifier) {
             OpenSourceLibrariesUsedDialog(onDismissRequest = it)
+        }
+        HorizontalDivider(paddingModifier)
+        Setting(
+            title = stringResource(R.string.check_for_updates),
+            modifier = paddingModifier,
+            subtitle = if (viewModel.checkingForUpdates)
+                stringResource(R.string.checking_for_updates)
+            else null,
+            onClick = viewModel::onCheckForUpdatesClick,
+        ) {
+            androidx.compose.material.Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSurface.copy(alpha = 0.54f),
+            )
+        }
+        viewModel.manualUpdate?.let { update ->
+            UpdateAvailableDialog(
+                update = update,
+                showIgnoreOption = false,
+                onUpdateClick = {
+                    uriHandler.openUri(update.downloadUrl)
+                    viewModel.onManualUpdateDialogDismiss()
+                },
+                onDismissClick = { viewModel.onManualUpdateDialogDismiss() },
+            )
         }
         HorizontalDivider(paddingModifier)
         DialogSetting(stringResource(R.string.about_app_setting_title), paddingModifier) {

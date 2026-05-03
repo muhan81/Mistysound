@@ -308,4 +308,16 @@
     <string name="light_frosted_glass_theme">Light frosted glass</string>
     <string name="frosted_glass_opacity_title">Frosted glass opacity</string>
     <string name="frosted_glass_opacity_description">Adjust card opacity (%1$d%%)</string>
+    <string name="check_for_updates">업데이트 확인</string>
+    <string name="checking_for_updates">업데이트 확인 중...</string>
+    <string name="update_available_title">새 버전이 있습니다</string>
+    <string name="update_available_message">
+        Mistysound %1$s 버전이 공개되었습니다. 브라우저에서 공개판 APK를 다운로드할까요?</string>
+    <string name="confirm_update">업데이트</string>
+    <string name="update_later">나중에</string>
+    <string name="ignore_this_update">이번 업데이트는 다시 알리지 않기</string>
+    <string name="update_already_latest">현재 최신 버전을 사용 중입니다</string>
+    <string name="update_check_failed">업데이트 확인에 실패했습니다. 잠시 후 다시 시도해 주세요</string>
+    <string name="yes">예</string>
+    <string name="no">아니요</string>
 </resources>

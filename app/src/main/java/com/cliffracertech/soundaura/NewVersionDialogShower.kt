@@ -123,6 +123,13 @@ import com.cliffracertech.soundaura.dialog.SoundAuraDialog
                     stringResource(R.string.version_3_2_5_change_source_link_description),
                 stringResource(R.string.version_3_2_5_change_top_bar_title) to
                     stringResource(R.string.version_3_2_5_change_top_bar_description))
+            22 -> listOf(
+                stringResource(R.string.version_3_3_0_change_auto_update_title) to
+                    stringResource(R.string.version_3_3_0_change_auto_update_description),
+                stringResource(R.string.version_3_3_0_change_manual_update_title) to
+                    stringResource(R.string.version_3_3_0_change_manual_update_description),
+                stringResource(R.string.version_3_3_0_change_public_apk_title) to
+                    stringResource(R.string.version_3_3_0_change_public_apk_description))
             else -> listOf(
                 stringResource(R.string.bug_fixes_section_title) to
                     stringResource(R.string.version_1_6_2_change_crash_on_adding_media_fix)

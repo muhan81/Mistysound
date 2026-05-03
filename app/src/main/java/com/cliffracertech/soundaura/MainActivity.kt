@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
@@ -61,6 +62,7 @@ import com.cliffracertech.soundaura.background.BackgroundSurface
 import com.cliffracertech.soundaura.background.BackgroundRepository
 import com.cliffracertech.soundaura.background.BackgroundSaveButton
 import com.cliffracertech.soundaura.background.LocalMainBackground
+import com.cliffracertech.soundaura.launchIO
 import com.cliffracertech.soundaura.library.SoundAuraLibraryView
 import com.cliffracertech.soundaura.mediacontroller.MediaControllerSizes
 import com.cliffracertech.soundaura.mediacontroller.SoundAuraMediaController
@@ -68,6 +70,9 @@ import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
 import com.cliffracertech.soundaura.model.SearchQueryState
+import com.cliffracertech.soundaura.model.UpdateChecker
+import com.cliffracertech.soundaura.model.UpdateCheckResult
+import com.cliffracertech.soundaura.model.UpdateInfo
 import com.cliffracertech.soundaura.settings.AppLanguage
 import com.cliffracertech.soundaura.settings.AppSettings
 import com.cliffracertech.soundaura.settings.AppTheme
@@ -77,6 +82,7 @@ import com.cliffracertech.soundaura.ui.theme.SoundAuraTheme
 import com.cliffracertech.soundaura.ui.tweenDuration
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -113,6 +119,7 @@ class MainActivityViewModel @Inject constructor(
     private val navigationState: NavigationState,
     private val playbackState: PlaybackState,
     private val searchQueryState: SearchQueryState,
+    private val updateChecker: UpdateChecker,
     backgroundRepository: BackgroundRepository,
 ) : ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
@@ -160,8 +167,27 @@ class MainActivityViewModel @Inject constructor(
     val currentMainBackground by backgroundRepository
         .currentBackgroundFlow(BackgroundCollectionType.Main)
         .collectAsState(null, scope)
+
+    var availableUpdate by mutableStateOf<UpdateInfo?>(null)
+        private set
+
+    init {
+        scope.launch {
+            val result = updateChecker.checkAutomatically(BuildConfig.VERSION_NAME)
+            if (result is UpdateCheckResult.UpdateAvailable)
+                availableUpdate = result.update
+        }
+    }
+
     fun onNewVersionDialogDismiss() {
         dataStore.edit(lastLaunchedVersionCodeKey, BuildConfig.VERSION_CODE, scope)
+    }
+
+    fun onUpdateDialogDismiss(ignoreThisUpdate: Boolean) {
+        val update = availableUpdate ?: return
+        availableUpdate = null
+        if (ignoreThisUpdate)
+            scope.launchIO { updateChecker.ignoreUpdate(update.tagName) }
     }
 
     fun onBackButtonClick(): Boolean {
@@ -234,6 +260,18 @@ class MainActivity : AppCompatActivity() {
                     lastLaunchedVersionCode = viewModel.lastLaunchedVersionCode,
                     onDialogDismissed = viewModel::onNewVersionDialogDismiss,
                 )
+                viewModel.availableUpdate?.let { update ->
+                    val uriHandler = LocalUriHandler.current
+                    UpdateAvailableDialog(
+                        update = update,
+                        showIgnoreOption = true,
+                        onUpdateClick = {
+                            uriHandler.openUri(update.downloadUrl)
+                            viewModel.onUpdateDialogDismiss(ignoreThisUpdate = false)
+                        },
+                        onDismissClick = viewModel::onUpdateDialogDismiss,
+                    )
+                }
 
                 BackgroundSurface(
                     background = viewModel.currentMainBackground,

@@ -1,0 +1,5 @@
+Version 3.3.0
+
+- Added automatic update checks through Mistysound GitHub Releases
+- Added a Check for updates action in Settings > About
+- Update prompts now open the browser to download the public release APK

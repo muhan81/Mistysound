@@ -308,4 +308,16 @@
     <string name="about_app_setting_body">
         Mistysound 是一款开源环境音应用。源代码按照 Apache License 2.0 条款发布。</string>
     <string name="view_source_code">查看源代码</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="checking_for_updates">正在检查更新...</string>
+    <string name="update_available_title">发现新版本</string>
+    <string name="update_available_message">
+        Mistysound %1$s 已发布，是否前往浏览器下载公开版 APK？</string>
+    <string name="confirm_update">确认更新</string>
+    <string name="update_later">暂不更新</string>
+    <string name="ignore_this_update">此次更新不通知</string>
+    <string name="update_already_latest">当前已是最新版本</string>
+    <string name="update_check_failed">检查更新失败，请稍后再试</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
 </resources>

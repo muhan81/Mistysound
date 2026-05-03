@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val soundAuraVersionCode = 21
-val soundAuraVersionName = "3.2.5"
+val soundAuraVersionCode = 22
+val soundAuraVersionName = "3.3.0"
 val privateDir = rootProject.projectDir.parentFile.resolve("Mistysound_private")
 val privatePersonalResDir = privateDir.resolve("app/src/personal/res")
 val privateArtifactsDir = privateDir.resolve("release_artifacts")

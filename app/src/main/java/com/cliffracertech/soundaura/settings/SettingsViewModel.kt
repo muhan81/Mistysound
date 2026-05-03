@@ -22,6 +22,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cliffracertech.soundaura.BuildConfig
 import com.cliffracertech.soundaura.Dispatcher
 import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.background.BackgroundCollectionType
@@ -29,7 +30,11 @@ import com.cliffracertech.soundaura.collectAsState
 import com.cliffracertech.soundaura.edit
 import com.cliffracertech.soundaura.enumPreferenceState
 import com.cliffracertech.soundaura.launchIO
+import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
+import com.cliffracertech.soundaura.model.UpdateChecker
+import com.cliffracertech.soundaura.model.UpdateCheckResult
+import com.cliffracertech.soundaura.model.UpdateInfo
 import com.cliffracertech.soundaura.model.database.Playlist
 import com.cliffracertech.soundaura.preferenceFlow
 import com.cliffracertech.soundaura.preferenceState
@@ -123,6 +128,12 @@ object PrefKeys {
     /** A boolean value that indicates whether the user has been shown the long
      * click hint for the play/pause button. */
     const val playButtonLongClickHintShown = "play_button_long_click_hint_shown"
+
+    /** A local date string for the last successful automatic update check. */
+    const val lastAutoUpdateCheckDay = "last_auto_update_check_day"
+
+    /** The release tag that should not be shown by automatic update checks. */
+    const val ignoredUpdateTag = "ignored_update_tag"
 }
 
 enum class AppTheme {
@@ -240,6 +251,8 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val dataStore: DataStore<Preferences>,
     private val navigationState: NavigationState,
+    private val messageHandler: MessageHandler,
+    private val updateChecker: UpdateChecker,
 ) : ViewModel() {
     private val scope = viewModelScope + Dispatcher.Immediate
     private val appThemeKey = intPreferencesKey(PrefKeys.appTheme)
@@ -403,4 +416,30 @@ class SettingsViewModel @Inject constructor(
 
     fun onStopInsteadOfPauseClick() =
         dataStore.edit(stopInsteadOfPauseKey, !stopInsteadOfPause, scope)
+
+    var checkingForUpdates by mutableStateOf(false)
+        private set
+
+    var manualUpdate by mutableStateOf<UpdateInfo?>(null)
+        private set
+
+    fun onCheckForUpdatesClick() {
+        if (checkingForUpdates)
+            return
+        checkingForUpdates = true
+        scope.launch {
+            when (val result = updateChecker.checkLatest(BuildConfig.VERSION_NAME)) {
+                is UpdateCheckResult.UpdateAvailable -> manualUpdate = result.update
+                UpdateCheckResult.UpToDate ->
+                    messageHandler.postMessage(R.string.update_already_latest)
+                else ->
+                    messageHandler.postMessage(R.string.update_check_failed)
+            }
+            checkingForUpdates = false
+        }
+    }
+
+    fun onManualUpdateDialogDismiss() {
+        manualUpdate = null
+    }
 }

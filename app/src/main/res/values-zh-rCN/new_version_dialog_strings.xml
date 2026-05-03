@@ -67,4 +67,10 @@
     <string name="version_3_2_5_change_source_link_description">关于 Mistysound 中的“查看源代码”现在会打开 Mistysound 仓库。</string>
     <string name="version_3_2_5_change_top_bar_title">顶部按钮更清晰</string>
     <string name="version_3_2_5_change_top_bar_description">页面顶部的标题、搜索文字和图标按钮现在使用更深、更不透明的颜色，在自定义背景上更容易看清。</string>
+    <string name="version_3_3_0_change_auto_update_title">自动更新提醒</string>
+    <string name="version_3_3_0_change_auto_update_description">Mistysound 现在可以每天检查一次 GitHub Release，发现新版本时会弹窗提醒。</string>
+    <string name="version_3_3_0_change_manual_update_title">手动检查更新</string>
+    <string name="version_3_3_0_change_manual_update_description">关于区域新增“检查更新”，你可以随时手动查看是否有新版本。</string>
+    <string name="version_3_3_0_change_public_apk_title">公开版 APK 下载</string>
+    <string name="version_3_3_0_change_public_apk_description">点击更新按钮会打开浏览器，并从 Mistysound 的 GitHub Release 页面下载公开版 APK。</string>
 </resources>

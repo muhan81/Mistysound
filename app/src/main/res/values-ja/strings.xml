@@ -308,4 +308,16 @@
     <string name="background_editor_loading_message">Loading image editor...</string>
     <string name="background_default_image_name">Image</string>
     <string name="edit">Edit</string>
+    <string name="check_for_updates">更新を確認</string>
+    <string name="checking_for_updates">更新を確認中...</string>
+    <string name="update_available_title">新しいバージョンがあります</string>
+    <string name="update_available_message">
+        Mistysound %1$s が公開されました。ブラウザで公開版 APK をダウンロードしますか？</string>
+    <string name="confirm_update">更新する</string>
+    <string name="update_later">後で</string>
+    <string name="ignore_this_update">この更新は今後通知しない</string>
+    <string name="update_already_latest">現在のバージョンは最新です</string>
+    <string name="update_check_failed">更新の確認に失敗しました。後でもう一度お試しください</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
 </resources>

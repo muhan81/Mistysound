@@ -365,6 +365,18 @@
     <string name="about_app_setting_body">
         Mistysound is an open source ambient sound app. The source code
         is available under the terms of the Apache License, version 2.0.</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="checking_for_updates">Checking for updates...</string>
+    <string name="update_available_title">Update available</string>
+    <string name="update_available_message">
+        Mistysound %1$s is available. Download the public APK now?</string>
+    <string name="confirm_update">Update</string>
+    <string name="update_later">Not now</string>
+    <string name="ignore_this_update">Do not notify me about this update again</string>
+    <string name="update_already_latest">You are already using the latest version</string>
+    <string name="update_check_failed">Update check failed. Please try again later</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="view_source_code">View source code</string>
 
     <string name="github_link" translatable="false">

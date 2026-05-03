@@ -70,4 +70,10 @@
     <string name="version_3_2_5_change_source_link_description">The About Mistysound source code link now opens the Mistysound repository.</string>
     <string name="version_3_2_5_change_top_bar_title">Clearer top bar controls</string>
     <string name="version_3_2_5_change_top_bar_description">Top bar titles, search text, and icon buttons now use stronger opaque colors so they are easier to see on custom backgrounds.</string>
+    <string name="version_3_3_0_change_auto_update_title">Automatic update prompts</string>
+    <string name="version_3_3_0_change_auto_update_description">Mistysound can now check GitHub Releases once per day and show a prompt when a newer version is available.</string>
+    <string name="version_3_3_0_change_manual_update_title">Manual update checks</string>
+    <string name="version_3_3_0_change_manual_update_description">The About section now includes Check for updates, so you can look for a newer version whenever you want.</string>
+    <string name="version_3_3_0_change_public_apk_title">Public APK download</string>
+    <string name="version_3_3_0_change_public_apk_description">Update buttons open the browser and download the public release APK from the Mistysound GitHub Release page.</string>
 </resources>
