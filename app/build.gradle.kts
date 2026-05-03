@@ -121,29 +121,18 @@ ksp {
     arg(RoomSchemaArgProvider(File(projectDir, "schemas")))
 }
 
-val copyPersonalReleaseArtifacts by tasks.registering(Copy::class) {
-    dependsOn("assemblePersonalRelease")
-    from(layout.buildDirectory.dir("outputs/apk/personal/release"))
-    include("*.apk", "*.idsig")
-    into(privateArtifactsDir)
-    rename { fileName ->
-        when (fileName) {
-            "app-personal-release.apk" ->
-                "Mistysound-$soundAuraVersionName-personal-release.apk"
-            "app-personal-release.apk.idsig" ->
-                "Mistysound-$soundAuraVersionName-personal-release.apk.idsig"
-            "app-personal-release-unsigned.apk" ->
-                "Mistysound-$soundAuraVersionName-personal-release-unsigned.apk"
-            else -> fileName
-        }
-    }
-}
-
 val copyPublicReleaseArtifacts by tasks.registering(Copy::class) {
     dependsOn("assemblePublicRelease")
     from(layout.buildDirectory.dir("outputs/apk/public/release"))
     include("*.apk", "*.idsig")
     into(privateArtifactsDir)
+    doFirst {
+        delete(
+            privateArtifactsDir.resolve("Mistysound-$soundAuraVersionName-personal-release.apk"),
+            privateArtifactsDir.resolve("Mistysound-$soundAuraVersionName-personal-release.apk.idsig"),
+            privateArtifactsDir.resolve("Mistysound-$soundAuraVersionName-personal-release-unsigned.apk"),
+        )
+    }
     rename { fileName ->
         when (fileName) {
             "app-public-release.apk" ->
@@ -157,8 +146,12 @@ val copyPublicReleaseArtifacts by tasks.registering(Copy::class) {
     }
 }
 
+tasks.register("copyReleaseArtifacts") {
+    dependsOn(copyPublicReleaseArtifacts)
+}
+
 tasks.register("copyDualReleaseArtifacts") {
-    dependsOn(copyPersonalReleaseArtifacts, copyPublicReleaseArtifacts)
+    dependsOn(copyPublicReleaseArtifacts)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
