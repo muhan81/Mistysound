@@ -5,17 +5,10 @@ package com.cliffracertech.soundaura.appbar
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Switch
-import androidx.compose.material.TabRowDefaults.Divider
-import androidx.compose.material.Text
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
@@ -24,10 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,7 +38,6 @@ import com.cliffracertech.soundaura.model.SearchQueryState
 import com.cliffracertech.soundaura.model.SearchScope
 import com.cliffracertech.soundaura.model.StringResource
 import com.cliffracertech.soundaura.model.database.Playlist
-import com.cliffracertech.soundaura.preferenceState
 import com.cliffracertech.soundaura.settings.PrefKeys
 import com.cliffracertech.soundaura.ui.SimpleIconButton
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,12 +52,9 @@ import javax.inject.Inject
  *
  * The properties [onBackButtonClick], [title], [showIconButtons],
  * [searchQueryViewState], and [sortMenuState] can be used as the same-named
- * parameters in a [ListAppBar]. In addition to these properties, the property
- * [showActivePlaylistsFirstSwitchState] should be used as the state for a
- * 'Show active playlists first' switch within the [ListAppBar]'s sort popup
- * menu (i.e. through its [ListAppBar.otherSortMenuContent] parameter). The
- * [ListAppBar.otherIconButtons] parameter should contain a settings icon
- * button that uses the property [onSettingsButtonClick] as its onClick action.
+ * parameters in a [ListAppBar]. The [ListAppBar.otherIconButtons] parameter
+ * should contain a settings icon button that uses the property
+ * [onSettingsButtonClick] as its onClick action.
  */
 @HiltViewModel class AppBarViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -154,15 +141,6 @@ import javax.inject.Inject
             }
         }, getCurrentOptionIndex = { playlistSort.ordinal },
         onOptionClick = { dataStore.edit(playlistSortKey, it, scope) })
-
-    private val showActivePlaylistsFirstKey = booleanPreferencesKey(PrefKeys.showActivePlaylistsFirst)
-    private val showActivePlaylistsFirst by dataStore.preferenceState(showActivePlaylistsFirstKey, false, scope)
-    val showActivePlaylistsFirstSwitchState = SwitchState(
-        getChecked = ::showActivePlaylistsFirst,
-        onClick = {
-            sortMenuState.onPopupDismissRequest()
-            dataStore.edit(showActivePlaylistsFirstKey, !showActivePlaylistsFirst, scope)
-        })
 
     fun onSettingsButtonClick() {
         currentSearchScope?.takeIf(searchQuery::isActive)?.let(searchQuery::clear)
@@ -277,16 +255,8 @@ import javax.inject.Inject
         showSortButton = viewModel.showSortButton,
         searchQueryState = viewModel.searchQueryViewState,
         sortMenuState = viewModel.sortMenuState,
-        otherSortMenuContent = {
-            DropdownMenuItem(onClick = viewModel.showActivePlaylistsFirstSwitchState.onClick) {
-                Text(stringResource(R.string.show_active_playlists_first),
-                     style = MaterialTheme.typography.button)
-                Spacer(Modifier.weight(1f).widthIn(12.dp))
-                Switch(viewModel.showActivePlaylistsFirstSwitchState.checked,
-                       onCheckedChange = null)
-            }
-            Divider()
-        }, leadingIconButtons = {
+        otherSortMenuContent = {},
+        leadingIconButtons = {
             if (viewModel.showLibraryButtons)
                 SimpleIconButton(
                     icon = Icons.Default.CreateNewFolder,

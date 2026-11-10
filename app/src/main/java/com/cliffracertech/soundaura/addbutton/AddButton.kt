@@ -41,7 +41,6 @@ import com.cliffracertech.soundaura.model.AddToLibraryUseCase
 import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
-import com.cliffracertech.soundaura.model.ReadModifyPresetsUseCase
 import com.cliffracertech.soundaura.model.StringResource
 import com.cliffracertech.soundaura.model.database.Track
 import com.cliffracertech.soundaura.ui.tweenDuration
@@ -64,8 +63,8 @@ fun Uri.getDisplayName(context: Context) =
         ?: pathSegments.last().substringBeforeLast('.').replace('_', ' ')
 
 /**
- * A [ViewModel] that contains state and callbacks for a button to add playlists
- * or presets.
+ * A [ViewModel] that contains state and callbacks for a button that adds
+ * local files to the library.
  *
  * The add button's onClick should be set to the view model's provided [onClick]
  * method. The property [dialogState] can then be observed to access the current
@@ -78,7 +77,6 @@ class AddButtonViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val messageHandler: MessageHandler,
     private val navigationState: NavigationState,
-    private val readModifyPresetsUseCase: ReadModifyPresetsUseCase,
     private val addToLibrary: AddToLibraryUseCase,
     private val folderUseCases: FolderUseCases,
 ): ViewModel() {
@@ -94,8 +92,6 @@ class AddButtonViewModel @Inject constructor(
         navigationState.showingAppSettings -> null
         navigationState.openFolderId != null ->
             R.string.folder_add_audio_button_description
-        navigationState.mediaControllerState.isExpanded ->
-            R.string.add_preset_button_description
         else -> R.string.add_local_files_button_description
     }
 
@@ -109,15 +105,6 @@ class AddButtonViewModel @Inject constructor(
                         pendingFolderUris = chosenUris
                         addLocalFilesToFolder(folderId, chosenUris)
                     })
-            }
-        } navigationState.mediaControllerState.isExpanded -> {
-            scope.launch {
-                val namingState = readModifyPresetsUseCase.newPresetNamingState(
-                    scope = scope, onAddPreset = ::hideDialog)
-                if (namingState != null)
-                    dialogState = AddButtonDialogState.NamePreset(
-                        onDismissRequest = ::hideDialog,
-                        namingState = namingState)
             }
         } else -> {
             dialogState = AddButtonDialogState.SelectingFiles(

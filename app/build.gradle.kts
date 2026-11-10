@@ -1,17 +1,33 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val soundAuraVersionCode = 22
-val soundAuraVersionName = "3.3.0"
+val soundAuraVersionCode = 23
+val soundAuraVersionName = "3.6"
 val privateDir = rootProject.projectDir.parentFile.resolve("Mistysound_private")
 val privatePersonalResDir = privateDir.resolve("app/src/personal/res")
 val privateArtifactsDir = privateDir.resolve("release_artifacts")
 val personalReleaseKeystore = privateDir.resolve("soundaura-personal.jks")
 val personalReleasePasswordFile = privateDir.resolve("soundaura-personal-password.txt")
+
+// The public release key signs every APK that is handed out or published. It
+// lives in the private directory so that it can never end up in the repository.
+val publicReleaseKeystore = privateDir.resolve("mistysound-public.jks")
+val publicReleasePasswordFile = privateDir.resolve("mistysound-public-password.txt")
+
 val hasPersonalReleaseSigning =
     personalReleaseKeystore.isFile && personalReleasePasswordFile.isFile
+val hasPublicReleaseSigning =
+    publicReleaseKeystore.isFile && publicReleasePasswordFile.isFile
 
 fun personalReleaseSigningValue(label: String): String? =
     personalReleasePasswordFile
+        .takeIf { it.isFile }
+        ?.readLines()
+        ?.firstOrNull { it.startsWith("$label:") }
+        ?.substringAfter(':')
+        ?.trim()
+
+fun publicReleaseSigningValue(label: String): String? =
+    publicReleasePasswordFile
         .takeIf { it.isFile }
         ?.readLines()
         ?.firstOrNull { it.startsWith("$label:") }
@@ -67,6 +83,15 @@ android {
                 enableV4Signing = true
             }
         }
+        create("publicRelease") {
+            if (hasPublicReleaseSigning) {
+                storeFile = publicReleaseKeystore
+                storePassword = publicReleaseSigningValue("Keystore password")
+                keyAlias = publicReleaseSigningValue("Alias")
+                keyPassword = publicReleaseSigningValue("Key password")
+                enableV4Signing = true
+            }
+        }
     }
     buildTypes {
         debug {
@@ -79,8 +104,15 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
-            if (hasPersonalReleaseSigning)
-                signingConfig = signingConfigs.getByName("personalRelease")
+            // Only the public flavor is ever handed out or published, so its
+            // key takes precedence. The personal flavor keeps its own key when
+            // no public key is available.
+            when {
+                hasPublicReleaseSigning ->
+                    signingConfig = signingConfigs.getByName("publicRelease")
+                hasPersonalReleaseSigning ->
+                    signingConfig = signingConfigs.getByName("personalRelease")
+            }
             proguardFiles(getDefaultProguardFile(
                 "proguard-android-optimize.txt"), "proguard-rules.pro")
         }

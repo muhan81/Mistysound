@@ -104,6 +104,11 @@ class PlayerService: LifecycleService() {
     private var autoStopJob: Job? = null
     private var stopTime by mutableStateOf<Instant?>(null)
 
+    /** The keys of the playbacks ("playlist:<id>" / "folder:<id>") that have
+     * been paused individually, independently of the mix's overall play/pause
+     * state. This set is emptied whenever the mix as a whole starts playing. */
+    private var pausedKeys by mutableStateOf<Set<String>>(emptySet())
+
     private val playerMap = PlayerMap(this) { problemUris ->
         /* onPlayerCreationFailure = */lifecycleScope.launch {
             playlistDao.setTracksHaveError(problemUris)
@@ -258,8 +263,16 @@ class PlayerService: LifecycleService() {
         if (newState == playbackState)
             return
 
-        if (clearUnpauseLocks)
+        if (clearUnpauseLocks) {
             unpauseLocks.clear()
+            // An explicit start of the mix plays every selected playlist, so
+            // any individual pauses are cleared. Automatic resumes (e.g. after
+            // a phone call ends) leave them untouched.
+            if (newState == STATE_PLAYING) {
+                pausedKeys = emptySet()
+                playerMap.clearIndividualPauses()
+            }
+        }
         playbackState = newState
         updateNotification()
         if (newState != STATE_STOPPED) when {
@@ -334,6 +347,20 @@ class PlayerService: LifecycleService() {
     private fun updatePlayers(playbacks: List<ActivePlayback>) {
         playerMap.update(playbacks, isPlaying)
 
+        // Players that were just created, or that were already playing, were
+        // started with the mix's play state. Re-apply the individual pauses so
+        // that, e.g., a volume change from the database does not resume a
+        // player that the user paused on its own. Stale keys (belonging to
+        // playlists that are no longer part of the mix) are dropped so that
+        // re-adding a playlist to the mix starts it paused-free.
+        val playbackKeys = playbacks.map(ActivePlayback::key).toSet()
+        val stillPaused = pausedKeys.intersect(playbackKeys)
+        if (stillPaused != pausedKeys)
+            pausedKeys = stillPaused
+        stillPaused.forEach {
+            playerMap.setIndividuallyPaused(it, paused = true, resumeImmediately = false)
+        }
+
         // If the new track list is empty when isPlaying is true, we want
         // to pause playback because there are no playlists to play.
         if (isPlaying && playbacks.isEmpty()) {
@@ -369,6 +396,14 @@ class PlayerService: LifecycleService() {
 
     fun setPlaylistVolume(playlistId: Long, volume: Float) =
         playerMap.setPlayerVolume(playlistId, volume)
+
+    /** Pause or resume the playback identified by [key] ("playlist:<id>" or
+     * "folder:<id>") on its own, leaving the rest of the sound mix unaffected.
+     * The key is validated against the current mix in [updatePlayers]. */
+    fun setPlaybackPaused(key: String, paused: Boolean) {
+        pausedKeys = if (paused) pausedKeys + key else pausedKeys - key
+        playerMap.setIndividuallyPaused(key, paused, resumeImmediately = isPlaying)
+    }
 
     fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) =
         playerMap.setPlayerSpeed(playlistId, speed)
@@ -433,6 +468,13 @@ class PlayerService: LifecycleService() {
             setPlaybackState(if (isPlaying) STATE_PAUSED
                              else           STATE_PLAYING)
         }
+
+        /** The keys of the playbacks currently paused individually. */
+        val pausedKeys get() = this@PlayerService.pausedKeys
+
+        /** Pause or resume a single playback without affecting the rest of the mix. */
+        fun setPlaybackPaused(key: String, paused: Boolean) =
+            this@PlayerService.setPlaybackPaused(key, paused)
 
         val stopTime get() = this@PlayerService.stopTime
         fun setStopTimer(stopTimer: Duration) {

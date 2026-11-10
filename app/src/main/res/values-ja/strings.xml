@@ -172,6 +172,14 @@
     <string name="cancel">キャンセル</string>
 
     <string name="show_active_playlists_first">有効なものを先に表示</string>
+    <string name="playback_panel_title">再生中</string>
+    <string name="playback_panel_empty_message">選択中の音声はありません</string>
+    <string name="minimize_playback_panel_description">再生ウィンドウを最小化</string>
+    <string name="expand_playback_panel_description">再生ウィンドウを展開</string>
+    <string name="pause_playlist_description">%1$s を一時停止</string>
+    <string name="resume_playlist_description">%1$s を再開</string>
+    <string name="playback_panel_max_rows_title">再生ウィンドウの最大行数</string>
+    <string name="playback_panel_max_rows_description">最大 %1$d 行まで表示</string>
     <string name="name_ascending">名前の昇順</string>
     <string name="name_descending">名前の降順</string>
     <string name="order_added">追加順</string>

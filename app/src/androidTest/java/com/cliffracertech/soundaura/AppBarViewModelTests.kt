@@ -4,7 +4,6 @@
 package com.cliffracertech.soundaura
 
 import android.content.Context
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -33,8 +32,6 @@ class AppBarViewModelTests {
     @get:Rule val dataStoreTestRule = DataStoreTestRule(testScopeRule.scope)
 
     private val dataStore get() = dataStoreTestRule.dataStore
-    private val showActivePlaylistsFirstKey =
-        booleanPreferencesKey(PrefKeys.showActivePlaylistsFirst)
     private val playlistSortKey = intPreferencesKey(PrefKeys.playlistSort)
 
     private lateinit var navigationState: NavigationState
@@ -65,7 +62,6 @@ class AppBarViewModelTests {
         assertThat(instance.sortMenuState.currentOptionIndex)
             .isEqualTo(Playlist.Sort.entries.first().ordinal)
         assertThat(instance.sortMenuState.showingPopup).isFalse()
-        assertThat(instance.showActivePlaylistsFirstSwitchState.checked).isFalse()
     }
 
     @Test fun entering_and_exiting_app_settings() {
@@ -115,21 +111,6 @@ class AppBarViewModelTests {
         assertThat(instance.searchQueryViewState.query).isNull()
         instance.onBackButtonClick?.invoke()
         assertThat(instance.searchQueryViewState.query).isNull()
-    }
-
-    @Test fun show_active_tracks_first_reflects_underlying_state() = runTest{
-        dataStore.edit(showActivePlaylistsFirstKey, true)
-        assertThat(instance.showActivePlaylistsFirstSwitchState.checked).isTrue()
-
-        dataStore.edit(showActivePlaylistsFirstKey, false)
-        assertThat(instance.showActivePlaylistsFirstSwitchState.checked).isFalse()
-    }
-
-    @Test fun show_active_tracks_first_switch_clicks_toggle_value() = runTest {
-        instance.showActivePlaylistsFirstSwitchState.onClick()
-        assertThat(instance.showActivePlaylistsFirstSwitchState.checked).isTrue()
-        instance.showActivePlaylistsFirstSwitchState.onClick()
-        assertThat(instance.showActivePlaylistsFirstSwitchState.checked).isFalse()
     }
 
     @Test fun current_playlistSort_reflects_underlying_state() = runTest {

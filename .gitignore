@@ -5,3 +5,4 @@
 /app/build/
 /local.properties
 /app/src/personal/
+/.claude/settings.local.json

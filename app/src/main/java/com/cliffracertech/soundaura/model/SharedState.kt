@@ -36,6 +36,8 @@ class NavigationState @Inject constructor() {
         private set
     var mediaControllerState by mutableStateOf(MediaControllerState.Visibility.Collapsed)
         private set
+    var playbackPanelMinimized by mutableStateOf(false)
+        private set
     var backgroundCollectionType by mutableStateOf<BackgroundCollectionType?>(null)
         private set
     var backgroundEditorImageId by mutableStateOf<Long?>(null)
@@ -148,6 +150,11 @@ class NavigationState @Inject constructor() {
         if (showingAppSettings)
             return
         mediaControllerState = MediaControllerState.Visibility.Collapsed
+    }
+
+    /** Collapse or expand the playback panel shown at the top of the library. */
+    fun togglePlaybackPanelMinimized() {
+        playbackPanelMinimized = !playbackPanelMinimized
     }
 
     fun onBackButtonClick(): Boolean = when {

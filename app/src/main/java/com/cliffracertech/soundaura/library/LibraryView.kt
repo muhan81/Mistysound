@@ -50,6 +50,9 @@ import com.cliffracertech.soundaura.Dispatcher
 import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.collectAsState
 import com.cliffracertech.soundaura.launchIO
+import com.cliffracertech.soundaura.mediacontroller.DialogShower
+import com.cliffracertech.soundaura.mediacontroller.PlaybackPanel
+import com.cliffracertech.soundaura.mediacontroller.PlaybackPanelViewModel
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.ModifyLibraryUseCase
@@ -471,6 +474,32 @@ sealed class LibraryState {
 
     private val playlists by readLibrary.playlistsFlow.collectAsState(null, scope)
     private val folders by readLibrary.foldersFlow.collectAsState(null, scope)
+
+    /** The [Playlist]s currently part of the sound mix. Unlike [playlists],
+     * this is not affected by the current search filter. */
+    val activePlaylists by readLibrary.activePlaylistsFlow
+        .collectAsState(emptyList<Playlist>().toImmutableList(), scope)
+
+    /** The folders currently part of the sound mix. */
+    val activeFolders by readLibrary.activeFoldersFlow
+        .collectAsState(emptyList<com.cliffracertech.soundaura.library.Folder>().toImmutableList(), scope)
+
+    /** Volume changed while dragging a slider in the playback panel. */
+    fun onActivePlaylistVolumeChange(playlist: Playlist, volume: Float) =
+        itemCallback.onVolumeChange(playlist, volume)
+
+    /** Volume slider released in the playback panel. */
+    fun onActivePlaylistVolumeChangeFinished(playlist: Playlist, volume: Float) =
+        itemCallback.onVolumeChangeFinished(playlist, volume)
+
+    /** Remove a playlist from the sound mix from the playback panel. */
+    fun onActivePlaylistRemoveClick(playlist: Playlist) =
+        itemCallback.onAddRemoveButtonClick(playlist)
+
+    /** Remove a folder from the sound mix from the playback panel. */
+    fun onActiveFolderRemoveClick(folder: Folder) =
+        folderCallback.onAddRemoveButtonClick(folder)
+
     private val noSearchResultsState = LibraryState.Empty(StringResource(R.string.no_search_results_message))
     private val emptyLibraryState = LibraryState.Empty(StringResource(R.string.empty_library_message))
     private val contentState = LibraryState.Content(
@@ -671,12 +700,32 @@ sealed class LibraryState {
     state: LazyListState = rememberLazyListState(),
 ) {
     val viewModel: LibraryViewModel = viewModel()
-    LibraryView(
-        modifier = modifier.fillMaxSize(),
-        lazyListState = state,
-        contentPadding = padding,
-        shownDialog = viewModel.shownDialog,
-        shownFolderDialog = viewModel.shownFolderDialog,
-        openFolderId = viewModel.openFolderId,
-        libraryState = viewModel.viewState)
+    val panelViewModel: PlaybackPanelViewModel = viewModel()
+    Column(modifier.fillMaxSize()) {
+        PlaybackPanel(
+            contentPadding = padding,
+            playlists = viewModel.activePlaylists,
+            folders = viewModel.activeFolders,
+            maxRows = panelViewModel.maxRows,
+            minimized = panelViewModel.minimized,
+            playButton = panelViewModel.playButtonState,
+            isPlaybackPaused = panelViewModel::isPlaybackPaused,
+            onTogglePlaybackPaused = panelViewModel::onTogglePlaybackPaused,
+            onMinimizeClick = panelViewModel::onToggleMinimized,
+            onVolumeChange = viewModel::onActivePlaylistVolumeChange,
+            onVolumeChangeFinished = viewModel::onActivePlaylistVolumeChangeFinished,
+            getProgress = panelViewModel::getProgress,
+            onSeek = panelViewModel::onSeek,
+            onPlaylistRemoveClick = viewModel::onActivePlaylistRemoveClick,
+            onFolderRemoveClick = viewModel::onActiveFolderRemoveClick)
+        DialogShower(panelViewModel.shownDialog)
+        LibraryView(
+            modifier = Modifier.weight(1f),
+            lazyListState = state,
+            contentPadding = padding,
+            shownDialog = viewModel.shownDialog,
+            shownFolderDialog = viewModel.shownFolderDialog,
+            openFolderId = viewModel.openFolderId,
+            libraryState = viewModel.viewState)
+    }
 }

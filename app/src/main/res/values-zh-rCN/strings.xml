@@ -172,6 +172,14 @@
     <string name="cancel">取消</string>
 
     <string name="show_active_playlists_first">优先显示已启用</string>
+    <string name="playback_panel_title">正在播放</string>
+    <string name="playback_panel_empty_message">当前暂无选中的音频</string>
+    <string name="minimize_playback_panel_description">最小化播放窗口</string>
+    <string name="expand_playback_panel_description">展开播放窗口</string>
+    <string name="pause_playlist_description">单独暂停 %1$s</string>
+    <string name="resume_playlist_description">恢复 %1$s</string>
+    <string name="playback_panel_max_rows_title">播放窗口最多显示几行</string>
+    <string name="playback_panel_max_rows_description">最多显示 %1$d 行</string>
     <string name="name_ascending">名称升序</string>
     <string name="name_descending">名称降序</string>
     <string name="order_added">添加顺序</string>

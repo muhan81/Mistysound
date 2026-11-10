@@ -172,6 +172,14 @@
     <string name="cancel">취소</string>
 
     <string name="show_active_playlists_first">활성 항목 먼저 표시</string>
+    <string name="playback_panel_title">재생 중</string>
+    <string name="playback_panel_empty_message">선택된 오디오가 없습니다</string>
+    <string name="minimize_playback_panel_description">재생 창 최소화</string>
+    <string name="expand_playback_panel_description">재생 창 펼치기</string>
+    <string name="pause_playlist_description">%1$s 일시정지</string>
+    <string name="resume_playlist_description">%1$s 재개</string>
+    <string name="playback_panel_max_rows_title">재생 창 최대 행 수</string>
+    <string name="playback_panel_max_rows_description">최대 %1$d행 표시</string>
     <string name="name_ascending">이름 오름차순</string>
     <string name="name_descending">이름 내림차순</string>
     <string name="order_added">추가된 순서</string>

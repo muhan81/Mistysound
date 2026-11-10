@@ -10,9 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -42,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -64,8 +60,6 @@ import com.cliffracertech.soundaura.background.BackgroundSaveButton
 import com.cliffracertech.soundaura.background.LocalMainBackground
 import com.cliffracertech.soundaura.launchIO
 import com.cliffracertech.soundaura.library.SoundAuraLibraryView
-import com.cliffracertech.soundaura.mediacontroller.MediaControllerSizes
-import com.cliffracertech.soundaura.mediacontroller.SoundAuraMediaController
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.PlaybackState
@@ -79,7 +73,6 @@ import com.cliffracertech.soundaura.settings.AppTheme
 import com.cliffracertech.soundaura.settings.PrefKeys
 import com.cliffracertech.soundaura.ui.SlideAnimatedContent
 import com.cliffracertech.soundaura.ui.theme.SoundAuraTheme
-import com.cliffracertech.soundaura.ui.tweenDuration
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -125,7 +118,6 @@ class MainActivityViewModel @Inject constructor(
     private val scope = viewModelScope + Dispatcher.Immediate
     val messages = messageHandler.messages
     val showingAppSettings get() = navigationState.showingAppSettings
-    val showingPresetSelector get() = navigationState.mediaControllerState.isExpanded
     val showingBackgroundCollectionPage get() = navigationState.showingBackgroundCollectionPage
     val backgroundCollectionType get() = navigationState.backgroundCollectionType
     val currentContentScreen get() = when {
@@ -287,7 +279,7 @@ class MainActivity : AppCompatActivity() {
                             insets = WindowInsets.navigationBars,
                             additionalTop = 8.dp,
                             additionalStart = 8.dp,
-                            additionalBottom = MediaControllerSizes.defaultMinThicknessDp.dp + 16.dp,
+                            additionalBottom = 72.dp,
                             additionalEnd = 8.dp,
                         )
                         MainContent(mainContentPadding)
@@ -301,8 +293,6 @@ class MainActivity : AppCompatActivity() {
                     additionalBottom = 8.dp,
                     additionalTop = 8.dp + 56.dp,
                 )
-
-                SoundAuraMediaController(padding = floatingButtonPadding)
 
                 AddTrackButton(
                     Modifier
@@ -405,25 +395,10 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     private fun AddTrackButton(modifier: Modifier = Modifier) {
-        val showingPresetSelector = viewModel.showingPresetSelector
-        val addButtonXDpOffset by animateDpAsState(
-            targetValue = if (showingPresetSelector) (-16).dp else 0.dp,
-            label = "Add button x offset animation",
-            animationSpec = tween(tweenDuration * 5 / 4, 0, LinearOutSlowInEasing),
-        )
-        val addButtonYDpOffset by animateDpAsState(
-            targetValue = if (showingPresetSelector) (-16).dp else 0.dp,
-            label = "Add button y offset animation",
-            animationSpec = tween(tweenDuration, 0, LinearOutSlowInEasing),
-        )
-
         AddButton(
             backgroundColor = MaterialTheme.colors.secondaryVariant,
             visible = !viewModel.showingAppSettings,
-            modifier = modifier.graphicsLayer {
-                translationX = addButtonXDpOffset.toPx()
-                translationY = addButtonYDpOffset.toPx()
-            },
+            modifier = modifier,
         )
     }
 

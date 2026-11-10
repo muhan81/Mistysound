@@ -30,6 +30,9 @@ import com.cliffracertech.soundaura.collectAsState
 import com.cliffracertech.soundaura.edit
 import com.cliffracertech.soundaura.enumPreferenceState
 import com.cliffracertech.soundaura.launchIO
+import com.cliffracertech.soundaura.mediacontroller.DefaultPlaybackPanelMaxRows
+import com.cliffracertech.soundaura.mediacontroller.MaxPlaybackPanelMaxRows
+import com.cliffracertech.soundaura.mediacontroller.MinPlaybackPanelMaxRows
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
 import com.cliffracertech.soundaura.model.UpdateChecker
@@ -128,6 +131,10 @@ object PrefKeys {
     /** A boolean value that indicates whether the user has been shown the long
      * click hint for the play/pause button. */
     const val playButtonLongClickHintShown = "play_button_long_click_hint_shown"
+
+    /** An int value that represents the maximum number of entries the playback
+     * panel displays before its list becomes scrollable. */
+    const val playbackPanelMaxRows = "playback_panel_max_rows"
 
     /** A local date string for the last successful automatic update check. */
     const val lastAutoUpdateCheckDay = "last_auto_update_check_day"
@@ -282,6 +289,21 @@ class SettingsViewModel @Inject constructor(
 
     fun onFrostedGlassOpacityChange(percent: Int) =
         dataStore.edit(frostedGlassOpacityPercentKey, percent.coerceIn(0, 100), scope)
+
+    private val playbackPanelMaxRowsKey = intPreferencesKey(PrefKeys.playbackPanelMaxRows)
+
+    val playbackPanelMaxRows by dataStore.preferenceState(
+        key = playbackPanelMaxRowsKey,
+        initialValue = DefaultPlaybackPanelMaxRows,
+        defaultValue = DefaultPlaybackPanelMaxRows,
+        scope = scope,
+    )
+
+    fun onPlaybackPanelMaxRowsChange(rows: Int) =
+        dataStore.edit(
+            playbackPanelMaxRowsKey,
+            rows.coerceIn(MinPlaybackPanelMaxRows, MaxPlaybackPanelMaxRows),
+            scope)
 
     val appLanguage get() = AppLanguage.fromLanguageTags(
         AppCompatDelegate.getApplicationLocales().toLanguageTags())

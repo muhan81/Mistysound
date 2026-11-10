@@ -41,6 +41,16 @@ interface PlaybackState {
     /** Set the playlist identified by [playlistId]'s volume to [volume]. */
     fun setPlaylistVolume(playlistId: Long, @FloatRange(0.0, 1.0) volume: Float)
 
+    /** Whether the playback identified by [key] has been paused on its own,
+     * independently of the mix's overall play/pause state. The key uses the
+     * same format as the service: "playlist:<id>" or "folder:<id>". */
+    fun isPlaybackPaused(key: String): Boolean
+
+    /** Pause or resume the playback identified by [key] on its own, leaving
+     * the rest of the sound mix unaffected. Starting the mix as a whole clears
+     * every individual pause. */
+    fun setPlaybackPaused(key: String, paused: Boolean)
+
     fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float)
     fun getPlaylistProgress(playlistId: Long): PlaybackProgress
     fun seekPlaylistTo(playlistId: Long, positionMillis: Int)
@@ -80,6 +90,15 @@ class PlayerServicePlaybackState(
         // will therefore be reflected next time the service is started and
         // the active tracks (and their volumes) are read from the database.
         PlayerService.binder?.setPlaylistVolume(playlistId, volume)
+    }
+
+    override fun isPlaybackPaused(key: String): Boolean =
+        PlayerService.binder?.pausedKeys?.contains(key) == true
+
+    override fun setPlaybackPaused(key: String, paused: Boolean) {
+        // If the service is not running then nothing is playing, so there is
+        // no individual pause to apply.
+        PlayerService.binder?.setPlaybackPaused(key, paused)
     }
 
     override fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) {
@@ -123,6 +142,12 @@ class TestPlaybackState: PlaybackState {
     override fun clearTimer() { stopTime = null }
 
     override fun setPlaylistVolume(playlistId: Long, volume: Float) = Unit
+
+    private var pausedKeys by mutableStateOf<Set<String>>(emptySet())
+    override fun isPlaybackPaused(key: String) = key in pausedKeys
+    override fun setPlaybackPaused(key: String, paused: Boolean) {
+        pausedKeys = if (paused) pausedKeys + key else pausedKeys - key
+    }
 
     override fun setPlaylistPlaybackSpeed(playlistId: Long, speed: Float) = Unit
     override fun getPlaylistProgress(playlistId: Long) = PlaybackProgress()

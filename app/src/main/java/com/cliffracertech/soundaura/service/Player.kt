@@ -86,6 +86,13 @@ class Player(
     // playlist that will cause the pause command to be ignored. This is
     // resolved by using the value of isPlaying in the on completion listener.
     private var isPlaying = startImmediately
+    // Whether this Player has been paused on its own, independently of the
+    // overall play/pause state of the sound mix. An individually paused player
+    // stays silent while the rest of the mix keeps playing, and survives
+    // library updates until its own pause is cleared or the whole mix is
+    // restarted.
+    var isIndividuallyPaused = false
+        private set
 
     private val onCompletionListener = MediaPlayer.OnCompletionListener {
         initializePlayerForNextTrack(startImmediately = isPlaying)
@@ -103,6 +110,22 @@ class Player(
     fun pause() {
         isPlaying = false
         mediaPlayer?.pause()
+    }
+
+    /**
+     * Mark this [Player] as individually paused or resumed. Individual pause
+     * is independent of the play/pause state of the sound mix: an individually
+     * paused [Player] stays silent while the rest of the mix keeps playing.
+     *
+     * @param paused Whether this player should be individually paused
+     * @param resumeImmediately Whether playback should be started right away
+     *     when [paused] is false. This should only be true when the mix as a
+     *     whole is currently playing.
+     */
+    fun setIndividuallyPaused(paused: Boolean, resumeImmediately: Boolean) {
+        isIndividuallyPaused = paused
+        if (paused) pause()
+        else if (resumeImmediately) play()
     }
 
     fun stop() {
@@ -166,12 +189,16 @@ class Player(
 
     /** Reset the Player to play the [newPlayback]. */
     fun update(newPlayback: ActivePlayback, startImmediately: Boolean) {
-        isPlaying = startImmediately
+        // An individually paused player must stay paused even when the rest
+        // of the mix is playing, otherwise updating, e.g., a volume from the
+        // database would silently resume it.
+        val shouldStart = startImmediately && !isIndividuallyPaused
+        isPlaying = shouldStart
 
         if (!newPlayback.hasSameSequenceAs(playback)) {
             playback = newPlayback
             trackIterator = trackIterator(newPlayback)
-            initializePlayerForNextTrack(startImmediately)
+            initializePlayerForNextTrack(shouldStart)
         } else {
             val newCurrentTrack = currentTrack?.let { track ->
                 newPlayback.tracks.find {
@@ -179,7 +206,7 @@ class Player(
                 }
             }
             newCurrentTrack?.let { mediaPlayer?.initializeFor(it, newPlayback.tracks.size < 2) }
-            if (startImmediately)
+            if (shouldStart)
                 mediaPlayer?.start()
             playback = newPlayback
             currentTrack = newCurrentTrack
@@ -311,9 +338,31 @@ class PlayerMap(
 
     val isEmpty get() = playerMap.isEmpty()
 
-    fun play() = playerMap.values.forEach(Player::play)
+    /** Start playback of every player that is not individually paused. An
+     * explicit start of the mix clears the individual pauses first, so this
+     * only skips them when playback is resumed automatically (e.g. after a
+     * phone call ends). */
+    fun play() = playerMap.values.forEach {
+        if (!it.isIndividuallyPaused) it.play()
+    }
     fun pause() = playerMap.values.forEach(Player::pause)
     fun stop() = playerMap.values.forEach(Player::stop)
+
+    /** Clear every individual pause without changing the players' play state.
+     * This is used when the mix as a whole starts playing, since the mix's play
+     * button is defined as playing every selected playlist. */
+    fun clearIndividualPauses() = playerMap.values.forEach {
+        it.setIndividuallyPaused(paused = false, resumeImmediately = false)
+    }
+
+    /** Mark the player identified by [key] as individually paused or resumed.
+     * [resumeImmediately] should only be true when the mix as a whole is
+     * currently playing. Unknown keys are ignored. */
+    fun setIndividuallyPaused(
+        key: String,
+        paused: Boolean,
+        resumeImmediately: Boolean,
+    ) = playerMap[key]?.setIndividuallyPaused(paused, resumeImmediately)
 
     fun setPlayerVolume(playlistId: Long, volume: Float) =
         playerMap.values.forEach { it.setPlaylistVolume(playlistId, volume) }

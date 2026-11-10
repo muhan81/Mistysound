@@ -7,14 +7,12 @@ package com.cliffracertech.soundaura.model
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.cliffracertech.soundaura.enumPreferenceFlow
 import com.cliffracertech.soundaura.library.Folder
 import com.cliffracertech.soundaura.library.Playlist
 import com.cliffracertech.soundaura.model.database.PlaylistDao
 import com.cliffracertech.soundaura.model.database.Track
-import com.cliffracertech.soundaura.preferenceFlow
 import com.cliffracertech.soundaura.settings.PrefKeys
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -41,41 +39,30 @@ class ReadLibraryUseCase @Inject constructor(
     private val searchQuery: SearchQueryState,
     private val dao: PlaylistDao,
 ) {
-    private val showActivePlaylistsFirstKey = booleanPreferencesKey(PrefKeys.showActivePlaylistsFirst)
-    private val showActivePlaylistsFirst = dataStore.preferenceFlow(showActivePlaylistsFirstKey, false)
     private val playlistSortKey = intPreferencesKey(PrefKeys.playlistSort)
     private val playlistSort = dataStore.enumPreferenceFlow<PlaylistSort>(playlistSortKey)
 
     /** A [Flow] whose latest value will be an [ImmutableList] of [Playlist]s
      * representing all of the playlists in the app's library. The returned
-     * list will take into account the chosen sorting method, the 'show active
-     * playlists first' option's enabled state, and any current search filter. */
+     * list will take into account the chosen sorting method and any current
+     * search filter. Playlists in the library always keep their sorted
+     * position regardless of whether they are active, so that activating or
+     * deactivating a playlist never causes the list to reorder itself. */
     val playlistsFlow = combine(
-            playlistSort, showActivePlaylistsFirst, searchQuery.flow(SearchScope.Library)
-        ) { sort, showActiveFirst, searchQuery ->
-            if (searchQuery == null) {
-                if (showActiveFirst) when (sort) {
-                    PlaylistSort.NameAsc ->    dao.getPlaylistsSortedByActiveThenNameAsc()
-                    PlaylistSort.NameDesc ->   dao.getPlaylistsSortedByActiveThenNameDesc()
-                    PlaylistSort.OrderAdded -> dao.getPlaylistsSortedByActiveThenOrderAdded()
-                } else when (sort) {
-                    PlaylistSort.NameAsc ->    dao.getPlaylistsSortedByNameAsc()
-                    PlaylistSort.NameDesc ->   dao.getPlaylistsSortedByNameDesc()
-                    PlaylistSort.OrderAdded -> dao.getPlaylistsSortedByOrderAdded()
-                }
+            playlistSort, searchQuery.flow(SearchScope.Library)
+        ) { sort, searchQuery ->
+            if (searchQuery == null) when (sort) {
+                PlaylistSort.NameAsc ->    dao.getPlaylistsSortedByNameAsc()
+                PlaylistSort.NameDesc ->   dao.getPlaylistsSortedByNameDesc()
+                PlaylistSort.OrderAdded -> dao.getPlaylistsSortedByOrderAdded()
             } else {
                 val filter = "%$searchQuery%"
-                if (showActiveFirst) when (sort) {
-                    PlaylistSort.NameAsc ->    dao.getPlaylistsSortedByActiveThenNameAsc(filter)
-                    PlaylistSort.NameDesc ->   dao.getPlaylistsSortedByActiveThenNameDesc(filter)
-                    PlaylistSort.OrderAdded -> dao.getPlaylistsSortedByActiveThenOrderAdded(filter)
-                } else when (sort) {
+                when (sort) {
                     PlaylistSort.NameAsc ->    dao.getPlaylistsSortedByNameAsc(filter)
                     PlaylistSort.NameDesc ->   dao.getPlaylistsSortedByNameDesc(filter)
                     PlaylistSort.OrderAdded -> dao.getPlaylistsSortedByOrderAdded(filter)
                 }
             }
-
         }.transformLatest { emitAll(it) }
         .map(List<Playlist>::toImmutableList)
 
@@ -94,6 +81,17 @@ class ReadLibraryUseCase @Inject constructor(
                 else emitAll(dao.getFolderPlaylists(folderId, "%$searchQuery%"))
             }
             .map(List<Playlist>::toImmutableList)
+
+    /** A [Flow] of the [Playlist]s that are currently part of the sound mix.
+     * Unlike [playlistsFlow], this is not affected by the current search
+     * filter, since the playback panel must always show the whole mix. */
+    val activePlaylistsFlow: Flow<ImmutableList<Playlist>> =
+        dao.getActiveLibraryPlaylistsFlow().map(List<Playlist>::toImmutableList)
+
+    /** A [Flow] of the [Folder]s that are currently part of the sound mix,
+     * unaffected by the current search filter. */
+    val activeFoldersFlow: Flow<ImmutableList<Folder>> =
+        dao.getActiveLibraryFoldersFlow().map(List<Folder>::toImmutableList)
 
     /** Return a [List] of the [Track]s in the [Playlist] identified by [playlistId]. */
     suspend fun getPlaylistTracks(playlistId: Long): List<Track> =

@@ -46,8 +46,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cliffracertech.soundaura.R
 import com.cliffracertech.soundaura.UpdateAvailableDialog
 import com.cliffracertech.soundaura.dialog.DialogWidth
+import com.cliffracertech.soundaura.mediacontroller.MaxPlaybackPanelMaxRows
+import com.cliffracertech.soundaura.mediacontroller.MinPlaybackPanelMaxRows
 import com.cliffracertech.soundaura.ui.HorizontalDivider
 import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
+import kotlin.math.roundToInt
 
 @Composable fun AppSettings(
     contentPadding: PaddingValues,
@@ -77,6 +80,8 @@ import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
             currentValue = viewModel.appTheme,
             onValueClick = viewModel::onAppThemeClick)
         FrostedGlassOpacitySetting(viewModel, paddingModifier)
+        HorizontalDivider(paddingModifier)
+        PlaybackPanelMaxRowsSetting(viewModel, paddingModifier)
         HorizontalDivider(paddingModifier)
         EnumDialogSetting(
             title = stringResource(R.string.language_setting_title),
@@ -137,6 +142,43 @@ import com.cliffracertech.soundaura.ui.theme.rememberOverlaySliderColors
                 viewModel.onFrostedGlassOpacityChange(sliderValue.toInt())
             },
             valueRange = 0f..100f,
+            colors = sliderColors,
+            modifier = modifier.padding(bottom = 12.dp),
+        )
+    }
+}
+
+@Composable private fun PlaybackPanelMaxRowsSetting(
+    viewModel: SettingsViewModel,
+    modifier: Modifier = Modifier,
+) {
+    var sliderValue by remember(viewModel.playbackPanelMaxRows) {
+        mutableFloatStateOf(viewModel.playbackPanelMaxRows.toFloat())
+    }
+    val sliderColors = rememberOverlaySliderColors()
+    val rowCount = sliderValue.roundToInt()
+    Column {
+        Setting(
+            title = stringResource(R.string.playback_panel_max_rows_title),
+            modifier = modifier,
+            subtitle = stringResource(
+                R.string.playback_panel_max_rows_description,
+                rowCount,
+            ),
+        ) {
+            androidx.compose.material.Text(
+                text = rowCount.toString(),
+                style = MaterialTheme.typography.subtitle1,
+            )
+        }
+        Slider(
+            value = sliderValue,
+            onValueChange = { value -> sliderValue = value },
+            onValueChangeFinished = {
+                viewModel.onPlaybackPanelMaxRowsChange(sliderValue.roundToInt())
+            },
+            valueRange = MinPlaybackPanelMaxRows.toFloat()..MaxPlaybackPanelMaxRows.toFloat(),
+            steps = MaxPlaybackPanelMaxRows - MinPlaybackPanelMaxRows - 1,
             colors = sliderColors,
             modifier = modifier.padding(bottom = 12.dp),
         )

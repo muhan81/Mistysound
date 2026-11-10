@@ -5,7 +5,6 @@ package com.cliffracertech.soundaura
 
 import android.content.Context
 import androidx.core.net.toUri
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.test.core.app.ApplicationProvider
@@ -49,7 +48,6 @@ class LibraryViewModelTests {
     private val dao get() = dbTestRule.db.playlistDao()
     private val dataStore get() = dataStoreTestRule.dataStore
     private val playlistSortKey = intPreferencesKey(PrefKeys.playlistSort)
-    private val showActivePlaylistsFirstKey = booleanPreferencesKey(PrefKeys.showActivePlaylistsFirst)
 
     private lateinit var permissionHandler: UriPermissionHandler
     private lateinit var messageHandler: MessageHandler
@@ -164,22 +162,6 @@ class LibraryViewModelTests {
         dataStore.edit(playlistSortKey, PlaylistSort.OrderAdded.ordinal)
         waitUntil { contentState.playlists?.first() == testPlaylists.first() }
         assertThat(contentState.playlists).containsExactlyElementsIn(testPlaylists).inOrder()
-    }
-
-    @Test fun playlists_property_reflects_show_active_first_option() = runTest {
-        insertTestPlaylists()
-        dataStore.edit(showActivePlaylistsFirstKey, true)
-        dao.toggleIsActive(testPlaylists[1].id)
-        dao.toggleIsActive(testPlaylists[3].id)
-        waitUntil { contentState.playlists?.get(2)?.id == testPlaylists[3].id }
-        assertThat(contentState.playlists?.map(Playlist::name)).containsExactly(
-            testPlaylistNames[1], testPlaylistNames[3], testPlaylistNames[0],
-            testPlaylistNames[2], testPlaylistNames[4]).inOrder()
-
-        dataStore.edit(showActivePlaylistsFirstKey, false)
-        waitUntil { contentState.playlists?.first()?.id == testPlaylists[0].id }
-        assertThat(contentState.playlists?.map(Playlist::name))
-            .containsExactlyElementsIn(testPlaylistNames).inOrder()
     }
 
     @Test fun playlist_property_reflects_search_query() = runTest {

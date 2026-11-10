@@ -54,6 +54,16 @@ private const val folderSelectWithFilter =
     "WHERE folder.name LIKE :filter " +
     "GROUP BY folder.id"
 
+private const val activeLibrarySelect =
+    librarySelectBase +
+    "WHERE isActive " +
+    "GROUP BY playlistTrack.playlistId"
+
+private const val activeFolderSelect =
+    folderSelectBase +
+    "WHERE folder.isActive " +
+    "GROUP BY folder.id"
+
 private const val folderPlaylistSelect =
     "SELECT playlist.id, playlist.name, playlist.isActive, " +
            "COUNT(playlistTrack.playlistId) = 1 AS isSingleTrack, " +
@@ -351,6 +361,20 @@ private const val folderPlaylistSelectWithFilter =
 
     @Query("$folderSelectWithFilter ORDER BY folder.id ASC")
     abstract fun getFoldersSortedByOrderAdded(filter: String): Flow<List<LibraryFolder>>
+
+    /** A [Flow] of every [Playlist] that is currently part of the sound mix,
+     * ordered by id so that items keep a stable position while the mix
+     * changes. Unlike the library sort queries, this is not affected by the
+     * current search filter, since the playback panel must always reflect the
+     * full sound mix. */
+    @Query("$activeLibrarySelect ORDER BY playlist.id ASC")
+    abstract fun getActiveLibraryPlaylistsFlow(): Flow<List<LibraryPlaylist>>
+
+    /** A [Flow] of every [Folder] that is currently part of the sound mix,
+     * ordered by id. Like [getActiveLibraryPlaylistsFlow], this ignores any
+     * current search filter. */
+    @Query("$activeFolderSelect ORDER BY folder.id ASC")
+    abstract fun getActiveLibraryFoldersFlow(): Flow<List<LibraryFolder>>
 
     @Query(folderPlaylistSelect)
     abstract fun getFolderPlaylists(folderId: Long): Flow<List<LibraryPlaylist>>

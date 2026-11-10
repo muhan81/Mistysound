@@ -11,12 +11,10 @@ import com.cliffracertech.soundaura.addbutton.AddButtonDialogState
 import com.cliffracertech.soundaura.addbutton.AddButtonViewModel
 import com.cliffracertech.soundaura.addbutton.getDisplayName
 import com.cliffracertech.soundaura.library.Playlist
-import com.cliffracertech.soundaura.model.ActivePresetState
 import com.cliffracertech.soundaura.model.AddToLibraryUseCase
 import com.cliffracertech.soundaura.model.FolderUseCases
 import com.cliffracertech.soundaura.model.MessageHandler
 import com.cliffracertech.soundaura.model.NavigationState
-import com.cliffracertech.soundaura.model.ReadModifyPresetsUseCase
 import com.cliffracertech.soundaura.model.TestPermissionHandler
 import com.cliffracertech.soundaura.model.Validator
 import com.cliffracertech.soundaura.model.database.PlaylistDao
@@ -45,16 +43,13 @@ class AddButtonViewModelTests {
     @Before fun init() {
         val messageHandler = MessageHandler()
         navigationState = NavigationState()
-        val activePresetState = ActivePresetState(dataStoreTestRule.dataStore, db.presetDao())
-        val readModifyPresetsUseCase = ReadModifyPresetsUseCase(
-            messageHandler, activePresetState, db.presetDao(), playlistDao)
         val permissionHandler = TestPermissionHandler()
         val addToLibraryUseCase = AddToLibraryUseCase(permissionHandler, playlistDao)
         val folderUseCases = FolderUseCases(context, permissionHandler, playlistDao)
-        
+
         instance = AddButtonViewModel(
             context, messageHandler, navigationState,
-            readModifyPresetsUseCase, addToLibraryUseCase, folderUseCases)
+            addToLibraryUseCase, folderUseCases)
     }
 
     private val testUris = List(3) { "uri $it".toUri() }

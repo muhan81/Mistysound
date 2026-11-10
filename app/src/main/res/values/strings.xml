@@ -198,6 +198,14 @@
     <string name="cancel">Cancel</string>
 
     <string name="show_active_playlists_first">Show active first</string>
+    <string name="playback_panel_title">Now playing</string>
+    <string name="playback_panel_empty_message">No audio selected</string>
+    <string name="minimize_playback_panel_description">Minimize playback window</string>
+    <string name="expand_playback_panel_description">Expand playback window</string>
+    <string name="pause_playlist_description">Pause %1$s</string>
+    <string name="resume_playlist_description">Resume %1$s</string>
+    <string name="playback_panel_max_rows_title">Playback window rows</string>
+    <string name="playback_panel_max_rows_description">Show up to %1$d rows</string>
     <string name="name_ascending">Name ascending</string>
     <string name="name_descending">Name descending</string>
     <string name="order_added">Order added</string>

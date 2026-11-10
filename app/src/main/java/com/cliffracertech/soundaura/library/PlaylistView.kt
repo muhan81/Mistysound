@@ -377,7 +377,7 @@ interface PlaylistViewCallback {
     }
 }
 
-private fun Int.formatMillis(): String {
+internal fun Int.formatMillis(): String {
     val totalSeconds = this.coerceAtLeast(0) / 1000
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
